@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ASP.NET_TEFA</title>
+    <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
+    <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
+</head>
+<body>
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+         data-sidebar-position="fixed" data-header-position="fixed" style="max-width: 330px; margin: 0 auto;">
+        <div class="container-fluid">
+            @RenderBody()
+        </div>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="py-6 px-6 text-center">
+            <p class="mb-0 fs-4">Developed by <b>Astra Polytechnic</b></p>
+        </div>
+    </footer>
+
+    <script src="~/Content/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="~/Content/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Content/assets/js/sidebarmenu.js"></script>
+    <script src="~/Content/assets/js/app.min.js"></script>
+    <script src="~/Content/assets/libs/simplebar/dist/simplebar.js"></script>
+    <script src="~/Content/assets/js/dashboard.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
