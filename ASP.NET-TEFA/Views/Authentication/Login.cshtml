@@ -1,4 +1,6 @@
-﻿@{
+﻿@model ASP.NET_TEFA.Models.MsCustomer
+
+@{
     Layout = "_Layout";
 }
 <!--  Body Wrapper -->
@@ -13,13 +15,23 @@
                 <p class="text-center">
                     Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
                 </p>
-                <form>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" required>
-                        <div id="emailHelp" class="form-text">Contoh: email@gmail.com</div>
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <a asp-controller="Authentication" asp-action="SendEmailToUser" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">Login</a>
+                }
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input type="email" class="form-control" asp-for="Email" aria-describedby="emailHelp" required>
+                        <div id="emailHelp" class="form-text">Contoh: email@gmail.com</div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">
+                        Login
+                    </button>
                     <div class="d-flex align-items-center justify-content-center">
                         <p class="fs-4 mb-0 fw-bold">Belum punya akun?</p>
                         <a class="text-primary fw-bold ms-2" asp-action="Register">Daftar disini.</a>
@@ -27,7 +39,7 @@
                 </form>
             </div>
             <p class="text-center mt-5">
-                <b><span id="clock">12:50 - 31/10/2023</span></b>
+                <b><span id="clock"></span></b>
             </p>
         </div>
     </div>

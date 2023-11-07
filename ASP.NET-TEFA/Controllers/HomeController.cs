@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace ASP.NET_TEFA.Controllers
 {
+    [AuthorizedCustomer]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

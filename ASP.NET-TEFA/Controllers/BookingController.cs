@@ -9,6 +9,7 @@ using ASP.NET_TEFA.Models;
 
 namespace ASP.NET_TEFA.Controllers
 {
+    [AuthorizedCustomer]
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,7 +22,7 @@ namespace ASP.NET_TEFA.Controllers
         // GET: Booking
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.TrsBookings.Include(t => t.IdCustomerNavigation).Include(t => t.IdVehicleNavigation);
+            var applicationDbContext = _context.TrsBookings.Include(t => t.IdVehicleNavigation);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,7 +35,6 @@ namespace ASP.NET_TEFA.Controllers
             }
 
             var trsBooking = await _context.TrsBookings
-                .Include(t => t.IdCustomerNavigation)
                 .Include(t => t.IdVehicleNavigation)
                 .FirstOrDefaultAsync(m => m.IdBooking == id);
             if (trsBooking == null)
@@ -66,7 +66,7 @@ namespace ASP.NET_TEFA.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCustomer"] = new SelectList(_context.MsCustomers, "IdCustomer", "IdCustomer", trsBooking.IdCustomer);
+
             ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
             return View(trsBooking);
         }
@@ -84,7 +84,7 @@ namespace ASP.NET_TEFA.Controllers
             {
                 return NotFound();
             }
-            ViewData["IdCustomer"] = new SelectList(_context.MsCustomers, "IdCustomer", "IdCustomer", trsBooking.IdCustomer);
+
             ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
             return View(trsBooking);
         }
@@ -121,7 +121,7 @@ namespace ASP.NET_TEFA.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdCustomer"] = new SelectList(_context.MsCustomers, "IdCustomer", "IdCustomer", trsBooking.IdCustomer);
+
             ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
             return View(trsBooking);
         }
@@ -135,7 +135,6 @@ namespace ASP.NET_TEFA.Controllers
             }
 
             var trsBooking = await _context.TrsBookings
-                .Include(t => t.IdCustomerNavigation)
                 .Include(t => t.IdVehicleNavigation)
                 .FirstOrDefaultAsync(m => m.IdBooking == id);
             if (trsBooking == null)

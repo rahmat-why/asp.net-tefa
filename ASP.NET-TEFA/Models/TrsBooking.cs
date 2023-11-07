@@ -15,9 +15,5 @@ public partial class TrsBooking
 
     public string? Complaint { get; set; }
 
-    public string? IdCustomer { get; set; }
-
-    public virtual MsCustomer? IdCustomerNavigation { get; set; }
-
     public virtual MsVehicle? IdVehicleNavigation { get; set; }
 }

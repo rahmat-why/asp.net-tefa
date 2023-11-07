@@ -79,6 +79,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsFixedLength()
                 .HasColumnName("color");
+            entity.Property(e => e.IdCustomer)
+                .HasMaxLength(10)
+                .IsFixedLength()
+                .HasColumnName("id_customer");
             entity.Property(e => e.MachineNumber)
                 .HasMaxLength(200)
                 .IsFixedLength()
@@ -95,7 +99,12 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsFixedLength()
                 .HasColumnName("vehicle_owner");
-            entity.Property(e => e.Yeart).HasColumnName("yeart");
+            entity.Property(e => e.Year).HasColumnName("year");
+
+            entity.HasOne(d => d.IdCustomerNavigation).WithMany(p => p.MsVehicles)
+                .HasForeignKey(d => d.IdCustomer)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Vehicle_Customer");
         });
 
         modelBuilder.Entity<TrsBooking>(entity =>
@@ -112,10 +121,6 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsFixedLength()
                 .HasColumnName("complaint");
-            entity.Property(e => e.IdCustomer)
-                .HasMaxLength(10)
-                .IsFixedLength()
-                .HasColumnName("id_customer");
             entity.Property(e => e.IdVehicle)
                 .HasMaxLength(10)
                 .IsFixedLength()
@@ -124,10 +129,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.OrderDate)
                 .HasColumnType("date")
                 .HasColumnName("order_date");
-
-            entity.HasOne(d => d.IdCustomerNavigation).WithMany(p => p.TrsBookings)
-                .HasForeignKey(d => d.IdCustomer)
-                .HasConstraintName("FK_id_customer");
 
             entity.HasOne(d => d.IdVehicleNavigation).WithMany(p => p.TrsBookings)
                 .HasForeignKey(d => d.IdVehicle)
@@ -139,3 +140,4 @@ public partial class ApplicationDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+

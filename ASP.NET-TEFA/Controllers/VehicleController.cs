@@ -9,6 +9,7 @@ using ASP.NET_TEFA.Models;
 
 namespace ASP.NET_TEFA.Controllers
 {
+    [AuthorizedCustomer]
     public class VehicleController : Controller
     {
         private readonly ApplicationDbContext _context;

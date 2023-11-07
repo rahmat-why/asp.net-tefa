@@ -15,6 +15,13 @@
                 <p class="text-center">
                     Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
                 </p>
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
                 <form asp-action="Register" method="post">
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label">Email</label>
@@ -38,7 +45,9 @@
                         <textarea class="form-control" asp-for="Address" aria-describedby="addressHelp" required></textarea>
                         <span asp-validation-for="Address" class="text-danger"></span>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2" id="registerButton">Daftar</button>
+                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">
+                        Daftar
+                    </button>
                     <div class="d-flex align-items-center justify-content-center">
                         <p class="fs-4 mb-0 fw-bold">Sudah memiliki akun?</p>
                         <a class="text-primary fw-bold ms-2" asp-action="Login">Login disini.</a>
@@ -46,7 +55,7 @@
                 </form>
             </div>
             <p class="text-center mt-5">
-                <b><span id="clock">12:50 - 31/10/2023</span></b>
+                <b><span id="clock"></span></b>
             </p>
         </div>
     </div>

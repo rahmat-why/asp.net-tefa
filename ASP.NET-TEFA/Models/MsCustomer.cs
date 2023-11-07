@@ -17,5 +17,5 @@ public partial class MsCustomer
 
     public string? Password { get; set; }
 
-    public virtual ICollection<TrsBooking> TrsBookings { get; set; } = new List<TrsBooking>();
+    public virtual ICollection<MsVehicle> MsVehicles { get; set; } = new List<MsVehicle>();
 }
