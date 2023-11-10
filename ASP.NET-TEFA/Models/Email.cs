@@ -1,5 +1,9 @@
 ﻿using System.Net.Mail;
 using System.Net;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Security.Cryptography;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Identity;
 
 namespace ASP.NET_TEFA.Models
 {
@@ -33,6 +37,22 @@ namespace ASP.NET_TEFA.Models
 
             Message.IsBodyHtml = true;
             smtp.Send(Message);
+        }
+
+        public string hashPassword(string password)
+        {
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            Console.WriteLine(passwordHash);
+
+            return passwordHash;
+        }
+
+        public bool verifyPassword(string password, string hashedPassword)
+        {
+            bool verified = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            Console.WriteLine(verified);
+
+            return verified;
         }
     }
 }

@@ -1,0 +1,86 @@
+﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
+
+@{
+    ViewData["Title"] = "Servis";
+    Layout = "_LayoutUser";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Tipe Kendaraan
+            </th>
+            <th>
+                No. Polisi
+            </th>
+            <th>
+                Odometer
+            </th>
+            <th>
+                Keluhan
+            </th>
+            <th>
+                Estimasi Selesai
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.IdVehicleNavigation.Type
+                </td>
+                <td>
+                    @item.IdVehicleNavigation.PoliceNumber
+                </td>
+                <td>
+                    @item.Odometer
+                </td>
+                <td>
+                    @item.Complaint
+                </td>
+                <td>
+                    @item.FinishEstimationTime
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-sm-6 col-xl-2">
+        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
+            <h6 class="text-white">INFO PROYEK</h6>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
+            <h6 class="text-white">PERENCANAAN</h6>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
+            <h6 class="text-white">KEPUTUSAN</h6>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <a asp-controller="InspectionList" asp-action="index" asp-route-IdBooking="BKN1">
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
+                <h6 class="text-white">EKSEKUSI</h6>
+                <p class="text-white" style="font-size: 12px">Belum Dimulai</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
+            <h6 class="text-white">KONTROL</h6>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-2">
+        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
+            <h6 class="text-white">EVALUASI</h6>
+        </div>
+    </div>
+</div>

@@ -197,5 +197,7 @@ namespace ASP.NET_TEFA.Controllers
         {
           return (_context.TrsBookings?.Any(e => e.IdBooking == id)).GetValueOrDefault();
         }
+
+
     }
 }
