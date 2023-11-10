@@ -10,7 +10,8 @@ namespace ASP.NET_TEFA.Models
         {
             var isAuthorized = !string.IsNullOrEmpty(context.HttpContext.Session.GetString("authentication"));
 
-            if (!isAuthorized){
+            if (!isAuthorized)
+            {
                 // User is not authorized, redirect to Authentication's Login action.
                 context.Result = new RedirectToRouteResult(new RouteValueDictionary(new
                 {

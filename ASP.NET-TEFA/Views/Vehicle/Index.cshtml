@@ -9,69 +9,69 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Classify)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PoliceNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Color)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Year)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VehicleOwner)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChassisNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MachineNumber)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Classify)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PoliceNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Color)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VehicleOwner)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ChassisNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MachineNumber)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdVehicle">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Tipe</th>
+                    <th>Jenis</th>
+                    <th>No.Polisi</th>
+                    <th>Warna</th>
+                    <th>Tahun</th>
+                    <th>Nama Pemili</th>
+                    <th>No.Rangka</th>
+                    <th>No.Mesin</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Classify)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.PoliceNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Color)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Year)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.VehicleOwner)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ChassisNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.MachineNumber)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.IdVehicle">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="mt-3">
+    <a href="@Url.Action("Index", "Home")" class="btn  btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2">Back</a>
+</div>
+</div>

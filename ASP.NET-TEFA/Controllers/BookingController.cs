@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ASP.NET_TEFA.Models;
+using Newtonsoft.Json;
+using System.Net;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -13,6 +16,7 @@ namespace ASP.NET_TEFA.Controllers
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private object msVehicle;
 
         public BookingController(ApplicationDbContext context)
         {
@@ -22,8 +26,23 @@ namespace ASP.NET_TEFA.Controllers
         // GET: Booking
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.TrsBookings.Include(t => t.IdVehicleNavigation);
-            return View(await applicationDbContext.ToListAsync());
+            string authentication = HttpContext.Session.GetString("authentication");
+            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+            if (customer != null)
+            {
+                var applicationDbContext = _context.TrsBookings
+                    .Include(t => t.IdVehicleNavigation)
+                    .Where(t => t.IdVehicleNavigation.IdCustomer == customer.IdCustomer)
+                    .OrderBy(t => t.OrderDate);//kode untuk menampilakn hanya yang login dan di filter tanggal terbaru
+
+                return View(await applicationDbContext.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
         }
 
         // GET: Booking/Details/5
@@ -48,9 +67,16 @@ namespace ASP.NET_TEFA.Controllers
         // GET: Booking/Create
         public IActionResult Create()
         {
-            ViewData["IdCustomer"] = new SelectList(_context.MsCustomers, "IdCustomer", "IdCustomer");
-            ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle");
-            return View();
+            string authentication = HttpContext.Session.GetString("authentication");
+            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+            if (customer != null)
+            {
+                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");//diubah
+                return View();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Booking/Create
@@ -60,15 +86,18 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(trsBooking);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            // Generate id customer
+            string IdBooking = $"BK{_context.TrsBookings.Count() + 1}";
 
-            ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
-            return View(trsBooking);
+            // Assign id customer
+            trsBooking.IdBooking = IdBooking;
+            _context.Add(trsBooking);
+            await _context.SaveChangesAsync();
+
+            // Send alert to view
+            TempData["SuccessMessage"] = "Booking berhasil!";
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Booking/Edit/5

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ASP.NET_TEFA.Models;
+using Newtonsoft.Json;
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -22,10 +23,23 @@ namespace ASP.NET_TEFA.Controllers
         // GET: Vehicle
         public async Task<IActionResult> Index()
         {
-              return _context.MsVehicles != null ? 
-                          View(await _context.MsVehicles.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.MsVehicles'  is null.");
+            string authentication = HttpContext.Session.GetString("authentication");
+            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+            if (customer != null)
+            {
+                var applicationDbContext = _context.MsVehicles
+                    .Include(t => t.IdCustomerNavigation)
+                    .Where(t => t.IdCustomerNavigation.IdCustomer == customer.IdCustomer).Where(t => t.Classify != "NONAKTIF");
+
+                return View(await applicationDbContext.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
+
 
         // GET: Vehicle/Details/5
         public async Task<IActionResult> Details(string id)
@@ -56,14 +70,26 @@ namespace ASP.NET_TEFA.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Yeart,VehicleOwner,ChassisNumber,MachineNumber")] MsVehicle msVehicle)
+        public async Task<IActionResult> Create([Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Year,VehicleOwner,ChassisNumber,MachineNumber")] MsVehicle msVehicle)
         {
-            if (ModelState.IsValid)
+            string authentication = HttpContext.Session.GetString("authentication");
+            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+            if (customer != null)
             {
+                string Idvehicle = $"VC{_context.MsVehicles.Count() + 1}";
+                // Generate id customer
+                msVehicle.IdCustomer = customer.IdCustomer;
+                // Assign id customer
+                msVehicle.IdVehicle = Idvehicle;
                 _context.Add(msVehicle);
                 await _context.SaveChangesAsync();
+                // Send alert to view
+                TempData["SuccessMessage"] = "Kendaraan berhasil disimpan!";
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(msVehicle);
         }
 
@@ -88,34 +114,33 @@ namespace ASP.NET_TEFA.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Yeart,VehicleOwner,ChassisNumber,MachineNumber")] MsVehicle msVehicle)
+        public async Task<IActionResult> Edit(string id, [Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Year,VehicleOwner,ChassisNumber,MachineNumber,IdCustomer")] MsVehicle msVehicle)
         {
             if (id != msVehicle.IdVehicle)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(msVehicle);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MsVehicleExists(msVehicle.IdVehicle))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                Console.WriteLine(msVehicle.IdCustomer);
+                _context.Update(msVehicle);
+                await _context.SaveChangesAsync();
+                // Send alert to view
+                TempData["SuccessMessage"] = "Kendaraan berhasil diperbaharui!";
             }
-            return View(msVehicle);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MsVehicleExists(msVehicle.IdVehicle))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Vehicle/Delete/5
@@ -148,7 +173,8 @@ namespace ASP.NET_TEFA.Controllers
             var msVehicle = await _context.MsVehicles.FindAsync(id);
             if (msVehicle != null)
             {
-                _context.MsVehicles.Remove(msVehicle);
+                msVehicle.Classify = "NONAKTIF";
+                _context.MsVehicles.Update(msVehicle);
             }
             
             await _context.SaveChangesAsync();
