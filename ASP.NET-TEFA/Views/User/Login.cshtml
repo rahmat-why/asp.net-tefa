@@ -1,0 +1,93 @@
+﻿@model ASP.NET_TEFA.Models.MsUser
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ASP.NET_TEFA</title>
+    <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
+    <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
+</head>
+<body>
+
+    <!--  Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+         data-sidebar-position="fixed" data-header-position="fixed">
+        <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+            <div class="d-flex align-items-center justify-content-center w-75">
+                <div class="row justify-content-center w-100">
+                    <div class="col-md-8 col-lg-6 col-xxl-3">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <span class="text-nowrap logo-img text-center d-block py-4 w-100">
+                                    <img src="~/Content/assets/images/logos/logo.png" width="60" alt="TEFA Politeknik Astra">
+                                </span>
+                                <h5 class="text-center"><b>TEACHING FACTORY<br />MESIN OTOMOTIF</b></h5>
+                                <p class="text-center">
+                                    Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
+                                </p>
+                                @if (TempData["ErrorMessage"] != null)
+                                {
+                                    <div class="alert alert-danger" role="alert">
+                                        @TempData["ErrorMessage"]
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                }
+                                <form asp-action="Login" method="post">
+                                    <div class="mb-3">
+                                        <label asp-for="Username" class="form-label">Username</label>
+                                        <input type="text" class="form-control" asp-for="Username" aria-describedby="emailHelp" required>
+                                        <span asp-validation-for="Username" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label asp-for="Password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" asp-for="Password" aria-describedby="passwordHelp" required>
+                                        <span asp-validation-for="Password" class="text-danger"></span>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">
+                                        Login
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="text-center mt-5">
+                                <b><span id="clock"></span></b>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="py-6 px-6 text-center">
+            <p class="mb-0 fs-4">Developed by <b>Astra Polytechnic</b></p>
+        </div>
+    </footer>
+
+    <script src="~/Content/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="~/Content/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Content/assets/js/sidebarmenu.js"></script>
+    <script src="~/Content/assets/js/app.min.js"></script>
+    <script src="~/Content/assets/libs/simplebar/dist/simplebar.js"></script>
+    <script src="~/Content/assets/js/dashboard.js"></script>
+
+    <script>
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - 31/10/2023";
+
+            document.getElementById("clock").textContent = formattedTime;
+        }
+
+        setInterval(updateClock, 1000); // Update setiap 1 detik
+    </script>
+</body>
+</html>

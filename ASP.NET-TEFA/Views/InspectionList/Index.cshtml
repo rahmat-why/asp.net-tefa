@@ -1,0 +1,60 @@
+﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsInspectionList>
+@{
+    ViewData["Title"] = "Inspection List";
+    Layout = "_LayoutUser";
+}
+<form asp-action="Create">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Kelengkapan
+                </th>
+                <th>
+                    Masuk
+                </th>
+                <th>
+                    Keluar
+                </th>
+                <th>
+                    Keterangan
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <input type="hidden" name="IdBooking" value="@ViewBag.IdBooking" />
+            @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            <input type="text" name="IdEquipment_@item.IdEquipment" value="@item.IdEquipment" class="form-control" />
+                            @Html.DisplayFor(modelItem => item.IdEquipmentNavigation.Name)
+                        </td>
+                        <td>
+                            @if (item.Checklist == 1)
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="1" checked />
+                            }
+                            else
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="1" />
+                            }
+                        </td>
+                        <td>
+                            @if (item.Checklist == 0)
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="0" checked />
+                            }
+                            else
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="0" />
+                            }
+                        </td>
+                        <td>
+                            <input type="text" name="Description_@item.IdEquipment" value="@Html.DisplayFor(modelItem => item.Description)" class="form-control" />
+                        </td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Simpan</button>
+</form>
