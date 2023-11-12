@@ -40,6 +40,8 @@ public partial class TrsBooking
 
     public string? RepairMethod { get; set; }
 
+    public int? Decision { get; set; }
+
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 
     public virtual MsVehicle IdVehicleNavigation { get; set; } = null!;
