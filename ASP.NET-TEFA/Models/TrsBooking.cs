@@ -34,9 +34,11 @@ public partial class TrsBooking
 
     public decimal? Price { get; set; }
 
+    public DateTime? CreatedTime { get; set; }
+
     public string? RepairStatus { get; set; }
 
-    public DateTime? CreatedTime { get; set; }
+    public string? RepairMethod { get; set; }
 
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 

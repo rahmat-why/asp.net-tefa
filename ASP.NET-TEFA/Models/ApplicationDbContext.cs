@@ -214,9 +214,14 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("repair_description");
+            entity.Property(e => e.RepairMethod)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("repair_method");
             entity.Property(e => e.RepairStatus)
                 .HasMaxLength(20)
                 .IsUnicode(false)
+                .HasDefaultValueSql("('WAITING')")
                 .HasColumnName("repair_status");
             entity.Property(e => e.ReplacementPart)
                 .HasMaxLength(100)
