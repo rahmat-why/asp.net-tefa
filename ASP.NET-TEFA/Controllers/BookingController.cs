@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_TEFA.Controllers
 {
-    [AuthorizedCustomer]
+    [AuthorizedUser]
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -42,10 +42,61 @@ namespace ASP.NET_TEFA.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
-
         }
 
-        // GET: Booking/Details/5
+        public async Task<IActionResult> History()
+        {
+            var applicationDbContext = _context.TrsBookings
+                .Include(t => t.IdVehicleNavigation)
+                .OrderBy(t => t.OrderDate);//kode untuk menampilakn hanya yang login dan di filter tanggal terbaru
+
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> FormMethod()
+        {
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FormMethod(string id, string RepairMethod, DateTime? EndRepairTime)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var TrsBookings = await _context.TrsBookings.FindAsync(id);
+            if (TrsBookings == null)
+            {
+                return NotFound();
+            }
+            if (!string.IsNullOrEmpty(RepairMethod))
+            {
+                TrsBookings.RepairMethod = RepairMethod;
+            }
+
+            if (EndRepairTime != null)
+            {
+                TrsBookings.EndRepairTime = EndRepairTime;
+            }
+            try
+            {
+                // Menyimpan perubahan ke database
+                _context.Update(TrsBookings);
+                await _context.SaveChangesAsync();
+            } catch (Exception ex)
+            {
+                Console.WriteLine(123);
+            }
+
+            // update trs booking, metode & estimasi
+
+            return RedirectToAction("History");
+        }
+
+            // GET: Booking/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null || _context.TrsBookings == null)

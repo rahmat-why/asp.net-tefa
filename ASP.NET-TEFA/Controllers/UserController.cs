@@ -67,10 +67,13 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser]
         public async Task<IActionResult> Index()
         {
-              return _context.MsUsers != null ? 
-                          View(await _context.MsUsers.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.MsUsers'  is null.");
+            var usersWithPassword = await _context.MsUsers
+                .Where(user => !string.IsNullOrEmpty(user.Password))
+                .ToListAsync();
+
+            return View(usersWithPassword);
         }
+
 
         // GET: User/Details/5
         public async Task<IActionResult> Details(string id)
@@ -199,15 +202,18 @@ namespace ASP.NET_TEFA.Controllers
         {
             if (_context.MsUsers == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.MsUsers'  is null.");
+                return Problem("Entity set 'ApplicationDbContext.MsUsers' is null.");
             }
+
             var msUser = await _context.MsUsers.FindAsync(id);
             if (msUser != null)
             {
-                _context.MsUsers.Remove(msUser);
+                // Setel kolom password menjadi null
+                msUser.Password = null; // Gantilah dengan properti yang sesuai
+                _context.Update(msUser); // Tandai entitas sebagai dimodifikasi
+                await _context.SaveChangesAsync();
             }
-            
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
