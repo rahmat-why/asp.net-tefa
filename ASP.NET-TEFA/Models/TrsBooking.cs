@@ -40,7 +40,7 @@ public partial class TrsBooking
 
     public string? RepairMethod { get; set; }
 
-    public int? Decision { get; set; }
+    public int? Control { get; set; }
 
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 

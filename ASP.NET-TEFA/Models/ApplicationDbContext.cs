@@ -181,11 +181,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("complaint");
+            entity.Property(e => e.Control).HasColumnName("control");
             entity.Property(e => e.CreatedTime)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_time");
-            entity.Property(e => e.Decision).HasColumnName("decision");
             entity.Property(e => e.EndRepairTime)
                 .HasColumnType("datetime")
                 .HasColumnName("end_repair_time");
