@@ -1,0 +1,22 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "EVALUASI";
+    Layout = "_LayoutUser";
+}
+
+
+<form asp-action="Evaluasi" method="post">
+    <div>
+        <input asp-for="IdBooking" class="form-control" hidden value="@ViewBag.IdBooking" />
+    </div>
+    <div>
+        <label>Evaluasi : </label>
+        <textarea asp-for="Evaluation" class="form-control"></textarea>
+        <span asp-validation-for="Evaluation" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
