@@ -1,0 +1,83 @@
+﻿@model ASP.NET_TEFA.Models.MsVehicle
+
+@{
+    ViewData["Title"] = "Riwayat Kendaraan";
+    Layout = "_LayoutUser";
+}
+
+<div>
+    <hr />
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <dl>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Type): <b> @Html.DisplayFor(model => model.Type)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Classify): <b> @Html.DisplayFor(model => model.Classify)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.PoliceNumber): <b> @Html.DisplayFor(model => model.PoliceNumber)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Color): <b> @Html.DisplayFor(model => model.Color)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Year): <b> @Html.DisplayFor(model => model.Year)</b>
+                    </dt>
+                </dl>
+            </div>
+            <div class="col-sm-6">
+                <dl>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.VehicleOwner): <b> @Html.DisplayFor(model => model.VehicleOwner)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.ChassisNumber): <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
+                    </dt>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.MachineNumber): <b> @Html.DisplayFor(model => model.MachineNumber)</b>
+                    </dt>
+                    <dt>
+                        <label>Nama Customer</label>: <b>-</b>
+                    </dt>
+                    <dt>
+                        <label>Alamat Lengkap</label>: <b>-</b>
+                    </dt>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th>Tanggal Booking</th>
+                <th>Odometer</th>
+                <th>Keluhan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.TrsBookings)
+            {
+                <tr>
+                    <td>
+                        @if (item.OrderDate.HasValue)
+                        {
+                            @item.OrderDate.Value.ToString("dd/MM/yy")
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </td>
+                    <td>@item.Odometer</td>
+                    <td>@item.Complaint</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 
 namespace ASP.NET_TEFA.Controllers
 {
-    [AuthorizedCustomer]
     public class VehicleController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,7 +19,7 @@ namespace ASP.NET_TEFA.Controllers
             _context = context;
         }
 
-        // GET: Vehicle
+        [AuthorizedCustomer]
         public async Task<IActionResult> Index()
         {
             string authentication = HttpContext.Session.GetString("authentication");
@@ -40,32 +39,13 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
-
-        // GET: Vehicle/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null || _context.MsVehicles == null)
-            {
-                return NotFound();
-            }
-
-            var msVehicle = await _context.MsVehicles
-                .FirstOrDefaultAsync(m => m.IdVehicle == id);
-            if (msVehicle == null)
-            {
-                return NotFound();
-            }
-
-            return View(msVehicle);
-        }
-
-        // GET: Vehicle/Create
+        [AuthorizedCustomer]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Vehicle/Create
+        [AuthorizedCustomer]
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -93,7 +73,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msVehicle);
         }
 
-        // GET: Vehicle/Edit/5
+        [AuthorizedCustomer]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.MsVehicles == null)
@@ -109,7 +89,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msVehicle);
         }
 
-        // POST: Vehicle/Edit/5
+        [AuthorizedCustomer]
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -143,7 +123,7 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Vehicle/Delete/5
+        [AuthorizedCustomer]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null || _context.MsVehicles == null)
@@ -161,7 +141,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msVehicle);
         }
 
-        // POST: Vehicle/Delete/5
+        [AuthorizedCustomer]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -186,6 +166,24 @@ namespace ASP.NET_TEFA.Controllers
           return (_context.MsVehicles?.Any(e => e.IdVehicle == id)).GetValueOrDefault();
         }
 
-        // History Vehicle
+        [AuthorizedUser]
+        public async Task<IActionResult> History(string id)
+        {
+            if (id == null || _context.MsVehicles == null)
+            {
+                return NotFound();
+            }
+
+            var vehicle = await _context.MsVehicles
+                .Include(v => v.TrsBookings) // Include the TrsBooking navigation property
+                .FirstOrDefaultAsync(m => m.IdVehicle == id);
+
+            if (vehicle == null)
+            {
+                return NotFound();
+            }
+
+            return View(vehicle);
+        }
     }
 }
