@@ -105,11 +105,10 @@ public partial class ApplicationDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("nim");
             entity.Property(e => e.Password)
-                .HasMaxLength(255)
-                .IsUnicode(false)
+                .HasColumnType("text")
                 .HasColumnName("password");
             entity.Property(e => e.Position)
-                .HasMaxLength(10)
+                .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("position");
             entity.Property(e => e.Username)
@@ -182,6 +181,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("complaint");
+            entity.Property(e => e.CreatedTime)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_time");
             entity.Property(e => e.EndRepairTime)
                 .HasColumnType("datetime")
                 .HasColumnName("end_repair_time");
@@ -211,6 +214,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("repair_description");
+            entity.Property(e => e.RepairStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("repair_status");
             entity.Property(e => e.ReplacementPart)
                 .HasMaxLength(100)
                 .IsUnicode(false)
