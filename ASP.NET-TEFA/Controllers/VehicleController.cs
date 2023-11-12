@@ -185,5 +185,7 @@ namespace ASP.NET_TEFA.Controllers
         {
           return (_context.MsVehicles?.Any(e => e.IdVehicle == id)).GetValueOrDefault();
         }
+
+        // History Vehicle
     }
 }
