@@ -4,10 +4,11 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Vehicle</h1>
+<h6 class="text-center"><b>DAFTAR KENDARAAN</b></h6>
+<hr />
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Tambah Kendaraan</a>
 </p>
 <div class="card">
     @if (TempData["SuccessMessage"] != null)
@@ -62,7 +63,6 @@
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.IdVehicle">Details</a> |
                             <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
                         </td>
                     </tr>
@@ -71,7 +71,4 @@
         </table>
     </div>
 </div>
-<div class="mt-3">
-    <a href="@Url.Action("Index", "Home")" class="btn  btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2">Back</a>
-</div>
-</div>
+<a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>

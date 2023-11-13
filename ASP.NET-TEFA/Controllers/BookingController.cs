@@ -9,10 +9,10 @@ using ASP.NET_TEFA.Models;
 using Newtonsoft.Json;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace ASP.NET_TEFA.Controllers
 {
-    [AuthorizedCustomer]
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,7 +23,7 @@ namespace ASP.NET_TEFA.Controllers
             _context = context;
         }
 
-        // GET: Booking
+        [AuthorizedCustomer]
         public async Task<IActionResult> Index()
         {
             string authentication = HttpContext.Session.GetString("authentication");
@@ -45,26 +45,37 @@ namespace ASP.NET_TEFA.Controllers
 
         }
 
-        // GET: Booking/Details/5
-        public async Task<IActionResult> Details(string id)
+        [AuthorizedUser]
+        public async Task<IActionResult> Report()
         {
-            if (id == null || _context.TrsBookings == null)
-            {
-                return NotFound();
-            }
-
-            var trsBooking = await _context.TrsBookings
+            IQueryable<TrsBooking> query = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
-                .FirstOrDefaultAsync(m => m.IdBooking == id);
-            if (trsBooking == null)
+                .ThenInclude(v => v.IdCustomerNavigation)
+                .Where(t => t.RepairStatus == "SELESAI");
+
+            string monthString = HttpContext.Request.Query["month"];
+
+            if (DateTime.TryParseExact(monthString, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedMonth))
             {
-                return NotFound();
+                int month = parsedMonth.Month;
+                Console.WriteLine(month);
+
+                query = query.Where(t => t.OrderDate != null && t.OrderDate.Value.Month == month);
             }
 
-            return View(trsBooking);
+            var reportBooking = await query.OrderBy(t => t.OrderDate).ToListAsync();
+
+            int countTefa = reportBooking.Count(t => t.RepairMethod == "TEFA");
+            int countService = reportBooking.Count(t => t.RepairMethod == "SERVICE");
+
+            TempData["month"] = monthString;
+            TempData["count_tefa"] = countTefa;
+            TempData["count_service"] = countService;
+
+            return View(reportBooking);
         }
 
-        // GET: Booking/Create
+        [AuthorizedCustomer]
         public IActionResult Create()
         {
             string authentication = HttpContext.Session.GetString("authentication");
@@ -79,118 +90,33 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Booking/Create
+        [AuthorizedCustomer]
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
         {
-            // Generate id customer
-            string IdBooking = $"BK{_context.TrsBookings.Count() + 1}";
+            // Check if OrderDate is in the past
+            if (trsBooking.OrderDate < DateTime.Now.AddDays(1))
+            {
+                TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1";
+                return View();
+            }
 
-            // Assign id customer
+            // Generate id booking
+            string IdBooking = $"BKN{_context.TrsBookings.Count() + 1}";
+
+            // Assign id booking
             trsBooking.IdBooking = IdBooking;
+
             _context.Add(trsBooking);
             await _context.SaveChangesAsync();
 
             // Send alert to view
             TempData["SuccessMessage"] = "Booking berhasil!";
 
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: Booking/Edit/5
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null || _context.TrsBookings == null)
-            {
-                return NotFound();
-            }
-
-            var trsBooking = await _context.TrsBookings.FindAsync(id);
-            if (trsBooking == null)
-            {
-                return NotFound();
-            }
-
-            ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
-            return View(trsBooking);
-        }
-
-        // POST: Booking/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
-        {
-            if (id != trsBooking.IdBooking)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(trsBooking);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TrsBookingExists(trsBooking.IdBooking))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewData["IdVehicle"] = new SelectList(_context.MsVehicles, "IdVehicle", "IdVehicle", trsBooking.IdVehicle);
-            return View(trsBooking);
-        }
-
-        // GET: Booking/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null || _context.TrsBookings == null)
-            {
-                return NotFound();
-            }
-
-            var trsBooking = await _context.TrsBookings
-                .Include(t => t.IdVehicleNavigation)
-                .FirstOrDefaultAsync(m => m.IdBooking == id);
-            if (trsBooking == null)
-            {
-                return NotFound();
-            }
-
-            return View(trsBooking);
-        }
-
-        // POST: Booking/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            if (_context.TrsBookings == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.TrsBookings'  is null.");
-            }
-            var trsBooking = await _context.TrsBookings.FindAsync(id);
-            if (trsBooking != null)
-            {
-                _context.TrsBookings.Remove(trsBooking);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Booking");
         }
 
         private bool TrsBookingExists(string id)

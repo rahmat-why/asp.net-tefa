@@ -1,0 +1,114 @@
+﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
+
+@{
+    ViewData["Title"] = "Daftar Booking";
+    Layout = "_LayoutUser";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card overflow-hidden">
+            <div class="card-body p-4">
+                <p class="mb-9 text-primary" style="font-size: 16px;">TEFA</p>
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <i class="ti ti-motorbike text-primary" style="font-size: 24px;"></i>
+                    </div>
+                    <div class="col-8">
+                        <p class="text-primary" style="font-size: 24px;"><b>@TempData["count_tefa"]</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="card overflow-hidden">
+            <div class="card-body p-4">
+                <p class="mb-9 text-primary" style="font-size: 16px;">SERVICE</p>
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <i class="ti ti-scooter-electric text-primary" style="font-size: 24px;"></i>
+                    </div>
+                    <div class="col-8">
+                        <p class="text-primary" style="font-size: 24px;"><b>@TempData["count_service"]</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <form asp-action="Report" method="get">
+            <input class="form-control" type="month" name="month" value="@TempData["month"]" required>
+            <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 rounded-2 mt-3">Filter</button>
+        </form>
+
+        <form asp-action="Export" method="post">
+            <input class="form-control" type="month" name="month" value="@TempData["month"]" required>
+            <button type="submit" class="btn btn-warning btn-sm w-100 py-2 fs-4 rounded-2 mt-3">EXPORT</button>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nama Customer
+            </th>
+            <th>
+                Tanggal Booking
+            </th>
+            <th>
+                Merk
+            </th>
+            <th>
+                No.Polisi
+            </th>
+            <th>
+                Odometer
+            </th>
+            <th>
+                Keluhan
+            </th>
+            <th>
+                Status
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
+                    {
+                        @item.IdVehicleNavigation.IdCustomerNavigation.Name
+                    }
+                    else
+                    {
+                        <!-- Handle the case where either IdVehicleNavigation or IdCustomerNavigation is null -->
+                        <span>N/A</span>
+                    }
+                </td>
+                <td>
+                    @item.OrderDate
+                </td>
+                <td>
+                    @item.IdVehicleNavigation.Type
+                </td>
+                <td>
+                    @item.IdVehicleNavigation.PoliceNumber
+                </td>
+                <td>
+                    @item.Odometer
+                </td>
+                <td>
+                    @item.Complaint
+                </td>
+                <td>
+                    @item.RepairStatus
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

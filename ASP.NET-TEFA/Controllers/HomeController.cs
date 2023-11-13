@@ -1,5 +1,6 @@
 ﻿using ASP.NET_TEFA.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace ASP.NET_TEFA.Controllers
@@ -16,7 +17,10 @@ namespace ASP.NET_TEFA.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            string authentication = HttpContext.Session.GetString("authentication");
+            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+            return View(customer);
         }
 
         public IActionResult Privacy()

@@ -127,6 +127,7 @@ namespace ASP.NET_TEFA.Controllers
             if (otp != msCustomer.Password)
             {
                 TempData["ErrorMessage"] = "OTP tidak valid!";
+                TempData["Email"] = email;
                 return RedirectToAction("Verification");
             }
 
