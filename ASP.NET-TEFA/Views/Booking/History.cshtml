@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
+
+@{
+    ViewData["Title"] = "Daftar Booking";
+    Layout = "_LayoutUser";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nama Customer
+            </th>
+            <th>
+                Tanggal Booking
+            </th>
+            <th>
+                Merk
+            </th>
+            <th>
+                No.Polisi
+            </th>
+            <th>
+                Odometer
+            </th>
+            <th>
+                Keluhan
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Metode Servis
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    
+                </td>
+                <td>
+                    @if (item.OrderDate.HasValue)
+                    {
+                        @item.OrderDate.Value.ToString("dd/MM/yyyy")
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>
+                    @item.IdVehicleNavigation.Type
+                </td>
+                <td>
+                    @item.IdVehicleNavigation.PoliceNumber
+                </td>
+                <td>
+                    @item.Odometer
+                </td>
+                <td>
+                    @item.Complaint
+                </td>
+                <td>
+                    @item.RepairStatus
+                </td>
+                <td>
+                    @if(item.RepairMethod == null)
+                    {
+                        <a class="btn btn-primary" asp-controller="Booking" asp-action="FormMethod" asp-route-id="@item.IdBooking">Servis</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Reparation" asp-action="index" asp-route-id="@item.IdBooking">@item.RepairMethod</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,40 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "KONTROL";
+    Layout = "_LayoutUser";
+}
+
+
+<form asp-action="Kontrol" method="post">
+    <div>
+        <input asp-for="IdBooking" class="form-control" hidden value="@ViewBag.IdBooking" />
+        
+    </div>
+    <div>
+        <label>Perbaikan : </label>
+        <input asp-for="RepairDescription" readonly class="form-control" />
+        <span asp-validation-for="RepairDescription" class="text-danger"></span>
+    </div>
+    <div>
+        <label>Ganti Part : </label>
+        <input asp-for="ReplacementPart" readonly class="form-control" />
+        <span asp-validation-for="ReplacementPart" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label>Ceklis : </label>
+        <div>
+            <label>
+                <input type="radio" asp-for="Control" value="1" class="form-check-input" />
+            </label>
+        </div>
+        <span asp-validation-for="Control" class="text-danger"></span>
+    </div>
+
+   
+
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
