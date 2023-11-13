@@ -13,10 +13,6 @@ using System.Globalization;
 
 namespace ASP.NET_TEFA.Controllers
 {
-<<<<<<< HEAD
-=======
-    [AuthorizedUser]
->>>>>>> 0dde2255abf120cecda9faa63884db032388c388
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -48,10 +44,6 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
-<<<<<<< HEAD
-        [AuthorizedUser]
-        public async Task<IActionResult> Report()
-=======
         public async Task<IActionResult> History()
         {
             var applicationDbContext = _context.TrsBookings
@@ -104,9 +96,8 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("History");
         }
 
-            // GET: Booking/Details/5
-        public async Task<IActionResult> Details(string id)
->>>>>>> 0dde2255abf120cecda9faa63884db032388c388
+        [AuthorizedUser]
+        public async Task<IActionResult> Report()
         {
             IQueryable<TrsBooking> query = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
