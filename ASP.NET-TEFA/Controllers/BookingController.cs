@@ -10,17 +10,20 @@ using Newtonsoft.Json;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using OfficeOpenXml.Table;
+using OfficeOpenXml;
 
 namespace ASP.NET_TEFA.Controllers
 {
     public class BookingController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private object msVehicle;
+        readonly IReporting _IReporting;
 
-        public BookingController(ApplicationDbContext context)
+        public BookingController(ApplicationDbContext context, IReporting iReporting)
         {
             _context = context;
+            _IReporting = iReporting;
         }
 
         [AuthorizedCustomer]
@@ -34,7 +37,7 @@ namespace ASP.NET_TEFA.Controllers
                 var applicationDbContext = _context.TrsBookings
                     .Include(t => t.IdVehicleNavigation)
                     .Where(t => t.IdVehicleNavigation.IdCustomer == customer.IdCustomer)
-                    .OrderBy(t => t.OrderDate);//kode untuk menampilakn hanya yang login dan di filter tanggal terbaru
+                    .OrderBy(t => t.OrderDate);
 
                 return View(await applicationDbContext.ToListAsync());
             }
@@ -48,53 +51,22 @@ namespace ASP.NET_TEFA.Controllers
         {
             var applicationDbContext = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
-                .OrderBy(t => t.OrderDate);//kode untuk menampilakn hanya yang login dan di filter tanggal terbaru
+                    .ThenInclude(v => v.IdCustomerNavigation)
+                .OrderBy(t => t.OrderDate)
+                .ToList();
 
-            return View(await applicationDbContext.ToListAsync());
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                // other settings if needed
+            };
+
+            string json = JsonConvert.SerializeObject(applicationDbContext, jsonSettings);
+            Console.WriteLine(json);
+
+            return View(applicationDbContext);
         }
 
-        public async Task<IActionResult> FormMethod()
-        {
-
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> FormMethod(string id, string RepairMethod, DateTime? EndRepairTime)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var TrsBookings = await _context.TrsBookings.FindAsync(id);
-            if (TrsBookings == null)
-            {
-                return NotFound();
-            }
-            if (!string.IsNullOrEmpty(RepairMethod))
-            {
-                TrsBookings.RepairMethod = RepairMethod;
-            }
-
-            if (EndRepairTime != null)
-            {
-                TrsBookings.EndRepairTime = EndRepairTime;
-            }
-            try
-            {
-                // Menyimpan perubahan ke database
-                _context.Update(TrsBookings);
-                await _context.SaveChangesAsync();
-            } catch (Exception ex)
-            {
-                Console.WriteLine(123);
-            }
-
-            // update trs booking, metode & estimasi
-
-            return RedirectToAction("History");
-        }
 
         [AuthorizedUser]
         public async Task<IActionResult> Report()
@@ -105,11 +77,14 @@ namespace ASP.NET_TEFA.Controllers
                 .Where(t => t.RepairStatus == "SELESAI");
 
             string monthString = HttpContext.Request.Query["month"];
+            if (string.IsNullOrEmpty(monthString))
+            {
+                monthString = DateTime.Now.ToString("yyyy-MM");
+            }
 
             if (DateTime.TryParseExact(monthString, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedMonth))
             {
                 int month = parsedMonth.Month;
-                Console.WriteLine(month);
 
                 query = query.Where(t => t.OrderDate != null && t.OrderDate.Value.Month == month);
             }
@@ -119,11 +94,37 @@ namespace ASP.NET_TEFA.Controllers
             int countTefa = reportBooking.Count(t => t.RepairMethod == "TEFA");
             int countService = reportBooking.Count(t => t.RepairMethod == "SERVICE");
 
-            TempData["month"] = monthString;
+            ViewBag.month = monthString;
             TempData["count_tefa"] = countTefa;
             TempData["count_service"] = countService;
 
             return View(reportBooking);
+        }
+
+        [AuthorizedUser]
+        public IActionResult Export()
+        {
+            string monthString = HttpContext.Request.Query["month"];
+            string reportname = $"BOOKING_{Guid.NewGuid():N}.xlsx";
+            var list = _IReporting.GetReportTrsBooking(monthString);
+
+            if (list.Count == 0)
+            {
+                ViewBag.month = monthString;
+                TempData["ErrorMessage"] = "Data pada bulan yang dipilih tidak ada!";
+                return RedirectToAction("Report", "Booking");
+            }
+
+            var exportbytes = ExporttoExcel<TrsBooking>(list, reportname);
+            return File(exportbytes, "applicatio/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportname);
+        }
+
+        private byte[] ExporttoExcel<T>(List<T> table, string filename)
+        {
+            using ExcelPackage pack = new ExcelPackage();
+            ExcelWorksheet ws = pack.Workbook.Worksheets.Add(filename);
+            ws.Cells["A1"].LoadFromCollection(table, true, TableStyles.Light1);
+            return pack.GetAsByteArray();
         }
 
         [AuthorizedCustomer]
