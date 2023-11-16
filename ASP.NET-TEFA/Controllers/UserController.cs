@@ -44,7 +44,6 @@ namespace ASP.NET_TEFA.Controllers
                 TempData["ErrorMessage"] = "Username atau password salah!";
                 return RedirectToAction("Login");
             }
-
             // Serialize the user object to a JSON string
             string userJson = JsonConvert.SerializeObject(user);
 
@@ -74,59 +73,49 @@ namespace ASP.NET_TEFA.Controllers
             return View(usersWithPassword);
         }
 
-
-        // GET: User/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null || _context.MsUsers == null)
-            {
-                return NotFound();
-            }
-
-            var msUser = await _context.MsUsers
-                .FirstOrDefaultAsync(m => m.IdUser == id);
-            if (msUser == null)
-            {
-                return NotFound();
-            }
-
-            return View(msUser);
-        }
-
-        // GET: User/Create
+        [AuthorizedUser]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: User/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [AuthorizedUser]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Nidn,Username,Password,Position")] MsUser msUser)
+        public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Username,Password,Position")] MsUser msUser)
         {
-            if (ModelState.IsValid)
+            // Dapatkan pengguna yang ada dari database
+            //validasi user sama
+            var user = await _context.MsUsers.Where(t => t.Username == msUser.Username).ToListAsync();
+            if(user.Count > 0)
             {
-                // Generate id user
-                string id_user = $"USR{_context.MsUsers.Count()+1}";
-                msUser.IdUser = id_user;
-
-                // Hash password
-                string hashedPassword = _email.hashPassword(msUser.Password);
-                msUser.Password = hashedPassword;
-
-                // Add the user to the database
-                _context.Add(msUser);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = "Username sudah digunakan!";
+                return View(msUser);
+            }
+            //validasi nim sama
+            var pw = await _context.MsUsers.Where(t =>t.Nim == msUser.Nim).ToListAsync();
+            if (pw.Count > 0)
+            {
+                TempData["ErrorMessage"] = "NIM sudah digunakan!";
+                return View(msUser);
             }
 
-            return View(msUser);
+            // Generate id user
+            string id_user = $"USR{_context.MsUsers.Count()+1}";
+            msUser.IdUser = id_user;
+
+            // Hash password
+            string hashedPassword = _email.hashPassword(msUser.Password);
+            msUser.Password = hashedPassword;
+
+            // Add the user to the database
+            _context.Add(msUser);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Data berhasil disimpan!";
+            return RedirectToAction("Index", "User");
         }
 
-        // GET: User/Edit/5
+        [AuthorizedUser]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.MsUsers == null)
@@ -142,42 +131,37 @@ namespace ASP.NET_TEFA.Controllers
             return View(msUser);
         }
 
-        // POST: User/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [AuthorizedUser]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("IdUser,FullName,Nim,Nidn,Username,Password,Position")] MsUser msUser)
         {
-            if (id != msUser.IdUser)
+            // Dapatkan pengguna yang ada dari database
+            var user = await _context.MsUsers.FindAsync(id);
+
+            if(user == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Update seluruh attribut
+            user.FullName = msUser.FullName;
+            user.Nim = msUser.Nim;
+
+            // Jika terdapat kata sandi baru
+            if (msUser.Password != null)
             {
-                try
-                {
-                    _context.Update(msUser);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MsUserExists(msUser.IdUser))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                user.Password = _email.hashPassword(msUser.Password);
             }
-            return View(msUser);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Data berhasil diubah!";
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: User/Delete/5
+
+        [AuthorizedUser]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null || _context.MsUsers == null)
@@ -195,7 +179,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msUser);
         }
 
-        // POST: User/Delete/5
+        [AuthorizedUser]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
