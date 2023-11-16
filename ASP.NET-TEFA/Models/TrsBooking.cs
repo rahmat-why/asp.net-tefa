@@ -1,6 +1,7 @@
 ﻿using ASP.NET_TEFA.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_TEFA.Models;
 
@@ -41,6 +42,8 @@ public partial class TrsBooking
     public string? RepairMethod { get; set; }
 
     public int? Control { get; set; }
+
+    public int? Progress { get; set; }
 
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 
