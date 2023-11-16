@@ -211,6 +211,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Price)
                 .HasColumnType("money")
                 .HasColumnName("price");
+            entity.Property(e => e.Progress)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("progress");
             entity.Property(e => e.RepairDescription)
                 .HasMaxLength(100)
                 .IsUnicode(false)
