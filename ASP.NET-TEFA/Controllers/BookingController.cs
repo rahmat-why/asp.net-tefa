@@ -47,7 +47,17 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
-        [AuthorizedUser]
+        public async Task<IActionResult> Servis()
+        {
+            var runningServices = await _context.TrsBookings
+            .Include(t => t.IdVehicleNavigation)
+            .ThenInclude(v => v.IdCustomerNavigation)
+            .Where(t => t.StartRepairTime != null && t.RepairStatus != "SELESAI")
+            .ToListAsync();
+
+            return View(runningServices);
+        }
+
         public async Task<IActionResult> History()
         {
             var applicationDbContext = await _context.TrsBookings
@@ -108,18 +118,92 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("Report", "Booking");
             }
 
-            var exportbytes = ExporttoExcel<TrsBooking>(list, reportname);
-            return File(exportbytes, "applicatio/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportname);
+            var exportbytes = ExporttoExcel(list, reportname);
+            return File(exportbytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportname);
         }
 
-        [AuthorizedUser]
-        private byte[] ExporttoExcel<T>(List<T> table, string filename)
+        private byte[] ExporttoExcel(List<TrsBooking> data, string filename)
         {
-            using ExcelPackage pack = new ExcelPackage();
-            ExcelWorksheet ws = pack.Workbook.Worksheets.Add(filename);
-            ws.Cells["A1"].LoadFromCollection(table, true, TableStyles.Light1);
-            return pack.GetAsByteArray();
+            using (ExcelPackage pack = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pack.Workbook.Worksheets.Add(filename);
+
+                // Add header row
+                ws.Cells["A1"].Value = "Nama Pelanggan";
+                ws.Cells["B1"].Value = "Tipe Kendaraan";
+                ws.Cells["C1"].Value = "No.Polisi";
+                ws.Cells["D1"].Value = "Odometer";
+                ws.Cells["E1"].Value = "Keluhan";
+                ws.Cells["F1"].Value = "Mulai Service";
+                ws.Cells["G1"].Value = "Selesai Service";
+                ws.Cells["H1"].Value = "Estimasi Selesai";
+                // Add data rows
+                int row = 2;
+                foreach (var item in data)
+                {
+                    //cek kalo ada kosong maka langsung "-" jika tda maka data akan masuk
+                    if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
+                    {
+                        var Name = item.IdVehicleNavigation.IdCustomerNavigation.Name;
+                        if (Name == null)
+                        {
+                            Name = "-";
+                        }
+                        var type = item.IdVehicleNavigation.Type;
+                        if (type == null)
+                        {
+                            type = "-";
+                        }
+                        var platno = item.IdVehicleNavigation.PoliceNumber;
+                        if (platno == null)
+                        {
+                            platno = "-";
+                        }
+                        var odometer = item.Odometer.ToString();
+                        if (odometer == null)
+                        {
+                            odometer = "-";
+                        }
+                        var keluhan = item.Complaint;
+                        if (keluhan == null)
+                        {
+                            keluhan = "-";
+                        }
+                        var tanggalmulai = item.StartRepairTime?.ToString("yyyy-MM-dd");
+                        if (tanggalmulai == null)
+                        {
+                            tanggalmulai = "-";
+                        }
+                        var tanggalselesai = item.EndRepairTime?.ToString("yyyy-MM-dd");
+                        if (tanggalselesai == null)
+                        {
+                            tanggalselesai = "-";
+                        }
+                        var estimasiselesai = item.FinishEstimationTime?.ToString("yyyy-MM-dd");
+                        if (estimasiselesai == null)
+                        {
+                            estimasiselesai = "-";
+                        }
+                        ws.Cells[$"A{row}"].Value = Name;
+                        ws.Cells[$"B{row}"].Value = type;
+                        ws.Cells[$"C{row}"].Value = platno;
+                        ws.Cells[$"D{row}"].Value = odometer;
+                        ws.Cells[$"E{row}"].Value = keluhan;
+
+                        ws.Cells[$"F{row}"].Value = tanggalmulai;
+                        ws.Cells[$"G{row}"].Value = tanggalselesai;
+                        ws.Cells[$"H{row}"].Value = estimasiselesai;
+
+                        // Mendapatkan sel yang sesuai dan menetapkan format khusus untuk tanggal
+                        ws.Cells[$"F{row}:H{row}"].Style.Numberformat.Format = "yyyy-mm-dd";
+                        row++;
+                    }
+                }
+
+                return pack.GetAsByteArray();
+            }
         }
+
 
         [AuthorizedCustomer]
         public IActionResult Create()

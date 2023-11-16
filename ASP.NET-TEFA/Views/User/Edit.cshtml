@@ -1,59 +1,53 @@
 ﻿@model ASP.NET_TEFA.Models.MsUser
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Ubah Akun";
     Layout = "_LayoutUser";
 }
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
-    <div class="d-flex align-items-center justify-content-center w-100">
-        <div class="row justify-content-center w-100">
-            <div class="card-body">
-                <h6 class="text-center"><b>Edit User</b></h6>
-                <hr />
-                <form asp-action="Edit">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="IdUser" />
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="control-label">Nama Lengkap</label>
-                        <input asp-for="FullName" class="form-control" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Nim" class="control-label">NIM</label>
-                        <input asp-for="Nim" class="form-control" />
-                        <span asp-validation-for="Nim" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Nidn" class="control-label">NIDN</label>
-                        <input asp-for="Nidn" class="form-control" />
-                        <span asp-validation-for="Nidn" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Username" class="control-label">Username</label>
-                        <input asp-for="Username" class="form-control" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="control-label">Password</label>
-                        <input asp-for="Password" value="" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Position" class="control-label">Posisi</label>
-                        <select asp-for="Position" class="form-control">
-                            <option value="SERVICE ADVISOR">SERVICE ADVISOR</option>
-                            <option value="HEAD MECHANIC">HEAD MECHANIC</option>
-                        </select>
-                        <span asp-validation-for="Position" class="text-danger"></span>
-                    </div>
-                    <br />
-                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 rounded-2">Booking</button>
-                    <div class="mt-3">
-                        <a href="@Url.Action("Index", "User")" class="btn  btn-outline-dark btn-sm w-100 py-2 fs-4 mb-4 rounded-2">Back</a>
-                    </div>
-                </form>
-            </div>
-        </div>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-</div>
+}
+
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="IdUser" />
+    <div class="mb-3">
+        <label asp-for="FullName" class="control-label">Nama Lengkap</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Position" class="control-label">Posisi</label>
+        <select asp-for="Position" class="form-control">
+            <option value="SERVICE ADVISOR">SERVICE ADVISOR</option>
+            <option value="HEAD MECHANIC">HEAD MECHANIC</option>
+        </select>
+        <span asp-validation-for="Position" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Nim" class="control-label">NIM</label>
+        <input asp-for="Nim" class="form-control" />
+        <span asp-validation-for="Nim" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Username" class="control-label">Username</label>
+        <input asp-for="Username" class="form-control" readonly />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="control-label">Password</label>
+        <input asp-for="Password" value="" class="form-control" />
+        <div id="paswordhelp" class="form-text">Kosongkan password jika tidak ingin diubah</div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 rounded-2">Simpan</button>
+    <div class="mt-3">
+        <a href="@Url.Action("Index", "User")" class="btn  btn-outline-dark btn-sm w-100 py-2 fs-4 mb-4 rounded-2">Kembali</a>
+    </div>
+</form>
