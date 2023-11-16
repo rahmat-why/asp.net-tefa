@@ -47,6 +47,17 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
+        public async Task<IActionResult> Servis()
+        {
+            var runningServices = await _context.TrsBookings
+            .Include(t => t.IdVehicleNavigation)
+            .ThenInclude(v => v.IdCustomerNavigation)
+            .Where(t => t.StartRepairTime != null && t.RepairStatus != "SELESAI")
+            .ToListAsync();
+
+            return View(runningServices);
+        }
+
         public async Task<IActionResult> History()
         {
             var applicationDbContext = _context.TrsBookings

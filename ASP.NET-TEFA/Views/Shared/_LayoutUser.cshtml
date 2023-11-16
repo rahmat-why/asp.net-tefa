@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ASP.NET_TEFA</title>
     <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
 </head>
 <body>
+    <i class="fas fa-flag" style="color: #000;"></i>
+    <i class="fas fa-motorcycle" style="color: #000;"></i>
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
          data-sidebar-position="fixed" data-header-position="fixed">
@@ -38,7 +41,7 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
+                            <a class="sidebar-link" asp-controller="Booking" asp-action="Servis" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-article"></i>
                                 </span>
