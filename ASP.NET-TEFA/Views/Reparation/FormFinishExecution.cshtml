@@ -1,0 +1,40 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "SELESAI EKSEKUSI";
+    Layout = "_LayoutUser";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="FormFinishExecution" method="post">
+    <input type="hidden" asp-for="IdBooking" />
+    <p>Servis ini akan diselesaikan pada <b><span id="clock"></span></b>. Apakah anda yakin?</p>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary mb-4 ms-auto">
+            Selesai!
+        </button>
+    </div>
+</form>
+
+<script>
+    function updateClock() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+        var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
+        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
+
+        document.getElementById("clock").textContent = formattedTime;
+    }
+
+    setInterval(updateClock, 1000); // Update setiap 1 detik
+</script>

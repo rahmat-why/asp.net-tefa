@@ -19,19 +19,19 @@ namespace ASP.NET_TEFA.Controllers
             _context = context;
         }
 
-        // GET: InspectionList
-        public async Task<IActionResult> Index()
+        [AuthorizedUser]
+        public async Task<IActionResult> Index(string idBooking)
         {
-            // Get the IdBooking from query parameters
-            string idBooking = HttpContext.Request.Query["IdBooking"];
             var trsBooking = await _context.TrsBookings.FindAsync(idBooking);
             if (trsBooking == null)
             {
                 return NotFound();
             }
 
-            // Set ViewBag
-            ViewBag.IdBooking = idBooking;
+            if (!(trsBooking.RepairStatus == "INSPECTION LIST" || trsBooking.RepairStatus == "EKSEKUSI"))
+            {
+                TempData["ErrorMessage"] = "Inspection list harus dilakukan setelah kontrol atau sebelum eksekusi!";
+            }
 
             var trsInspectionLists = _context.TrsInspectionLists
             .Where(t => t.IdBooking ==  idBooking)
@@ -40,46 +40,29 @@ namespace ASP.NET_TEFA.Controllers
             .OrderBy(t => t.IdEquipment)
             .ToListAsync();
 
+            ViewBag.IdBooking = idBooking;
+
             return View(await trsInspectionLists);
         }
 
-        // GET: InspectionList/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null || _context.TrsInspectionLists == null)
-            {
-                return NotFound();
-            }
-
-            var trsInspectionList = await _context.TrsInspectionLists
-                .Include(t => t.IdBookingNavigation)
-                .Include(t => t.IdEquipmentNavigation)
-                .FirstOrDefaultAsync(m => m.IdInspection == id);
-            if (trsInspectionList == null)
-            {
-                return NotFound();
-            }
-
-            return View(trsInspectionList);
-        }
-
-        // GET: InspectionList/Create
-        public IActionResult Create()
-        {
-            ViewData["IdBooking"] = new SelectList(_context.TrsBookings, "IdBooking", "IdBooking");
-            ViewData["IdEquipment"] = new SelectList(_context.MsEquipments, "IdEquipment", "IdEquipment");
-            return View();
-        }
-
-        // POST: InspectionList/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [AuthorizedUser]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(IFormCollection form)
         {
-            // Id Booking
+            // check booking
             string idBooking = form["IdBooking"].ToString();
+            var booking = _context.TrsBookings.Find(idBooking);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI"))
+            {
+                TempData["ErrorMessage"] = "Inspection list harus dilakukan setelah kontrol atau sebelum eksekusi!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
+            }
 
             // Lakukan penghapusan data lama
             var existingInspections = _context.TrsInspectionLists.Where(i => i.IdBooking == idBooking);
@@ -111,111 +94,21 @@ namespace ASP.NET_TEFA.Controllers
                         Description = descriptionValue.ToString()
                     };
 
-                    string dataJson = JsonConvert.SerializeObject(data);
-
                     // Simpan data ke basis data
                     _context.TrsInspectionLists.Add(data);
                 }
             }
 
-            // Simpan perubahan ke basis data
+            // Ubah status reparasi menjadi KONTROL
+            booking.RepairStatus = "EKSEKUSI";
+            booking.StartRepairTime = DateTime.Now;
+
+            _context.Update(booking);
             _context.SaveChanges();
 
-            return RedirectToAction("Index", "Reparation");
-        }
+            TempData["SuccessMessage"] = "Inspection list berhasil! Tahapan berlanjut ke inspection list!";
 
-        // GET: InspectionList/Edit/5
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null || _context.TrsInspectionLists == null)
-            {
-                return NotFound();
-            }
-
-            var trsInspectionList = await _context.TrsInspectionLists.FindAsync(id);
-            if (trsInspectionList == null)
-            {
-                return NotFound();
-            }
-            ViewData["IdBooking"] = new SelectList(_context.TrsBookings, "IdBooking", "IdBooking", trsInspectionList.IdBooking);
-            ViewData["IdEquipment"] = new SelectList(_context.MsEquipments, "IdEquipment", "IdEquipment", trsInspectionList.IdEquipment);
-            return View(trsInspectionList);
-        }
-
-        // POST: InspectionList/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("IdInspection,IdBooking,IdEquipment,Checklist,Description")] TrsInspectionList trsInspectionList)
-        {
-            if (id != trsInspectionList.IdInspection)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(trsInspectionList);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TrsInspectionListExists(trsInspectionList.IdInspection))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdBooking"] = new SelectList(_context.TrsBookings, "IdBooking", "IdBooking", trsInspectionList.IdBooking);
-            ViewData["IdEquipment"] = new SelectList(_context.MsEquipments, "IdEquipment", "IdEquipment", trsInspectionList.IdEquipment);
-            return View(trsInspectionList);
-        }
-
-        // GET: InspectionList/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null || _context.TrsInspectionLists == null)
-            {
-                return NotFound();
-            }
-
-            var trsInspectionList = await _context.TrsInspectionLists
-                .Include(t => t.IdBookingNavigation)
-                .Include(t => t.IdEquipmentNavigation)
-                .FirstOrDefaultAsync(m => m.IdInspection == id);
-            if (trsInspectionList == null)
-            {
-                return NotFound();
-            }
-
-            return View(trsInspectionList);
-        }
-
-        // POST: InspectionList/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            if (_context.TrsInspectionLists == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.TrsInspectionLists'  is null.");
-            }
-            var trsInspectionList = await _context.TrsInspectionLists.FindAsync(id);
-            if (trsInspectionList != null)
-            {
-                _context.TrsInspectionLists.Remove(trsInspectionList);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
         }
 
         private bool TrsInspectionListExists(string id)

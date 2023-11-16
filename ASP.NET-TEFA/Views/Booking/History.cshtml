@@ -39,7 +39,14 @@
         {
             <tr>
                 <td>
-                    
+                    @if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
+                    {
+                        @item.IdVehicleNavigation.IdCustomerNavigation.Name
+                    }
+                    else
+                    {
+                        <span>N/A</span>
+                    }
                 </td>
                 <td>
                     @if (item.OrderDate.HasValue)
@@ -69,11 +76,11 @@
                 <td>
                     @if(item.RepairMethod == null)
                     {
-                        <a class="btn btn-primary" asp-controller="Booking" asp-action="FormMethod" asp-route-id="@item.IdBooking">Servis</a>
+                        <a class="btn btn-primary" asp-controller="Reparation" asp-action="FormMethod" asp-route-IdBooking="@item.IdBooking">Servis</a>
                     }
                     else
                     {
-                        <a asp-controller="Reparation" asp-action="index" asp-route-id="@item.IdBooking">@item.RepairMethod</a>
+                        <a asp-controller="Reparation" asp-action="index" asp-route-IdBooking="@item.IdBooking">@item.RepairMethod</a>
                     }
                 </td>
             </tr>

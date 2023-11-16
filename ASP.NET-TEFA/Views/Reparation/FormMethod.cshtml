@@ -1,0 +1,33 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "Metode Perbaikan";
+    Layout = "_LayoutUser";
+}
+
+<form asp-action="FormMethod" method="post">
+    <input asp-for="IdBooking" class="form-control" hidden value="@Model.IdBooking" />
+    <div class="mb-3">
+        <label asp-for="RepairMethod">Metode Servis: </label><br />
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="RepairMethod" value="TEFA" id="tefa" checked="@(Model.RepairMethod == "TEFA")">
+            <label class="form-check-label" for="tefa">TEFA</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="RepairMethod" value="SERVICE" id="service" checked="@(Model.RepairMethod == "SERVICE")">
+            <label class="form-check-label" for="service">SERVICE</label>
+        </div>
+        <span asp-validation-for="RepairMethod" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="FinishEstimationTime">Estimasi Selesai: </label>
+        <input type="datetime-local" asp-for="FinishEstimationTime" class="form-control" />
+        <span asp-validation-for="FinishEstimationTime" class="text-danger"></span>
+    </div>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary mb-4 ms-auto">
+            Lanjut Perencanaan!
+        </button>
+    </div>
+</form>

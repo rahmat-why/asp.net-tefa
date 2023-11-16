@@ -51,7 +51,8 @@
         var hours = now.getHours();
         var minutes = now.getMinutes();
         var seconds = now.getSeconds();
-        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - 31/10/2023";
+        var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
+        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
 
         document.getElementById("clock").textContent = formattedTime;
     }

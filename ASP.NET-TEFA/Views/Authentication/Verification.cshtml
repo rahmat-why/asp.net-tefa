@@ -41,7 +41,7 @@
                     </button>
                     <div class="d-flex align-items-center justify-content-center">
                         <p class="fs-4 mb-0 fw-bold">Tidak menerima OTP?</p>
-                        <a class="text-primary fw-bold ms-2" asp-action="Register">Kirim ulang OTP.</a>
+                        <a class="text-primary fw-bold ms-2" asp-action="Login">Kirim ulang OTP.</a>
                     </div>
                 </form>
             </div>
@@ -58,7 +58,8 @@
         var hours = now.getHours();
         var minutes = now.getMinutes();
         var seconds = now.getSeconds();
-        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - 31/10/2023";
+        var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
+        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
 
         document.getElementById("clock").textContent = formattedTime;
     }

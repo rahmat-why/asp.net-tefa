@@ -1,0 +1,71 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "KEPUTUSAN";
+    Layout = "_LayoutUser";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="FormDecision" method="post">
+    <input type="hidden" asp-for="IdBooking" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Perbaikan
+                </th>
+                <th>
+                    Ganti Part
+                </th>
+                <th>
+                    Tagihan
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    @if (Model.RepairDescription == null)
+                    {
+                        <span>-</span>
+                    }
+                    else{
+                        @Model.RepairDescription
+                    }
+                </td>
+                <td>
+                    @if (Model.ReplacementPart == null)
+                    {
+                        <span>-</span>
+                    }
+                    else
+                    {
+                        @Model.ReplacementPart
+                    }
+                </td>
+                <td>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="price-addon">Rp.</span>
+                        </div>
+                        <input asp-for="Price" class="form-control" aria-describedby="price-addon">
+                    </div>
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary mb-4 ms-auto">
+            Lanjut Eksekusi!
+        </button>
+    </div>
+</form>

@@ -1,8 +1,24 @@
-﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
+﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "Servis";
+    ViewData["Title"] = "SERVIS "+Model.RepairMethod;
     Layout = "_LayoutUser";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
 <table class="table">
@@ -23,66 +39,171 @@
             <th>
                 Estimasi Selesai
             </th>
+            <th>
+                Status
+            </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @item.IdVehicleNavigation.Type
-                </td>
-                <td>
-                    @item.IdVehicleNavigation.PoliceNumber
-                </td>
-                <td>
-                    @item.Odometer
-                </td>
-                <td>
-                    @item.Complaint
-                </td>
-                <td>
-                    @item.FinishEstimationTime
-                </td>
-            </tr>
-        }
+        <tr>
+            <td>
+                @Model.IdVehicleNavigation.Type
+            </td>
+            <td>
+                @Model.IdVehicleNavigation.PoliceNumber
+            </td>
+            <td>
+                @Model.Odometer
+            </td>
+            <td>
+                @Model.Complaint
+            </td>
+            <td>
+                @Model.FinishEstimationTime
+            </td>
+            <td>
+                @Model.RepairStatus
+            </td>
+        </tr>
     </tbody>
 </table>
 
-<div class="row">
-    <div class="col-sm-6 col-xl-2">
-        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
-            <h6 class="text-white">INFO PROYEK</h6>
+@if (Model.RepairMethod == "SERVICE")
+{
+    <div class="row">
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormStartExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">MULAI</h6>
+                    @if (Model.StartRepairTime == null)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">SELESAI</h6>
+                    @if (Model.EndRepairTime == null)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-2">
-        <a asp-controller="Reparation" asp-action="plan" asp-route-IdBooking="BKN1">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
-                <h6 class="text-white">PERENCANAAN</h6>
+}
+
+@if (Model.RepairMethod == "TEFA")
+{
+    <div class="row">
+        <div class="col-sm-6 col-xl-2">
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                <h6 class="text-white">INFO PROYEK</h6>
+                <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
             </div>
-        </a>
-    </div>
-    <div class="col-sm-6 col-xl-2">
-        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
-            <h6 class="text-white">KEPUTUSAN</h6>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormPlan" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                    <h6 class="text-white">PERENCANAAN</h6>
+                    @if (Model.RepairDescription == null)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormDecision" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">KEPUTUSAN</h6>
+                    @if (Model.Price == null)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            @if (Model.FinishEstimationTime != null)
+            {
+                <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                    <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                        <h6 class="text-white">EKSEKUSI</h6>
+                        <p class="text-white" style="font-size: 12px">Selesai</p>
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    </div>
+                </a>
+            }
+            else if (Model.StartRepairTime != null)
+            {
+                <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                    <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                        <h6 class="text-white">EKSEKUSI</h6>
+                        <p class="text-white" style="font-size: 12px">Sedang Berlangsung</p>
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="InspectionList" asp-action="index" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                    <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                        <h6 class="text-white">EKSEKUSI</h6>
+                        <p class="text-white" style="font-size: 12px">Belum Dimulai</p>
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    </div>
+                </a>
+            }
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormControl" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">Kontrol</h6>
+                    @if (Model.Control == null || Model.Control == 0)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <a asp-controller="Reparation" asp-action="FormEvaluation" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                    <h6 class="text-white">EVALUASI</h6>
+                    @if (Model.Evaluation == null)
+                    {
+                        <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                    else
+                    {
+                        <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                    }
+                </div>
+            </a>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-2">
-        <a asp-controller="InspectionList" asp-action="index" asp-route-IdBooking="BKN1">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
-                <h6 class="text-white">EKSEKUSI</h6>
-                <p class="text-white" style="font-size: 12px">Belum Dimulai</p>
-            </div>
-        </a>
-    </div>
-    <div class="col-sm-6 col-xl-2">
-        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6;">
-            <h6 class="text-white">KONTROL</h6>
-        </div>
-    </div>
-    <div class="col-sm-6 col-xl-2">
-        <div class="d-flex align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C;">
-            <h6 class="text-white">EVALUASI</h6>
-        </div>
-    </div>
-</div>
+}

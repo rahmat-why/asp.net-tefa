@@ -47,22 +47,15 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
+        [AuthorizedUser]
         public async Task<IActionResult> History()
         {
-            var applicationDbContext = _context.TrsBookings
+            var applicationDbContext = await _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
-                    .ThenInclude(v => v.IdCustomerNavigation)
+                .ThenInclude(v => v.IdCustomerNavigation)
+                .Where(t => t.RepairStatus != "SELESAI")
                 .OrderBy(t => t.OrderDate)
-                .ToList();
-
-            var jsonSettings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                // other settings if needed
-            };
-
-            string json = JsonConvert.SerializeObject(applicationDbContext, jsonSettings);
-            Console.WriteLine(json);
+                .ToListAsync();
 
             return View(applicationDbContext);
         }
@@ -119,6 +112,7 @@ namespace ASP.NET_TEFA.Controllers
             return File(exportbytes, "applicatio/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportname);
         }
 
+        [AuthorizedUser]
         private byte[] ExporttoExcel<T>(List<T> table, string filename)
         {
             using ExcelPackage pack = new ExcelPackage();
@@ -143,8 +137,6 @@ namespace ASP.NET_TEFA.Controllers
         }
 
         [AuthorizedCustomer]
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
@@ -161,6 +153,9 @@ namespace ASP.NET_TEFA.Controllers
 
             // Assign id booking
             trsBooking.IdBooking = IdBooking;
+
+            // Default repair status
+            trsBooking.RepairStatus = "MENUNGGU";
 
             _context.Add(trsBooking);
             await _context.SaveChangesAsync();
