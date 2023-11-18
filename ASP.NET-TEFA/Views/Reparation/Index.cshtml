@@ -1,4 +1,14 @@
-﻿@model ASP.NET_TEFA.Models.TrsBooking
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using Newtonsoft.Json
+@using ASP.NET_TEFA.Models;
+
+@{
+    // Access HttpContext using ViewContext
+    string userAuthentication = ViewContext.HttpContext.Session.GetString("userAuthentication");
+    MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+}
+
+@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
     ViewData["Title"] = "SERVIS "+Model.RepairMethod;
@@ -42,6 +52,10 @@
             <th>
                 Status
             </th>
+            @if(user.Position == "SERVICE ADVISOR")
+            {
+                <th>#</th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -59,11 +73,24 @@
                 @Model.Complaint
             </td>
             <td>
-                @Model.FinishEstimationTime
+                @if (Model.FinishEstimationTime.HasValue)
+                {
+                    @Model.FinishEstimationTime.Value.ToString("dd MMMM yyyy - HH:mm");
+                }
+                else
+                {
+                    <span>-</span>
+                }
             </td>
             <td>
                 @Model.RepairStatus
             </td>
+            @if (user.Position == "SERVICE ADVISOR")
+            {
+                <td>
+                    <a asp-controller="Reparation" asp-action="FormMethod" asp-route-IdBooking="@Model.IdBooking">Ganti Metode</a>
+                </td>
+            }
         </tr>
     </tbody>
 </table>

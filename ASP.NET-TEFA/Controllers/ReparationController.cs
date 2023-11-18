@@ -16,7 +16,7 @@ namespace ASP.NET_TEFA.Controllers
             _context = context;
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> Index(string idBooking)
         {
             var booking = await _context.TrsBookings
@@ -26,26 +26,37 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> FormMethod(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
+            }
+
+            if(booking.Progress > 0)
+            {
+                TempData["ErrorMessage"] = "Perubahan metode tidak dapat dilakukan ketika progres sudah berjalan!";
             }
 
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         public async Task<IActionResult> FormMethod([Bind("IdBooking, RepairMethod, FinishEstimationTime")] TrsBooking trsBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
+            }
+
+            if(booking.Progress > 0)
+            {
+                TempData["ErrorMessage"] = "Perubahan metode tidak dapat dilakukan ketika progres sudah berjalan!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
             string repair_status;
@@ -68,13 +79,13 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormPlan(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "PERENCANAAN" || booking.RepairStatus == "KEPUTUSAN"))
@@ -85,7 +96,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormPlan([Bind("IdBooking, RepairDescription, ReplacementPart")] TrsBooking trsBooking)
@@ -93,7 +104,7 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "PERENCANAAN" || booking.RepairStatus == "KEPUTUSAN"))
@@ -105,6 +116,7 @@ namespace ASP.NET_TEFA.Controllers
             booking.RepairDescription = trsBooking.RepairDescription;
             booking.ReplacementPart = trsBooking.ReplacementPart;
             booking.RepairStatus = "KEPUTUSAN";
+            booking.Progress = 10;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -114,13 +126,13 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormDecision(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
@@ -131,7 +143,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormDecision([Bind("IdBooking, Price")] TrsBooking trsBooking)
@@ -139,7 +151,7 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
@@ -171,6 +183,7 @@ namespace ASP.NET_TEFA.Controllers
 
             booking.Price = trsBooking.Price;
             booking.RepairStatus = "INSPECTION LIST";
+            booking.Progress = 20;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -180,24 +193,24 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormStartExecution(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
-            if (!(booking.RepairStatus == "MULAI"))
+            if (booking.StartRepairTime != null)
             {
-                TempData["ErrorMessage"] = "Eksekusi sudah dimulai!";
+                TempData["ErrorMessage"] = "Eksekusi sudah dimulai pada: "+booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
             }
 
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormStartExecution([Bind("IdBooking, EndRepairTime")] TrsBooking trsBooking)
@@ -205,17 +218,18 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
-            if (!(booking.RepairStatus == "MULAI"))
+            if (booking.StartRepairTime != null)
             {
-                TempData["ErrorMessage"] = "Eksekusi sudah dimulai!";
-                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+                TempData["ErrorMessage"] = "Eksekusi sudah dimulai pada: "+booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
+                return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
             }
 
             booking.StartRepairTime = DateTime.Now;
             booking.RepairStatus = "EKSEKUSI";
+            booking.Progress = 50;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -225,34 +239,24 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormFinishExecution(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
-            if(booking.RepairMethod == "TEFA")
+            if (booking.EndRepairTime != null)
             {
-                if (!(booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
-                {
-                    TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah inspection list atau sebelum kontrol!";
-                }
-            }
-            else
-            {
-                if (!(booking.RepairStatus == "EKSEKUSI"))
-                {
-                    TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah mulai eksekusi!";
-                }
+                TempData["ErrorMessage"] = "Eksekusi sudah diselesaikan pada: "+booking.EndRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
             }
 
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormFinishExecution([Bind("IdBooking, EndRepairTime")] TrsBooking trsBooking)
@@ -260,31 +264,31 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
+            }
+
+            if (booking.EndRepairTime != null)
+            {
+                TempData["ErrorMessage"] = "Eksekusi sudah diselesaikan pada: "+booking.EndRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
+                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
             string repair_status;
+            int progress;
             if (booking.RepairMethod == "TEFA")
             {
                 repair_status = "KONTROL";
-                if (!(booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
-                {
-                    TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah inspection list atau sebelum kontrol!";
-                    return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-                }
+                progress = 70;
             }
             else
             {
                 repair_status = "SELESAI";
-                if (!(booking.RepairStatus == "EKSEKUSI"))
-                {
-                    TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah mulai eksekusi!";
-                    return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-                }
+                progress = 100;
             }
 
             booking.EndRepairTime = DateTime.Now;
             booking.RepairStatus = repair_status;
+            booking.Progress = progress;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -294,13 +298,13 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormControl(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "KONTROL" || booking.RepairStatus == "EVALUASI"))
@@ -311,7 +315,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormControl(IFormCollection form)
@@ -322,7 +326,7 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (!(booking.RepairStatus == "KONTROL" || booking.RepairStatus == "EVALUASI"))
@@ -333,6 +337,7 @@ namespace ASP.NET_TEFA.Controllers
 
             booking.Control = control;
             booking.RepairStatus = "EVALUASI";
+            booking.Progress = 90;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -342,13 +347,13 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormEvaluation(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (booking.RepairStatus != "EVALUASI")
@@ -359,7 +364,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormEvaluation([Bind("IdBooking, Evaluation")] TrsBooking trsBooking)
@@ -367,7 +372,7 @@ namespace ASP.NET_TEFA.Controllers
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
             {
-                return NotFound();
+                return RedirectToAction("NotFound", "Authentication");
             }
 
             if (booking.RepairStatus != "EVALUASI")
@@ -376,8 +381,10 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
-            booking.Evaluation = trsBooking.Evaluation;
+
+            booking.Evaluation = trsBooking?.Evaluation ?? "-";
             booking.RepairStatus = "SELESAI";
+            booking.Progress = 100;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();

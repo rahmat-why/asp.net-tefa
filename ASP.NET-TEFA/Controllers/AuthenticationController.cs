@@ -155,5 +155,10 @@ namespace ASP.NET_TEFA.Controllers
 
             return RedirectToAction("Login", "Authentication");
         }
+
+        public IActionResult NotFound()
+        {
+            return View();
+        }
     }
 }

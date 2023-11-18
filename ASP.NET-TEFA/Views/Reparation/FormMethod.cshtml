@@ -5,6 +5,14 @@
     Layout = "_LayoutUser";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <form asp-action="FormMethod" method="post">
     <input asp-for="IdBooking" class="form-control" hidden value="@Model.IdBooking" />
     <div class="mb-3">
@@ -26,8 +34,17 @@
     </div>
 
     <div class="text-end">
-        <button type="submit" class="btn btn-primary mb-4 ms-auto">
-            Lanjut Perencanaan!
-        </button>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
+                Kembali
+            </a>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary mb-4 ms-auto">
+                Lanjut!
+            </button>
+        }
     </div>
 </form>

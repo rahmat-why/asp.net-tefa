@@ -166,7 +166,7 @@ namespace ASP.NET_TEFA.Controllers
           return (_context.MsVehicles?.Any(e => e.IdVehicle == id)).GetValueOrDefault();
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> History(string id)
         {
             if (id == null || _context.MsVehicles == null)

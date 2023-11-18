@@ -1,9 +1,19 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using Newtonsoft.Json
+@using ASP.NET_TEFA.Models;
+
+@{
+    // Access HttpContext using ViewContext
+    string userAuthentication = ViewContext.HttpContext.Session.GetString("userAuthentication");
+    MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ASP.NET_TEFA</title>
+    <title>@ViewData["Title"] - TEFA</title>
     <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
@@ -48,22 +58,28 @@
                                 <span class="hide-menu">Servis Berjalan</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" asp-controller="Booking" asp-action="Report" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-alert-circle"></i>
-                                </span>
-                                <span class="hide-menu">Laporan Booking</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" asp-controller="User" asp-action="index" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-cards"></i>
-                                </span>
-                                <span class="hide-menu">Akun Mekanik</span>
-                            </a>
-                        </li>
+                        @if (user.Position == "SERVICE ADVISOR")
+                        {
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" asp-controller="Booking" asp-action="Report" aria-expanded="false">
+                                    <span>
+                                        <i class="ti ti-alert-circle"></i>
+                                    </span>
+                                    <span class="hide-menu">Laporan Booking</span>
+                                </a>
+                            </li>
+                        }
+                        @if (user.Position == "SERVICE ADVISOR")
+                        {
+                            <li class="sidebar-item">
+                                <a class="sidebar-link" asp-controller="User" asp-action="index" aria-expanded="false">
+                                    <span>
+                                        <i class="ti ti-cards"></i>
+                                    </span>
+                                    <span class="hide-menu">Akun Mekanik</span>
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <div class="unlimited-access hide-menu position-relative mb-7 mt-5 rounded">
                         <div class="d-flex">
