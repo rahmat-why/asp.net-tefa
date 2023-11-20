@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Cryptography;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_TEFA.Models
 {
@@ -17,7 +18,7 @@ namespace ASP.NET_TEFA.Models
             return otp.ToString();
         }
 
-        public void SendEmail(string emailId, string otp)
+        public void SendEmail(string emailId, [RegularExpression("^[0-9]+$", ErrorMessage = "OTP harus berupa angka")][Required(ErrorMessage = "OTP wajib diisi")] string otp)
         {
             var fromMail = new MailAddress("rahmatwhy00@gmail.com", "Rahmat"); // set your email    
             var fromEmailpassword = "drqzryswhlsgflsl"; // Set your password     
@@ -33,7 +34,7 @@ namespace ASP.NET_TEFA.Models
 
             var Message = new MailMessage(fromMail, toEmail);
             Message.Subject = "Selamat datang di TEACHING FACTORY (TEFA)";
-            Message.Body = "<br/> Berikut ini adalah OTP anda: " +otp;
+            Message.Body = "<br/> Berikut ini adalah OTP anda: " + otp;
 
             Message.IsBodyHtml = true;
             smtp.Send(Message);

@@ -84,35 +84,49 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Username,Password,Position")] MsUser msUser)
         {
-            // Dapatkan pengguna yang ada dari database
-            //validasi user sama
-            var user = await _context.MsUsers.Where(t => t.Username == msUser.Username).ToListAsync();
-            if(user.Count > 0)
+
+            foreach (var value in ModelState.Values)
             {
-                TempData["ErrorMessage"] = "Username sudah digunakan!";
-                return View(msUser);
-            }
-            //validasi nim sama
-            var pw = await _context.MsUsers.Where(t =>t.Nim == msUser.Nim).ToListAsync();
-            if (pw.Count > 0)
-            {
-                TempData["ErrorMessage"] = "NIM sudah digunakan!";
-                return View(msUser);
+                foreach (var error in value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
 
-            // Generate id user
-            string id_user = $"USR{_context.MsUsers.Count()+1}";
-            msUser.IdUser = id_user;
+            if (ModelState.IsValid)
+            {
+                // Dapatkan pengguna yang ada dari database
+                //validasi user sama
+                var user = await _context.MsUsers.Where(t => t.Username == msUser.Username).ToListAsync();
+                if (user.Count > 0)
+                {
+                    TempData["ErrorMessage"] = "Username sudah digunakan!";
+                    return View(msUser);
+                }
+                //validasi nim sama
+                var pw = await _context.MsUsers.Where(t => t.Nim == msUser.Nim).ToListAsync();
+                if (pw.Count > 0)
+                {
+                    TempData["ErrorMessage"] = "NIM sudah digunakan!";
+                    return View(msUser);
+                }
 
-            // Hash password
-            string hashedPassword = _email.hashPassword(msUser.Password);
-            msUser.Password = hashedPassword;
+                // Generate id user
+                string id_user = $"USR{_context.MsUsers.Count() + 1}";
+                msUser.IdUser = id_user;
 
-            // Add the user to the database
-            _context.Add(msUser);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Data berhasil disimpan!";
-            return RedirectToAction("Index", "User");
+                // Hash password
+                string hashedPassword = _email.hashPassword(msUser.Password);
+                msUser.Password = hashedPassword;
+
+                // Add the user to the database
+                _context.Add(msUser);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Data berhasil disimpan!";
+                return RedirectToAction("Index", "User");
+            }
+
+            return View(msUser);
         }
 
         [AuthorizedUser]
@@ -136,28 +150,49 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("IdUser,FullName,Nim,Nidn,Username,Password,Position")] MsUser msUser)
         {
+            bool ModelIsValid = true;
+
+            foreach (var value in ModelState.Values)
+            {
+                foreach (var error in value.Errors)
+                {
+                    // exclude validasi Password wajib diisi
+                    if (!(error.ErrorMessage.Contains("Password wajib diisi")))
+                    {
+                        Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                        ModelIsValid = false;
+                    }
+                }
+            }         
+
+
+            if (ModelIsValid)
+            {
+                var user = await _context.MsUsers.FindAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Update seluruh attribut
+                user.FullName = msUser.FullName;
+                user.Nim = msUser.Nim;
+
+                // Jika terdapat kata sandi baru
+                if (msUser.Password != null)
+                {
+                    user.Password = _email.hashPassword(msUser.Password);
+                }
+
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Data berhasil diubah!";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(msUser);
             // Dapatkan pengguna yang ada dari database
-            var user = await _context.MsUsers.FindAsync(id);
 
-            if(user == null)
-            {
-                return NotFound();
-            }
-
-            // Update seluruh attribut
-            user.FullName = msUser.FullName;
-            user.Nim = msUser.Nim;
-
-            // Jika terdapat kata sandi baru
-            if (msUser.Password != null)
-            {
-                user.Password = _email.hashPassword(msUser.Password);
-            }
-
-            _context.Update(user);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Data berhasil diubah!";
-            return RedirectToAction(nameof(Index));
         }
 
 

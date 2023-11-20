@@ -50,26 +50,44 @@ namespace ASP.NET_TEFA.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Year,VehicleOwner,ChassisNumber,MachineNumber")] MsVehicle msVehicle)
+        public async Task<IActionResult> Create([Bind("Type,Classify,PoliceNumber,Color,Year,VehicleOwner,ChassisNumber,MachineNumber")] MsVehicle msVehicle)
         {
-            string authentication = HttpContext.Session.GetString("authentication");
-            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
-
-            if (customer != null)
+            bool ModelIsValid = true;
+            foreach (var value in ModelState.Values)
             {
-                string Idvehicle = $"VC{_context.MsVehicles.Count() + 1}";
-                // Generate id customer
-                msVehicle.IdCustomer = customer.IdCustomer;
-                // Assign id customer
-                msVehicle.IdVehicle = Idvehicle;
-                _context.Add(msVehicle);
-                await _context.SaveChangesAsync();
-                // Send alert to view
-                TempData["SuccessMessage"] = "Kendaraan berhasil disimpan!";
-
-                return RedirectToAction(nameof(Index));
+                foreach (var error in value.Errors)
+                {
+                    // Exclude specific errors based on field names
+                    if (!(error.ErrorMessage.Contains("Id Kendaraan") ||
+                        error.ErrorMessage.Contains("Id Pelanggan") ||
+                        error.ErrorMessage.Contains("IdCustomerNavigation")))
+                    {
+                        ModelIsValid = false;
+                    }
+                }
             }
 
+            if (ModelIsValid)
+            {
+                string authentication = HttpContext.Session.GetString("authentication");
+                MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+                if (customer != null)
+                {
+                    // Generate id vehicle
+                    string Idvehicle = $"VC{_context.MsVehicles.Count() + 1}";
+                    msVehicle.IdVehicle = Idvehicle;
+                    // Assign id customer
+                    msVehicle.IdCustomer = customer.IdCustomer;
+
+                    _context.Add(msVehicle);
+                    await _context.SaveChangesAsync();
+                    // Send alert to view
+                    TempData["SuccessMessage"] = "Kendaraan berhasil disimpan!";
+
+                    return RedirectToAction(nameof(Index));
+                }
+            }
             return View(msVehicle);
         }
 
@@ -96,31 +114,50 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("IdVehicle,Type,Classify,PoliceNumber,Color,Year,VehicleOwner,ChassisNumber,MachineNumber,IdCustomer")] MsVehicle msVehicle)
         {
-            if (id != msVehicle.IdVehicle)
+            bool ModelIsValid = true;
+            foreach (var value in ModelState.Values)
             {
-                return NotFound();
+                foreach (var error in value.Errors)
+                {
+                    // Exclude specific errors based on field names
+                    if (!(error.ErrorMessage.Contains("Id Kendaraan") ||
+                        error.ErrorMessage.Contains("Id Pelanggan") ||
+                        error.ErrorMessage.Contains("IdCustomerNavigation")))
+                    {
+                        ModelIsValid = false;
+                    }
+                }
             }
 
-            try
+            if (ModelIsValid)
             {
-                Console.WriteLine(msVehicle.IdCustomer);
-                _context.Update(msVehicle);
-                await _context.SaveChangesAsync();
-                // Send alert to view
-                TempData["SuccessMessage"] = "Kendaraan berhasil diperbaharui!";
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MsVehicleExists(msVehicle.IdVehicle))
+                if (id != msVehicle.IdVehicle)
                 {
                     return NotFound();
                 }
-                else
+
+                try
                 {
-                    throw;
+                    Console.WriteLine(msVehicle.IdCustomer);
+                    _context.Update(msVehicle);
+                    await _context.SaveChangesAsync();
+                    // Send alert to view
+                    TempData["SuccessMessage"] = "Kendaraan berhasil diperbaharui!";
                 }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MsVehicleExists(msVehicle.IdVehicle))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            return View(msVehicle);
         }
 
         [AuthorizedCustomer]

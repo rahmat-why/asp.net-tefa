@@ -42,30 +42,41 @@ namespace ASP.NET_TEFA.Controllers
         [HttpPost]
         public async Task<IActionResult> FormMethod([Bind("IdBooking, RepairMethod, FinishEstimationTime")] TrsBooking trsBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
-            if (booking == null)
+            foreach (var value in ModelState.Values)
             {
-                return NotFound();
+                foreach (var error in value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
-
-            string repair_status;
-            if (booking.RepairMethod == "TEFA")
+            if (ModelState.IsValid)
             {
-                repair_status = "PERENCANAAN";
+                var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+                if (booking == null)
+                {
+                    return NotFound();
+                }
+
+                string repair_status;
+                if (booking.RepairMethod == "TEFA")
+                {
+                    repair_status = "PERENCANAAN";
+                }
+                else
+                {
+                    repair_status = "MULAI";
+                }
+
+                booking.RepairMethod = trsBooking.RepairMethod;
+                booking.FinishEstimationTime = trsBooking.FinishEstimationTime;
+                booking.RepairStatus = repair_status;
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-            else
-            {
-                repair_status = "MULAI";
-            }
-
-            booking.RepairMethod = trsBooking.RepairMethod;
-            booking.FinishEstimationTime = trsBooking.FinishEstimationTime;
-            booking.RepairStatus = repair_status;
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            return View(trsBooking);
         }
 
         [AuthorizedUser]
@@ -90,28 +101,40 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormPlan([Bind("IdBooking, RepairDescription, ReplacementPart")] TrsBooking trsBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
-            if (booking == null)
+            foreach (var value in ModelState.Values)
             {
-                return NotFound();
+                foreach (var error in value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
-
-            if (!(booking.RepairStatus == "PERENCANAAN" || booking.RepairStatus == "KEPUTUSAN"))
+            if (ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Perencanaan harus dilakukan setelah info proyek atau sebelum keputusan!";
+                var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+                if (booking == null)
+                {
+                    return NotFound();
+                }
+
+                if (!(booking.RepairStatus == "PERENCANAAN" || booking.RepairStatus == "KEPUTUSAN"))
+                {
+                    TempData["ErrorMessage"] = "Perencanaan harus dilakukan setelah info proyek atau sebelum keputusan!";
+                    return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+                }
+
+                booking.RepairDescription = trsBooking.RepairDescription;
+                booking.ReplacementPart = trsBooking.ReplacementPart;
+                booking.RepairStatus = "KEPUTUSAN";
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Perencanaan berhasil! Tahapan berlanjut ke keputusan!";
+
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
-            booking.RepairDescription = trsBooking.RepairDescription;
-            booking.ReplacementPart = trsBooking.ReplacementPart;
-            booking.RepairStatus = "KEPUTUSAN";
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Perencanaan berhasil! Tahapan berlanjut ke keputusan!";
-
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            return View(trsBooking);
         }
 
         [AuthorizedUser]
@@ -136,48 +159,59 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormDecision([Bind("IdBooking, Price")] TrsBooking trsBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
-            if (booking == null)
+            foreach (var value in ModelState.Values)
             {
-                return NotFound();
+                foreach (var error in value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
-
-            if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
+            if (ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Keputusan harus dilakukan setelah perencanaan atau sebelum eksekusi!";
+                var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+                if (booking == null)
+                {
+                    return NotFound();
+                }
+
+                if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
+                {
+                    TempData["ErrorMessage"] = "Keputusan harus dilakukan setelah perencanaan atau sebelum eksekusi!";
+                    return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+                }
+
+                // Lakukan penghapusan data lama
+                var existingInspections = _context.TrsInspectionLists.Where(i => i.IdBooking == trsBooking.IdBooking);
+                _context.TrsInspectionLists.RemoveRange(existingInspections);
+
+                var equipment = await _context.MsEquipments.Where(t => t.IsActive == 1).ToListAsync();
+                for (int i = 0; i < equipment.Count; i++)
+                {
+                    Random random = new();
+                    string idInspection = random.Next(100000, 999999).ToString();
+                    var data = new TrsInspectionList
+                    {
+                        IdInspection = idInspection,
+                        IdBooking = trsBooking.IdBooking,
+                        IdEquipment = equipment[i].IdEquipment,
+                        Checklist = 1,
+                        Description = null
+                    };
+
+                    _context.TrsInspectionLists.Add(data);
+                }
+
+                booking.Price = trsBooking.Price;
+                booking.RepairStatus = "INSPECTION LIST";
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Keputusan berhasil! Tahapan berlanjut ke inspection list!";
+
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-
-            // Lakukan penghapusan data lama
-            var existingInspections = _context.TrsInspectionLists.Where(i => i.IdBooking == trsBooking.IdBooking);
-            _context.TrsInspectionLists.RemoveRange(existingInspections);
-
-            var equipment = await _context.MsEquipments.Where(t => t.IsActive == 1).ToListAsync();
-            for (int i = 0; i < equipment.Count; i++)
-            {
-                Random random = new();
-                string idInspection = random.Next(100000, 999999).ToString();
-                var data = new TrsInspectionList
-                {
-                    IdInspection = idInspection,
-                    IdBooking = trsBooking.IdBooking,
-                    IdEquipment = equipment[i].IdEquipment,
-                    Checklist = 1,
-                    Description = null
-                };
-
-                _context.TrsInspectionLists.Add(data);
-            }
-
-            booking.Price = trsBooking.Price;
-            booking.RepairStatus = "INSPECTION LIST";
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Keputusan berhasil! Tahapan berlanjut ke inspection list!";
-
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            return View(trsBooking);
         }
 
         [AuthorizedUser]
@@ -364,27 +398,38 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormEvaluation([Bind("IdBooking, Evaluation")] TrsBooking trsBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
-            if (booking == null)
+            foreach (var value in ModelState.Values)
             {
-                return NotFound();
+                foreach (var error in value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
             }
-
-            if (booking.RepairStatus != "EVALUASI")
+            if (ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Evaluasi harus dilakukan setelah kontrol atau sebelum selesai!";
+                var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+                if (booking == null)
+                {
+                    return NotFound();
+                }
+
+                if (booking.RepairStatus != "EVALUASI")
+                {
+                    TempData["ErrorMessage"] = "Evaluasi harus dilakukan setelah kontrol atau sebelum selesai!";
+                    return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+                }
+
+                booking.Evaluation = trsBooking.Evaluation;
+                booking.RepairStatus = "SELESAI";
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Evaluasi berhasil! Seluruh tahapan sudah selesai!";
+
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-
-            booking.Evaluation = trsBooking.Evaluation;
-            booking.RepairStatus = "SELESAI";
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Evaluasi berhasil! Seluruh tahapan sudah selesai!";
-
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-        }
+            return View(trsBooking);
+        }               
     }
 }
