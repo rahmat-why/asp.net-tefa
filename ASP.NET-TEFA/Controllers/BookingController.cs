@@ -48,7 +48,7 @@ namespace ASP.NET_TEFA.Controllers
         }
 
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
-        public async Task<IActionResult> Servis()
+        public async Task<IActionResult> Progress()
         {
             var runningServices = await _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
