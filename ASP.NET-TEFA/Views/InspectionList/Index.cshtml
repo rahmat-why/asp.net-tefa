@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Inspection List";
     Layout = "_LayoutUser";
+    string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
 }
 
 @if (TempData["ErrorMessage"] != null)
@@ -32,7 +33,8 @@
         </thead>
         <tbody>
             <input type="text" name="IdBooking" value="@ViewBag.IdBooking" hidden />
-            @foreach (var item in Model) {
+            @foreach (var item in Model)
+            {
                 <tr>
                     <td>
                         <input type="text" name="IdEquipment_@item.IdEquipment" value="@item.IdEquipment" class="form-control" hidden />
@@ -65,21 +67,30 @@
             }
         </tbody>
     </table>
-    <p>Servis ini akan dimulai pada <b><span id="clock"></span></b>. Apakah anda yakin?</p>
-    <button type="submit" class="btn btn-primary">Simpan</button>
-</form>
-
-<script>
-    function updateClock() {
-        var now = new Date();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var seconds = now.getSeconds();
-        var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
-        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
-
-        document.getElementById("clock").textContent = formattedTime;
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <p>
+            Servis ini sudah dimulai pada <b>@Model.FirstOrDefault().IdBookingNavigation.FinishEstimationTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.
+        </p>
     }
-
-    setInterval(updateClock, 1000); // Update setiap 1 detik
-</script>
+    else
+    {
+        <p>Servis ini akan dimulai pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
+    }
+    
+    <div class="text-end">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@ViewBag.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
+                Kembali
+            </a>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary mb-4 ms-auto">
+                Mulai Eksekusi!
+            </button>
+        }
+    </div>
+</form>

@@ -5,7 +5,6 @@ using System.Diagnostics;
 
 namespace ASP.NET_TEFA.Controllers
 {
-    [AuthorizedCustomer]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -15,6 +14,7 @@ namespace ASP.NET_TEFA.Controllers
             _logger = logger;
         }
 
+        [AuthorizedCustomer]
         public IActionResult Index()
         {
             string authentication = HttpContext.Session.GetString("authentication");
@@ -23,11 +23,13 @@ namespace ASP.NET_TEFA.Controllers
             return View(customer);
         }
 
+        [AuthorizedCustomer]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [AuthorizedCustomer]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

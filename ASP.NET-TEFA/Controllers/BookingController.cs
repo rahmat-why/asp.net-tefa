@@ -47,6 +47,7 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> Servis()
         {
             var runningServices = await _context.TrsBookings
@@ -58,20 +59,30 @@ namespace ASP.NET_TEFA.Controllers
             return View(runningServices);
         }
 
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> History()
         {
-            var applicationDbContext = await _context.TrsBookings
-                .Include(t => t.IdVehicleNavigation)
-                .ThenInclude(v => v.IdCustomerNavigation)
-                .Where(t => t.RepairStatus != "SELESAI")
+            string userAuthentication = HttpContext.Session.GetString("userAuthentication");
+            MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+
+            var query = _context.TrsBookings
+            .Include(t => t.IdVehicleNavigation)
+            .ThenInclude(v => v.IdCustomerNavigation)
+            .Where(t => t.RepairStatus != "SELESAI");
+
+            if (user.Position != "SERVICE ADVISOR")
+            {
+                query = query.Where(t => t.RepairMethod != null);
+            }
+
+            var applicationDbContext = await query
                 .OrderBy(t => t.OrderDate)
                 .ToListAsync();
 
             return View(applicationDbContext);
         }
 
-
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> Report()
         {
             IQueryable<TrsBooking> query = _context.TrsBookings
@@ -104,7 +115,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(reportBooking);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public IActionResult Export()
         {
             string monthString = HttpContext.Request.Query["month"];
@@ -203,7 +214,6 @@ namespace ASP.NET_TEFA.Controllers
                 return pack.GetAsByteArray();
             }
         }
-
 
         [AuthorizedCustomer]
         public IActionResult Create()

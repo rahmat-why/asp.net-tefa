@@ -19,7 +19,7 @@ namespace ASP.NET_TEFA.Controllers
             _context = context;
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> Index(string idBooking)
         {
             var trsBooking = await _context.TrsBookings.FindAsync(idBooking);
@@ -45,7 +45,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(await trsInspectionLists);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(IFormCollection form)
@@ -102,6 +102,7 @@ namespace ASP.NET_TEFA.Controllers
             // Ubah status reparasi menjadi KONTROL
             booking.RepairStatus = "EKSEKUSI";
             booking.StartRepairTime = DateTime.Now;
+            booking.Progress = 45;
 
             _context.Update(booking);
             _context.SaveChanges();

@@ -2,6 +2,7 @@
 
 @{
     Layout = "_Layout";
+    string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
 }
 <!--  Body Wrapper -->
 <div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
@@ -39,23 +40,8 @@
                 </form>
             </div>
             <p class="text-center mt-5">
-                <b><span id="clock"></span></b>
+                <b>@currentDatetime</b>
             </p>
         </div>
     </div>
 </div>
-
-<script>
-    function updateClock() {
-        var now = new Date();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var seconds = now.getSeconds();
-        var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
-        var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
-
-        document.getElementById("clock").textContent = formattedTime;
-    }
-
-    setInterval(updateClock, 1000); // Update setiap 1 detik
-</script>

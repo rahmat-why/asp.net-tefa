@@ -54,7 +54,7 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "User");
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public IActionResult Logout()
         {
             // Retrieve otp from session
@@ -63,7 +63,7 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Login", "User");
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> Index()
         {
             var usersWithPassword = await _context.MsUsers
@@ -73,13 +73,13 @@ namespace ASP.NET_TEFA.Controllers
             return View(usersWithPassword);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public IActionResult Create()
         {
             return View();
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Username,Password,Position")] MsUser msUser)
@@ -129,7 +129,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msUser);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null || _context.MsUsers == null)
@@ -145,7 +145,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msUser);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("IdUser,FullName,Nim,Nidn,Username,Password,Position")] MsUser msUser)
@@ -196,7 +196,7 @@ namespace ASP.NET_TEFA.Controllers
         }
 
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null || _context.MsUsers == null)
@@ -214,7 +214,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msUser);
         }
 
-        [AuthorizedUser]
+        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
