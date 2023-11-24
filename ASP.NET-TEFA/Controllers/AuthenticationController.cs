@@ -19,16 +19,19 @@ namespace ASP.NET_TEFA.Controllers
             _email = email;
         }
 
+        // Menampilkan halaman login
         public IActionResult Login()
         {
             return View();
         }
 
+        // Menampilkan halaman registrasi
         public IActionResult Register()
         {
             return View();
         }
 
+        // Proses registrasi pengguna baru
         [HttpPost]
         public async Task<IActionResult> Register([Bind("Email,Name,Phone,Address")] MsCustomer msCustomer)
         {
@@ -38,7 +41,7 @@ namespace ASP.NET_TEFA.Controllers
             {
                 foreach (var error in value.Errors)
                 {
-                    // Exclude specific errors based on field names
+                    // Mengecualikan error tertentu berdasarkan nama field
                     if (!(error.ErrorMessage.Contains("Nama Customer") ||
                         error.ErrorMessage.Contains("Alamat Lengkap") ||
                         error.ErrorMessage.Contains("No Telepon") ||
@@ -52,13 +55,13 @@ namespace ASP.NET_TEFA.Controllers
 
             if (ModelIsValid)
             {
-                // Handle error when email is empty
+                // Handle error jika email kosong
                 if (string.IsNullOrWhiteSpace(msCustomer.Email))
                 {
                     return View();
                 }
 
-                // Handle error when email is registered
+                // Handle error jika email sudah terdaftar
                 var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == msCustomer.Email);
                 if (customer != null)
                 {
@@ -69,7 +72,7 @@ namespace ASP.NET_TEFA.Controllers
                 // Generate OTP
                 string otp = _email.GenerateOtp();
 
-                // Send OTP to the provided email
+                // Kirim OTP ke email yang disediakan
                 _email.SendEmail(msCustomer.Email, otp);
 
                 // Generate id customer
@@ -78,26 +81,27 @@ namespace ASP.NET_TEFA.Controllers
                 // Assign id customer
                 msCustomer.IdCustomer = id_customer;
 
-                // Create new customer to the database
+                // Tambahkan customer baru ke database
                 _context.Add(msCustomer);
                 await _context.SaveChangesAsync();
 
-                // Send alert success message to view
+                // Menampilkan pesan sukses ke view
                 TempData["SuccessMessage"] = "Registrasi berhasil!";
 
-                // Save email & otp to session
+                // Simpan email & otp ke sesi
                 HttpContext.Session.SetString("email", msCustomer.Email);
                 HttpContext.Session.SetString("otp", otp);
 
-                // Save to client storage
+                // Simpan ke client storage
                 TempData["Email"] = msCustomer.Email;
 
-                // Redirect to verification page
+                // Mengarahkan pengguna ke halaman verifikasi
                 return RedirectToAction("Verification");
             }
             return View(msCustomer);
         }
 
+        // Proses login penggun
         [HttpPost]
         public async Task<IActionResult> Login([Bind("Email")] MsCustomer msCustomer)
         {
@@ -107,7 +111,7 @@ namespace ASP.NET_TEFA.Controllers
             {
                 foreach (var error in value.Errors)
                 {
-                    // Exclude specific errors based on field names
+                    // Mengecualikan error tertentu berdasarkan nama field
                     if (!(error.ErrorMessage.Contains("Nama Customer") ||
                         error.ErrorMessage.Contains("Alamat Lengkap") ||
                         error.ErrorMessage.Contains("No Telepon") ||
@@ -121,7 +125,7 @@ namespace ASP.NET_TEFA.Controllers
 
             if (ModelIsValid)
             {
-                // Check if email is registered
+                // Periksa apakah email sudah terdaftar
                 var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == msCustomer.Email);
 
                 if (customer == null)
@@ -133,37 +137,37 @@ namespace ASP.NET_TEFA.Controllers
                 // Generate OTP
                 string otp = _email.GenerateOtp();
 
-                // Send OTP to the provided email
+                // Kirim OTP ke email yang disediakan
                 _email.SendEmail(msCustomer.Email, otp);
 
-                // Save OTP to session
+                // Simpan OTP ke sesi
                 HttpContext.Session.SetString("email", msCustomer.Email);
                 HttpContext.Session.SetString("otp", otp);
 
-                // Save email to client storage
+                // Simpan email ke client storage
                 TempData["Email"] = msCustomer.Email;
 
-                // Redirect to verification page
+                // Mengarahkan pengguna ke halaman verifikasi
                 return RedirectToAction("Verification");
             }
             return View(msCustomer);
         }
 
-
+        // Menampilkan halaman verifikasi
         public IActionResult Verification()
         {
-            // Retrieve otp from session
+            // Ambil otp dari sesi
             string otp = HttpContext.Session.GetString("otp");
 
-            // Handle if no email in session
+            // Handle jika tidak ada email dalam sesi
             if (string.IsNullOrEmpty(otp))
             {
                 return RedirectToAction("Login");
             }
-
             return View();
         }
 
+        // Proses verifikasi OTP
         [HttpPost]
         public async Task<IActionResult> Verification([Bind("Password")] MsCustomer msCustomer)
         {
@@ -174,12 +178,13 @@ namespace ASP.NET_TEFA.Controllers
                     Console.WriteLine(error.ErrorMessage);
                 }
             }
-            if (true) //ModelState.IsValid
+            if (true)
             {
-                // Retrieve otp from session
+                // Ambil otp dari sesi
                 string email = HttpContext.Session.GetString("email");
                 string otp = HttpContext.Session.GetString("otp");
 
+                // Memeriksa apakah OTP yang dimasukkan oleh pengguna sesuai dengan OTP yang dikirimkan
                 if (otp != msCustomer.Password)
                 {
                     TempData["ErrorMessage"] = "OTP tidak valid!";
@@ -187,33 +192,36 @@ namespace ASP.NET_TEFA.Controllers
                     return RedirectToAction("Verification");
                 }
 
-                // Remove the session after successful verification
+                /// Hapus sesi setelah verifikasi berhasil
                 HttpContext.Session.Remove("email");
                 HttpContext.Session.Remove("otp");
 
-                // Retrieve customer
+                // Mengambil data customer dari database berdasarkan email
                 var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == email);
 
-                // Serialize the customer object to a JSON string
+                // Mengubah objek customer menjadi string JSON
                 string customerJson = JsonConvert.SerializeObject(customer);
 
-                // Store the serialized customer in the session
+                // Menyimpan data customer yang telah di-serialize dalam sesi
                 HttpContext.Session.SetString("authentication", customerJson);
 
-                // Redirect to home page
+                // Mengarahkan pengguna ke halaman utama
                 return RedirectToAction("Index", "Home");
             }
             return View(msCustomer);
         }
 
+        // Proses logout pengguna
         public IActionResult Logout()
         {
-            // Retrieve otp from session
+            // Menghapus data autentikasi dari sesi
             HttpContext.Session.Remove("authentication");
 
+            // Mengarahkan pengguna ke halaman login
             return RedirectToAction("Login", "Authentication");
         }
 
+        // Menampilkan halaman not found
         public IActionResult NotFound()
         {
             return View();

@@ -26,102 +26,135 @@ namespace ASP.NET_TEFA.Controllers
             _IReporting = iReporting;
         }
 
+        // Menampilkan halaman indeks untuk pemesanan oleh pelanggan yang terotorisasi
         [AuthorizedCustomer]
         public async Task<IActionResult> Index()
         {
+            // Mengambil data autentikasi pelanggan dari sesi
             string authentication = HttpContext.Session.GetString("authentication");
+
+            // Deserialisasi data autentikasi pelanggan menjadi objek MsCustomer
             MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
 
+            // Memeriksa apakah pelanggan terautentikasi
             if (customer != null)
             {
+                // Mengambil data pemesanan yang mencakup kendaraan dan pelanggan
                 var applicationDbContext = _context.TrsBookings
                     .Include(t => t.IdVehicleNavigation)
                     .Where(t => t.IdVehicleNavigation.IdCustomer == customer.IdCustomer)
                     .OrderBy(t => t.OrderDate);
 
+                // Menampilkan daftar pemesanan ke view
                 return View(await applicationDbContext.ToListAsync());
             }
             else
             {
+                // Jika pelanggan tidak terautentikasi, kembalikan ke halaman utama
                 return RedirectToAction(nameof(Index));
             }
         }
 
+        // Menampilkan halaman kemajuan pemesanan untuk pengguna yang terotorisasi
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> Progress()
         {
+            // Mengambil data pemesanan yang sedang berlangsung, termasuk kendaraan dan pelanggan terkait
             var runningServices = await _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
             .Where(t => t.StartRepairTime != null && t.RepairStatus != "SELESAI")
             .ToListAsync();
 
+            // Menampilkan daftar pemesanan yang sedang berlangsung ke view
             return View(runningServices);
         }
 
+        // Menampilkan halaman histori pemesanan untuk pengguna yang terotorisasi
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> History()
         {
+            // Mengambil informasi autentikasi pengguna dari sesi
             string userAuthentication = HttpContext.Session.GetString("userAuthentication");
             MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
 
+            // Membuat kueri untuk mengambil data pemesanan yang belum selesai, termasuk kendaraan dan pelanggan terkait
             var query = _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
             .Where(t => t.RepairStatus != "SELESAI");
 
+            // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan dengan metode perbaikan terisi
             if (user.Position != "SERVICE ADVISOR")
             {
                 query = query.Where(t => t.RepairMethod != null);
             }
 
+            // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
             var applicationDbContext = await query
                 .OrderBy(t => t.OrderDate)
                 .ToListAsync();
 
+            // Menampilkan daftar pemesanan ke view
             return View(applicationDbContext);
         }
 
+        // Menampilkan halaman laporan pemesanan untuk pengguna yang terotorisasi sebagai SERVICE ADVISOR
         [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> Report()
         {
+            // Membuat kueri untuk mengambil data pemesanan yang telah selesai, termasuk kendaraan dan pelanggan terkait
             IQueryable<TrsBooking> query = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
                 .ThenInclude(v => v.IdCustomerNavigation)
                 .Where(t => t.RepairStatus == "SELESAI");
 
+            // Mengambil nilai bulan dari parameter query atau menggunakan bulan saat ini jika tidak ada
             string monthString = HttpContext.Request.Query["month"];
             if (string.IsNullOrEmpty(monthString))
             {
                 monthString = DateTime.Now.ToString("yyyy-MM");
             }
 
+            // Memeriksa apakah nilai bulan yang diberikan dapat di-parse menjadi objek DateTime
             if (DateTime.TryParseExact(monthString, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedMonth))
             {
+                // Jika berhasil di-parse, ambil bulan dari objek DateTime dan filter pemesanan berdasarkan bulan tersebut
                 int month = parsedMonth.Month;
 
                 query = query.Where(t => t.OrderDate != null && t.OrderDate.Value.Month == month);
             }
 
+            // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
             var reportBooking = await query.OrderBy(t => t.OrderDate).ToListAsync();
 
+            // Menghitung jumlah pemesanan dengan metode perbaikan TEFA dan SERVICE
             int countTefa = reportBooking.Count(t => t.RepairMethod == "TEFA");
             int countService = reportBooking.Count(t => t.RepairMethod == "SERVICE");
 
+            // Menetapkan nilai bulan dan jumlah pemesanan ke ViewBag dan TempData untuk digunakan di view
             ViewBag.month = monthString;
             TempData["count_tefa"] = countTefa;
             TempData["count_service"] = countService;
 
+            // Menampilkan data pemesanan ke view
             return View(reportBooking);
         }
 
+        // Menampilkan halaman ekspor laporan pemesanan untuk pengguna yang terotorisasi sebagai SERVICE ADVISOR
         [AuthorizedUser("SERVICE ADVISOR")]
         public IActionResult Export()
         {
+            // Mengambil nilai bulan dari parameter query
             string monthString = HttpContext.Request.Query["month"];
+
+            // Membuat nama file laporan dengan format "BOOKING_{Guid}.xlsx"
             string reportname = $"BOOKING_{Guid.NewGuid():N}.xlsx";
+
+            // Mengambil data pemesanan untuk bulan yang dipilih menggunakan IReporting
             var list = _IReporting.GetReportTrsBooking(monthString);
 
+            // Memeriksa apakah ada data pemesanan untuk bulan yang dipilih
             if (list.Count == 0)
             {
                 ViewBag.month = monthString;
@@ -129,17 +162,23 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("Report", "Booking");
             }
 
+            // Ekspor data pemesanan ke file Excel dan mendapatkan byte array hasil ekspor
             var exportbytes = ExporttoExcel(list, reportname);
+
+            // Mengembalikan file Excel sebagai respons
             return File(exportbytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportname);
         }
 
+        // Metode untuk mengekspor data pemesanan ke file Excel dengan format yang ditentukan
         private byte[] ExporttoExcel(List<TrsBooking> data, string filename)
         {
+            // Membuat objek ExcelPackage untuk menyimpan data Excel
             using (ExcelPackage pack = new ExcelPackage())
             {
+                // Menambahkan worksheet ke ExcelPackage
                 ExcelWorksheet ws = pack.Workbook.Worksheets.Add(filename);
 
-                // Add header row
+                // Menambahkan baris header
                 ws.Cells["A1"].Value = "Nama Pelanggan";
                 ws.Cells["B1"].Value = "Tipe Kendaraan";
                 ws.Cells["C1"].Value = "No.Polisi";
@@ -148,11 +187,12 @@ namespace ASP.NET_TEFA.Controllers
                 ws.Cells["F1"].Value = "Mulai Service";
                 ws.Cells["G1"].Value = "Selesai Service";
                 ws.Cells["H1"].Value = "Estimasi Selesai";
-                // Add data rows
+
+                // Menambahkan baris data
                 int row = 2;
                 foreach (var item in data)
                 {
-                    //cek kalo ada kosong maka langsung "-" jika tda maka data akan masuk
+                    // Memeriksa apakah data yang diperlukan tersedia sebelum menambahkannya ke worksheet
                     if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
                     {
                         var Name = item.IdVehicleNavigation.IdCustomerNavigation.Name;
@@ -195,6 +235,8 @@ namespace ASP.NET_TEFA.Controllers
                         {
                             estimasiselesai = "-";
                         }
+
+                        // Menetapkan nilai sel pada worksheet
                         ws.Cells[$"A{row}"].Value = Name;
                         ws.Cells[$"B{row}"].Value = type;
                         ws.Cells[$"C{row}"].Value = platno;
@@ -205,66 +247,77 @@ namespace ASP.NET_TEFA.Controllers
                         ws.Cells[$"G{row}"].Value = tanggalselesai;
                         ws.Cells[$"H{row}"].Value = estimasiselesai;
 
-                        // Mendapatkan sel yang sesuai dan menetapkan format khusus untuk tanggal
+                        // Menetapkan format khusus untuk sel yang berisi tanggal
                         ws.Cells[$"F{row}:H{row}"].Style.Numberformat.Format = "yyyy-mm-dd";
                         row++;
                     }
                 }
 
+                // Mengembalikan data Excel sebagai byte array
                 return pack.GetAsByteArray();
             }
         }
 
+        // Menampilkan halaman pembuatan pemesanan baru
         [AuthorizedCustomer]
         public IActionResult Create()
         {
+            // Mengambil informasi pelanggan dari sesi
             string authentication = HttpContext.Session.GetString("authentication");
             MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
 
+            // Memastikan pelanggan terautentikasi sebelum menampilkan halaman pembuatan pemesanan
             if (customer != null)
             {
-                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");//diubah
+                // Menyiapkan daftar kendaraan pelanggan untuk dipilih dalam pemesanan
+                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");
+
+                // Menampilkan halaman pembuatan pemesanan
                 return View();
             }
 
+            // Jika pelanggan tidak terautentikasi, kembalikan ke halaman utama
             return RedirectToAction(nameof(Index));
         }
 
+        // Proses pembuatan pemesanan baru oleh pelanggan
         [AuthorizedCustomer]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
         {
-            // Check if OrderDate is in the past
+            // Memeriksa apakah OrderDate berada di masa lalu
             if (trsBooking.OrderDate < DateTime.Now.AddDays(1))
             {
                 TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1";
                 return View();
             }
 
-            // Generate id booking
+            // Menghasilkan ID pemesanan
             string IdBooking = $"BKN{_context.TrsBookings.Count() + 1}";
 
-            // Assign id booking
+            // Menetapkan ID pemesanan
             trsBooking.IdBooking = IdBooking;
 
-            // Default repair status
+            // Status perbaikan default
             trsBooking.RepairStatus = "MENUNGGU";
 
+            // Menambahkan pemesanan ke database
             _context.Add(trsBooking);
             await _context.SaveChangesAsync();
 
-            // Send alert to view
+            // Menampilkan pesan sukses ke view
             TempData["SuccessMessage"] = "Booking berhasil!";
 
+            // Mengarahkan ke halaman daftar pemesanan
             return RedirectToAction("Index", "Booking");
         }
 
+        // Memeriksa keberadaan pemesanan berdasarkan ID
         private bool TrsBookingExists(string id)
         {
-          return (_context.TrsBookings?.Any(e => e.IdBooking == id)).GetValueOrDefault();
+            // Menggunakan "?." untuk mengatasi null reference jika _context.TrsBookings adalah null
+            return (_context.TrsBookings?.Any(e => e.IdBooking == id)).GetValueOrDefault();
         }
-
-
     }
 }
