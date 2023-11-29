@@ -171,7 +171,7 @@
             </a>
         </div>
         <div class="col-sm-6 col-xl-2">
-            @if (Model.FinishEstimationTime != null)
+            @if (Model.EndRepairTime != null)
             {
                 <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
                     <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
@@ -205,7 +205,7 @@
         <div class="col-sm-6 col-xl-2">
             <a asp-controller="Reparation" asp-action="FormControl" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
                 <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
-                    <h6 class="text-white">Kontrol</h6>
+                    <h6 class="text-white">KONTROL</h6>
                     @if (Model.Control == null || Model.Control == 0)
                     {
                         <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>

@@ -68,7 +68,7 @@
         </tbody>
     </table>
     
-    @if (TempData["ErrorMessage"] != null)
+    @if (Model.Any() && Model.FirstOrDefault().IdBookingNavigation.FinishEstimationTime.HasValue)
     {
         <p>
             Servis ini sudah dimulai pada <b>@Model.FirstOrDefault().IdBookingNavigation.FinishEstimationTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.

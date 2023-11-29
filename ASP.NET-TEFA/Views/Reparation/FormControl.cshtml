@@ -51,7 +51,7 @@
                 </td>
                 <td>
                     <div class="form-check">
-                        <input type="checkbox" name="control" value="1" class="form-check-input" @(Model.Control == 1 ? "checked" : "") required />
+                        <input type="checkbox" name="control" value="1" class="form-check-input" @(Model.Control == 1 ? "checked" : "")/>
                     </div>
                 </td>
             </tr>
@@ -59,7 +59,7 @@
     </table>
 
     <div class="text-end">
-        @if (TempData["ErrorMessage"] != null)
+        @if (!(Model.RepairStatus == "KONTROL" || Model.RepairStatus == "EVALUASI"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali
