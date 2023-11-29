@@ -15,13 +15,13 @@
                 Tanggal Booking
             </th>
             <th>
-                Merk
+                Tipe Kendaraan
             </th>
             <th>
                 No.Polisi
             </th>
             <th>
-                Odometer
+                Odometer (km)
             </th>
             <th>
                 Keluhan
@@ -37,29 +37,17 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            <tr style='@(item.RepairMethod == null ? "background-color: yellow;" : "")'>
                 <td>
-                    @if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
-                    {
-                        @item.IdVehicleNavigation.IdCustomerNavigation.Name
-                    }
-                    else
-                    {
-                        <span>N/A</span>
-                    }
+                    <span>@(item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "-")</span>
+                    <a class="btn btn-outline-success btn-sm" data-phone="@item.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Salin nomor whatsapp"><i class="ti ti-brand-whatsapp"></i></a>
                 </td>
                 <td>
-                    @if (item.OrderDate.HasValue)
-                    {
-                        @item.OrderDate.Value.ToString("dd MMMM yyyy")
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
+                    <span>@(item.OrderDate?.ToString("dd MMMM yyyy") ?? "-")</span>
                 </td>
                 <td>
                     @item.IdVehicleNavigation.Type
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Vehicle" asp-action="History" asp-route-id="@item.IdVehicle" data-toggle="tooltip" data-placement="top" title="Lihat riwayat kendaraan"><i class="ti ti-history"></i></a>
                 </td>
                 <td>
                     @item.IdVehicleNavigation.PoliceNumber
@@ -87,3 +75,26 @@
         }
     </tbody>
 </table>
+
+<script>
+    function copyPhone(button) {
+        var phoneNumber = $(button).data('phone');
+
+        // Create a temporary input element
+        var tempInput = $('<input>');
+        $('body').append(tempInput);
+
+        // Set the value of the input to the phone number
+        tempInput.val(phoneNumber);
+
+        // Select and copy the text from the input
+        tempInput.select();
+        document.execCommand('copy');
+
+        // Remove the temporary input element
+        tempInput.remove();
+
+        // You can provide feedback to the user, e.g., show a tooltip or alert
+        alert('Nomor whatsapp berhasil disalin: ' + phoneNumber);
+    }
+</script>

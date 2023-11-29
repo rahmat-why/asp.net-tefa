@@ -60,7 +60,13 @@ namespace ASP.NET_TEFA.Controllers
                 TempData["ErrorMessage"] = "Metode dan estimasi selesai tidak boleh kosong!";
                 return RedirectToAction("FormMethod", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-            //validasi perubahan metode tefa/service
+            //validasi estimasi selesai tidak boleh dibawah saat ini
+            if (trsBooking.OrderDate <= DateTime.Now.AddDays(0))
+            {
+                TempData["ErrorMessage"] = "Estimasi selesai tidak boleh dibawah waktu saat ini!";
+                return RedirectToAction("FormMethod", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi perubahan metode tefa/service harus ketika progres belum berjalan
             if (booking.Progress > 0)
             {
                 TempData["ErrorMessage"] = "Perubahan metode tidak dapat dilakukan ketika progres sudah berjalan!";
@@ -173,19 +179,13 @@ namespace ASP.NET_TEFA.Controllers
                 TempData["ErrorMessage"] = "Keputusan harus dilakukan setelah perencanaan atau sebelum eksekusi!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-            //validasi angka
-/*            if (trsBooking.Price == null || trsBooking.Price <= 0)
-            { 
-                TempData["ErrorMessage"] = "Tagihan tidak sesuai(contoh:20000)";
-                return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
-            }*/
-            // Validasi menggunakan regex
+            //validasi angka menggunakan regex
             string priceString = trsBooking.Price.ToString(); // Ubah nilai Price menjadi string
             Regex regex = new Regex("^[0-9]+$"); // Hanya angka yang diperbolehkan
 
             if (!regex.IsMatch(priceString))
             {
-                TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka dan wajib diisi";
+                TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0";
                 return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
             // Lakukan penghapusan data lama
@@ -365,7 +365,7 @@ namespace ASP.NET_TEFA.Controllers
             int? control = int.TryParse(form["control"], out var parsedValue) ? parsedValue : (int?)null;
             if (control == null || !control.HasValue)
             {
-                TempData["ErrorMessage"] = "Checkbox wajib diisi!";
+                TempData["ErrorMessage"] = "Hasil kontrol harus disetujui!";
                 return RedirectToAction("FormControl", "Reparation", new { idBooking = booking.IdBooking });
             }
 
@@ -416,7 +416,7 @@ namespace ASP.NET_TEFA.Controllers
             }
             if (string.IsNullOrWhiteSpace(trsBooking.Evaluation))
             {
-                TempData["ErrorMessage"] = "Evaluasi hanya boleh huruf, angka, dan spasi";
+                TempData["ErrorMessage"] = "Evaluasi harus diisi, gunakan (-) jika tidak ada evaluasi";
                 return RedirectToAction("FormEvaluation", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 

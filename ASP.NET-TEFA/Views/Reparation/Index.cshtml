@@ -62,6 +62,7 @@
         <tr>
             <td>
                 @Model.IdVehicleNavigation.Type
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Vehicle" asp-action="History" asp-route-id="@Model.IdVehicle" data-toggle="tooltip" data-placement="top" title="Lihat riwayat kendaraan"><i class="ti ti-history"></i></a>
             </td>
             <td>
                 @Model.IdVehicleNavigation.PoliceNumber

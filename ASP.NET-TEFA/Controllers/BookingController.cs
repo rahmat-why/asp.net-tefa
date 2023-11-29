@@ -64,6 +64,7 @@ namespace ASP.NET_TEFA.Controllers
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
             .Where(t => t.StartRepairTime != null && t.RepairStatus != "SELESAI")
+            .OrderByDescending(x => x.Progress)
             .ToListAsync();
 
             // Menampilkan daftar pemesanan yang sedang berlangsung ke view
@@ -85,9 +86,10 @@ namespace ASP.NET_TEFA.Controllers
             .Where(t => t.RepairStatus != "SELESAI");
 
             // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan dengan metode perbaikan terisi
+            // Diurutkan berdasarkan order date terbaru
             if (user.Position != "SERVICE ADVISOR")
             {
-                query = query.Where(t => t.RepairMethod != null);
+                query = query.Where(t => t.RepairMethod != null).OrderBy(t => t.OrderDate);
             }
 
             // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
@@ -179,78 +181,46 @@ namespace ASP.NET_TEFA.Controllers
                 ExcelWorksheet ws = pack.Workbook.Worksheets.Add(filename);
 
                 // Menambahkan baris header
-                ws.Cells["A1"].Value = "Nama Pelanggan";
-                ws.Cells["B1"].Value = "Tipe Kendaraan";
-                ws.Cells["C1"].Value = "No.Polisi";
-                ws.Cells["D1"].Value = "Odometer";
-                ws.Cells["E1"].Value = "Keluhan";
-                ws.Cells["F1"].Value = "Mulai Service";
-                ws.Cells["G1"].Value = "Selesai Service";
-                ws.Cells["H1"].Value = "Estimasi Selesai";
+                ws.Cells["A1"].Value = "ID Booking";
+                ws.Cells["B1"].Value = "Nama Pelanggan";
+                ws.Cells["C1"].Value = "Tanggal Booking";
+                ws.Cells["D1"].Value = "Tipe Kendaraan";
+                ws.Cells["E1"].Value = "No. Polisi";
+                ws.Cells["F1"].Value = "Odometer (km)";
+                ws.Cells["G1"].Value = "Keluhan";
+                ws.Cells["H1"].Value = "Mulai Servis";
+                ws.Cells["I1"].Value = "Selesai Servis";
+                ws.Cells["J1"].Value = "Estimasi Selesai";
+                ws.Cells["K1"].Value = "Deskripsi Perbaikan";
+                ws.Cells["L1"].Value = "Deskripsi Ganti Part";
+                ws.Cells["M1"].Value = "Tagihan";
+                ws.Cells["N1"].Value = "Evaluasi";
+                ws.Cells["O1"].Value = "Metode Servis";
 
                 // Menambahkan baris data
                 int row = 2;
                 foreach (var item in data)
                 {
-                    // Memeriksa apakah data yang diperlukan tersedia sebelum menambahkannya ke worksheet
-                    if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
-                    {
-                        var Name = item.IdVehicleNavigation.IdCustomerNavigation.Name;
-                        if (Name == null)
-                        {
-                            Name = "-";
-                        }
-                        var type = item.IdVehicleNavigation.Type;
-                        if (type == null)
-                        {
-                            type = "-";
-                        }
-                        var platno = item.IdVehicleNavigation.PoliceNumber;
-                        if (platno == null)
-                        {
-                            platno = "-";
-                        }
-                        var odometer = item.Odometer.ToString();
-                        if (odometer == null)
-                        {
-                            odometer = "-";
-                        }
-                        var keluhan = item.Complaint;
-                        if (keluhan == null)
-                        {
-                            keluhan = "-";
-                        }
-                        var tanggalmulai = item.StartRepairTime?.ToString("yyyy-MM-dd");
-                        if (tanggalmulai == null)
-                        {
-                            tanggalmulai = "-";
-                        }
-                        var tanggalselesai = item.EndRepairTime?.ToString("yyyy-MM-dd");
-                        if (tanggalselesai == null)
-                        {
-                            tanggalselesai = "-";
-                        }
-                        var estimasiselesai = item.FinishEstimationTime?.ToString("yyyy-MM-dd");
-                        if (estimasiselesai == null)
-                        {
-                            estimasiselesai = "-";
-                        }
+                    // Menetapkan nilai sel pada worksheet
+                    // Menetapkan nilai sel pada worksheet
+                    ws.Cells[$"A{row}"].Value = item.IdBooking ?? "N/A";
+                    ws.Cells[$"B{row}"].Value = item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "N/A";
+                    ws.Cells[$"C{row}"].Value = item.OrderDate?.ToString("yyyy-MM-dd") ?? "N/A";
+                    ws.Cells[$"D{row}"].Value = item.IdVehicleNavigation?.Type ?? "N/A";
+                    ws.Cells[$"E{row}"].Value = item.IdVehicleNavigation?.PoliceNumber ?? "N/A";
+                    ws.Cells[$"F{row}"].Value = item.Odometer.ToString() ?? "N/A";
+                    ws.Cells[$"G{row}"].Value = item.Complaint ?? "N/A";
+                    ws.Cells[$"H{row}"].Value = item.StartRepairTime?.ToString("yyyy-MM-dd HH:mm") ?? "N/A";
+                    ws.Cells[$"I{row}"].Value = item.EndRepairTime?.ToString("yyyy-MM-dd HH:mm") ?? "N/A";
+                    ws.Cells[$"J{row}"].Value = item.FinishEstimationTime?.ToString("yyyy-MM-dd HH:mm") ?? "N/A";
+                    ws.Cells[$"K{row}"].Value = item.RepairDescription ?? "N/A";
+                    ws.Cells[$"L{row}"].Value = item.ReplacementPart ?? "N/A";
+                    ws.Cells[$"M{row}"].Value = item.Price.ToString() ?? "N/A";
+                    ws.Cells[$"N{row}"].Value = item.Evaluation ?? "N/A";
+                    ws.Cells[$"O{row}"].Value = item.RepairMethod ?? "N/A";
 
-                        // Menetapkan nilai sel pada worksheet
-                        ws.Cells[$"A{row}"].Value = Name;
-                        ws.Cells[$"B{row}"].Value = type;
-                        ws.Cells[$"C{row}"].Value = platno;
-                        ws.Cells[$"D{row}"].Value = odometer;
-                        ws.Cells[$"E{row}"].Value = keluhan;
 
-                        ws.Cells[$"F{row}"].Value = tanggalmulai;
-                        ws.Cells[$"G{row}"].Value = tanggalselesai;
-                        ws.Cells[$"H{row}"].Value = estimasiselesai;
-
-                        // Menetapkan format khusus untuk sel yang berisi tanggal
-                        ws.Cells[$"F{row}:H{row}"].Style.Numberformat.Format = "yyyy-mm-dd";
-                        row++;
-                    }
+                    row++;
                 }
 
                 // Mengembalikan data Excel sebagai byte array
@@ -286,11 +256,25 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
         {
-            // Memeriksa apakah OrderDate berada di masa lalu
-            if (trsBooking.OrderDate < DateTime.Now.AddDays(1))
+            // Memeriksa apakah OrderDate tidak berada diatas H+1
+            if (trsBooking.OrderDate <= DateTime.Now.AddDays(1))
             {
-                TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1";
-                return View();
+                // Mengambil informasi pelanggan dari sesi
+                string authentication = HttpContext.Session.GetString("authentication");
+                MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
+
+                TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1 dari hari ini";
+                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");
+                return View(trsBooking);
+            }
+
+            // Memeriksa jumlah pemesanan maksimal 10 per hari
+
+            var countBookingToday = await _context.TrsBookings.CountAsync(t => t.OrderDate.HasValue && t.OrderDate.Value.Date == trsBooking.OrderDate);
+            if (countBookingToday >= 10)
+            {
+                TempData["ErrorMessage"] = "Maaf kapasitas booking hari ini sudah penuh (10 per hari)";
+                return View(trsBooking);
             }
 
             // Menghasilkan ID pemesanan

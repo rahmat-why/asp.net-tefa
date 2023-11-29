@@ -6,44 +6,43 @@
 }
 
 <div>
-    <hr />
     <div class="container">
         <div class="row">
             <div class="col-sm-6">
                 <dl>
                     <dt>
-                        @Html.DisplayNameFor(model => model.Type): <b> @Html.DisplayFor(model => model.Type)</b>
+                        Tipe Kendaraan: <b> @Html.DisplayFor(model => model.Type)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.Classify): <b> @Html.DisplayFor(model => model.Classify)</b>
+                        Klasifikasi: <b> @Html.DisplayFor(model => model.Classify)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.PoliceNumber): <b> @Html.DisplayFor(model => model.PoliceNumber)</b>
+                        No. Polisi: <b> @Html.DisplayFor(model => model.PoliceNumber)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.Color): <b> @Html.DisplayFor(model => model.Color)</b>
+                        Warna: <b> @Html.DisplayFor(model => model.Color)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.Year): <b> @Html.DisplayFor(model => model.Year)</b>
+                        Tahun: <b> @Html.DisplayFor(model => model.Year)</b>
                     </dt>
                 </dl>
             </div>
             <div class="col-sm-6">
                 <dl>
                     <dt>
-                        @Html.DisplayNameFor(model => model.VehicleOwner): <b> @Html.DisplayFor(model => model.VehicleOwner)</b>
+                        Nama: <b> @Html.DisplayFor(model => model.VehicleOwner)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.ChassisNumber): <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
+                        Nomor Rangka: <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
                     </dt>
                     <dt>
-                        @Html.DisplayNameFor(model => model.MachineNumber): <b> @Html.DisplayFor(model => model.MachineNumber)</b>
+                        Nomor Mesin: <b> @Html.DisplayFor(model => model.MachineNumber)</b>
                     </dt>
                     <dt>
-                        <label>Nama Customer</label>: <b>-</b>
+                        Nama Customer: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Name)</b>
                     </dt>
                     <dt>
-                        <label>Alamat Lengkap</label>: <b>-</b>
+                        Alamat Lengkap: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Address)</b>
                     </dt>
                 </dl>
             </div>
@@ -55,7 +54,7 @@
         <thead class="thead-dark">
             <tr>
                 <th>Tanggal Booking</th>
-                <th>Odometer</th>
+                <th>Odometer (km)</th>
                 <th>Keluhan</th>
             </tr>
         </thead>
@@ -66,7 +65,7 @@
                     <td>
                         @if (item.OrderDate.HasValue)
                         {
-                            @item.OrderDate.Value.ToString("dd/MM/yy")
+                            @item.OrderDate.Value.ToString("dd MMMM yyyy")
                         }
                         else
                         {

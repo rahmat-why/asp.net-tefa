@@ -21,7 +21,13 @@
     }
 
     <div class="text-end">
-        @if (TempData["ErrorMessage"] != null)
+        @if(Model.RepairMethod == "TEFA")
+        {
+            <a asp-controller="InspectionList" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-dark mb-4 ms-auto">
+                Inspection List
+            </a>
+        }
+        @if (Model.EndRepairTime != null)
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali

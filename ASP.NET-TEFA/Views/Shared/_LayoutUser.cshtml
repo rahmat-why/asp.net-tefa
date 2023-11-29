@@ -19,8 +19,6 @@
     <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
 </head>
 <body>
-    <i class="fas fa-flag" style="color: #000;"></i>
-    <i class="fas fa-motorcycle" style="color: #000;"></i>
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
          data-sidebar-position="fixed" data-header-position="fixed">
@@ -29,7 +27,7 @@
             <!-- Sidebar scroll-->
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
+                    <a asp-controller="Booking" asp-action="index" class="text-nowrap logo-img">
                         <h6 class="text-left">
                             <img src="~/Content/assets/images/logos/logo.png" width="40" alt="TEFA Politeknik Astra">
                             <b>TEACHING FACTORY</b>
@@ -42,6 +40,10 @@
                 <!-- Sidebar navigation-->
                 <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
                     <ul id="sidebarnav">
+                        <li class="nav-small-cap">
+                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                            <span class="hide-menu">@user.FullName - @user.Position</span>
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" asp-controller="Booking" asp-action="History" aria-expanded="false">
                                 <span>

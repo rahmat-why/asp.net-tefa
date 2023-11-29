@@ -71,7 +71,7 @@
                 No.Polisi
             </th>
             <th>
-                Odometer
+                Odometer (km)
             </th>
             <th>
                 Keluhan
@@ -86,24 +86,10 @@
         {
             <tr>
                 <td>
-                    @if (item.IdVehicleNavigation != null && item.IdVehicleNavigation.IdCustomerNavigation != null)
-                    {
-                        @item.IdVehicleNavigation.IdCustomerNavigation.Name
-                    }
-                    else
-                    {
-                        <span>N/A</span>
-                    }
+                    <span>@(item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "-")</span>
                 </td>
                 <td>
-                    @if (item.OrderDate.HasValue)
-                    {
-                        @item.OrderDate.Value.ToString("dd/MM/yyyy")
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
+                    <span>@(item.OrderDate?.ToString("dd MMMM yyyy") ?? "-")</span>
                 </td>
                 <td>
                     @item.IdVehicleNavigation.Type

@@ -34,7 +34,7 @@ namespace ASP.NET_TEFA.Controllers
         {
             // Handle kesalahan ketika akun belum terdaftar
             var user = _context.MsUsers.FirstOrDefault(c => c.Username == msUser.Username);
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(user.Password))
             {
                 TempData["ErrorMessage"] = "Username atau password salah!";
                 return RedirectToAction("Login");
@@ -55,7 +55,7 @@ namespace ASP.NET_TEFA.Controllers
             HttpContext.Session.SetString("userAuthentication", userJson);
 
             // Redirect ke halaman verifikasi
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("History", "Booking");
         }
 
         // Logout pengguna
@@ -75,7 +75,7 @@ namespace ASP.NET_TEFA.Controllers
         {
             // Mengambil daftar pengguna dari database yang memiliki password
             var usersWithPassword = await _context.MsUsers
-                .Where(user => !string.IsNullOrEmpty(user.Password))
+                .Where(user => !string.IsNullOrEmpty(user.Password) && user.Position == "HEAD MECHANIC")
                 .ToListAsync();
 
             return View(usersWithPassword);
@@ -94,15 +94,6 @@ namespace ASP.NET_TEFA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Username,Password,Position")] MsUser msUser)
         {
-            // Validasi ModelState
-            foreach (var value in ModelState.Values)
-            {
-                foreach (var error in value.Errors)
-                {
-                    Console.WriteLine(error.ErrorMessage);
-                }
-            }
-
             if (ModelState.IsValid)
             {
                 // Validasi keunikan Username
@@ -265,7 +256,7 @@ namespace ASP.NET_TEFA.Controllers
             if (msUser != null)
             {
                 // Setel kolom password menjadi null
-                msUser.Password = null;
+                msUser.Password = "";
 
                 // Tandai entitas sebagai dimodifikasi
                 _context.Update(msUser);

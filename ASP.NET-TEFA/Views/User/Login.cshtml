@@ -2,6 +2,7 @@
 
 @{
     Layout = null;
+    string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
 }
 
 <!DOCTYPE html>
@@ -9,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ASP.NET_TEFA</title>
+    <title>Login - TEFA</title>
     <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
     <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
 </head>
@@ -55,7 +56,7 @@
                                 </form>
                             </div>
                             <p class="text-center mt-5">
-                                <b><span id="clock"></span></b>
+                                <b>@currentDatetime</b>
                             </p>
                         </div>
                     </div>
@@ -75,20 +76,5 @@
     <script src="~/Content/assets/js/app.min.js"></script>
     <script src="~/Content/assets/libs/simplebar/dist/simplebar.js"></script>
     <script src="~/Content/assets/js/dashboard.js"></script>
-
-    <script>
-        function updateClock() {
-            var now = new Date();
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            var seconds = now.getSeconds();
-            var formattedDate = now.toLocaleDateString(); // Get current date in the format "MM/DD/YYYY"
-            var formattedTime = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + " - " + formattedDate;
-
-            document.getElementById("clock").textContent = formattedTime;
-        }
-
-        setInterval(updateClock, 1000); // Update setiap 1 detik
-    </script>
 </body>
 </html>

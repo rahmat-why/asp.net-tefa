@@ -234,7 +234,6 @@ namespace ASP.NET_TEFA.Controllers
 
             // Redirect ke halaman Index setelah penghapusan berhasil
             return RedirectToAction(nameof(Index));
-            return RedirectToAction(nameof(Index));
         }
 
         // Memeriksa keberadaan kendaraan berdasarkan ID di database
@@ -256,7 +255,8 @@ namespace ASP.NET_TEFA.Controllers
 
             // Mengambil data kendaraan termasuk relasi TrsBookings
             var vehicle = await _context.MsVehicles
-                .Include(v => v.TrsBookings) 
+                .Include(v => v.IdCustomerNavigation)
+                .Include(w => w.TrsBookings.OrderBy(tb => tb.OrderDate))
                 .FirstOrDefaultAsync(m => m.IdVehicle == id);
 
             // Jika kendaraan tidak ditemukan, kembalikan halaman Not Found

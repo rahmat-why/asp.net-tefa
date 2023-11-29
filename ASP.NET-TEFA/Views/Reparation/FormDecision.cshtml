@@ -64,7 +64,7 @@
     </table>
 
     <div class="text-end">
-        @if (TempData["ErrorMessage"] != null)
+        @if (!(Model.RepairStatus == "KEPUTUSAN" || Model.RepairStatus == "INSPECTION LIST"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali

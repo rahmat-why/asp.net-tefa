@@ -101,7 +101,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(msCustomer);
         }
 
-        // Proses login penggun
+        // Proses login pengguna
         [HttpPost]
         public async Task<IActionResult> Login([Bind("Email")] MsCustomer msCustomer)
         {
@@ -117,7 +117,6 @@ namespace ASP.NET_TEFA.Controllers
                         error.ErrorMessage.Contains("No Telepon") ||
                         error.ErrorMessage.Contains("IdCustomer")))
                     {
-                        Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                         ModelIsValid = false;
                     }
                 }
@@ -171,44 +170,32 @@ namespace ASP.NET_TEFA.Controllers
         [HttpPost]
         public async Task<IActionResult> Verification([Bind("Password")] MsCustomer msCustomer)
         {
-            foreach (var value in ModelState.Values)
+            string email = HttpContext.Session.GetString("email");
+            string otp = HttpContext.Session.GetString("otp");
+
+            // Memeriksa apakah OTP yang dimasukkan oleh pengguna sesuai dengan OTP yang dikirimkan
+            if (otp != msCustomer.Password)
             {
-                foreach (var error in value.Errors)
-                {
-                    Console.WriteLine(error.ErrorMessage);
-                }
+                TempData["ErrorMessage"] = "OTP tidak valid!";
+                TempData["Email"] = email;
+                return RedirectToAction("Verification");
             }
-            if (true)
-            {
-                // Ambil otp dari sesi
-                string email = HttpContext.Session.GetString("email");
-                string otp = HttpContext.Session.GetString("otp");
 
-                // Memeriksa apakah OTP yang dimasukkan oleh pengguna sesuai dengan OTP yang dikirimkan
-                if (otp != msCustomer.Password)
-                {
-                    TempData["ErrorMessage"] = "OTP tidak valid!";
-                    TempData["Email"] = email;
-                    return RedirectToAction("Verification");
-                }
+            /// Hapus sesi setelah verifikasi berhasil
+            HttpContext.Session.Remove("email");
+            HttpContext.Session.Remove("otp");
 
-                /// Hapus sesi setelah verifikasi berhasil
-                HttpContext.Session.Remove("email");
-                HttpContext.Session.Remove("otp");
+            // Mengambil data customer dari database berdasarkan email
+            var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == email);
 
-                // Mengambil data customer dari database berdasarkan email
-                var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == email);
+            // Mengubah objek customer menjadi string JSON
+            string customerJson = JsonConvert.SerializeObject(customer);
 
-                // Mengubah objek customer menjadi string JSON
-                string customerJson = JsonConvert.SerializeObject(customer);
+            // Menyimpan data customer yang telah di-serialize dalam sesi
+            HttpContext.Session.SetString("authentication", customerJson);
 
-                // Menyimpan data customer yang telah di-serialize dalam sesi
-                HttpContext.Session.SetString("authentication", customerJson);
-
-                // Mengarahkan pengguna ke halaman utama
-                return RedirectToAction("Index", "Home");
-            }
-            return View(msCustomer);
+            // Mengarahkan pengguna ke halaman utama
+            return RedirectToAction("Index", "Home");
         }
 
         // Proses logout pengguna
