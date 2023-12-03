@@ -4,63 +4,64 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
-
-<h3>Are you sure you want to delete this?</h3>
+<b>Apakah anda yakin untuk menghapus kendaraan ini?</b>
 <div>
     <h4>MsVehicle</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Type)
+        <dt class = "col-sm-6">
+            Tipe Kendaraan:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Type)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.Type)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Classify)
+        <dt class = "col-sm-6">
+            Klasifikasi:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Classify)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.Classify)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PoliceNumber)
+        <dt class = "col-sm-6">
+            No. Polisi:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PoliceNumber)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.PoliceNumber)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Color)
+        <dt class = "col-sm-6">
+            Warna:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Color)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.Color)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Year)
+        <dt class = "col-sm-6">
+            Tahun:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Year)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.Year)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VehicleOwner)
+        <dt class = "col-sm-6">
+            Nama Pemilik:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VehicleOwner)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.VehicleOwner)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChassisNumber)
+        <dt class = "col-sm-6">
+            Nomor Rangka:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChassisNumber)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MachineNumber)
+        <dt class = "col-sm-6">
+            Nomor Mesin:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MachineNumber)
+        <dd class = "col-sm-6">
+            <b>@Html.DisplayFor(model => model.MachineNumber)</b>
         </dd>
     </dl>
-    
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-primary">
+        Loading...
+    </div>
     <form asp-action="Delete">
         <input type="hidden" asp-for="IdVehicle" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |

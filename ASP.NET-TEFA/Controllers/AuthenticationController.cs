@@ -58,7 +58,7 @@ namespace ASP.NET_TEFA.Controllers
                 // Handle error jika email kosong
                 if (string.IsNullOrWhiteSpace(msCustomer.Email))
                 {
-                    return View();
+                    return View(msCustomer);
                 }
 
                 // Handle error jika email sudah terdaftar
@@ -66,7 +66,7 @@ namespace ASP.NET_TEFA.Controllers
                 if (customer != null)
                 {
                     TempData["ErrorMessage"] = "Email sudah terdaftar!";
-                    return RedirectToAction("Register");
+                    return View(msCustomer);
                 }
 
                 // Generate OTP
