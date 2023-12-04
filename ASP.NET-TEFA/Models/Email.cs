@@ -10,6 +10,18 @@ namespace ASP.NET_TEFA.Models
 {
     public class Email
     {
+        private IConfiguration configuration;
+        private string username;
+        private string password;
+        private string name;
+        public Email(IConfiguration iConfig) 
+        {
+            configuration = iConfig;
+            username = configuration.GetConnectionString("EmailUsername");
+            password = configuration.GetConnectionString("EmailPassword");
+            name = configuration.GetConnectionString("EmailName");
+        }
+
         public string GenerateOtp()
         {
             Random random = new();
@@ -20,8 +32,8 @@ namespace ASP.NET_TEFA.Models
 
         public void SendEmail(string emailId, [RegularExpression("^[0-9]+$", ErrorMessage = "OTP harus berupa angka")][Required(ErrorMessage = "OTP wajib diisi")] string otp)
         {
-            var fromMail = new MailAddress("rahmatwhy00@gmail.com", "Rahmat"); // set your email    
-            var fromEmailpassword = "drqzryswhlsgflsl"; // Set your password     
+            var fromMail = new MailAddress(username, name);
+            var fromEmailpassword = password;
             var toEmail = new MailAddress(emailId);
 
             var smtp = new SmtpClient();
