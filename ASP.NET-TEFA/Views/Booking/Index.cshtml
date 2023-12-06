@@ -5,52 +5,57 @@
     Layout = "_Layout";
 }
 
-<div class="container">
-    <h1>@ViewData["Title"]</h1>
-    <h6 class="text-center"><b>RIWAYAT SERVIS</b></h6>
-    <hr />
+<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="d-flex align-items-center justify-content-center w-100">
+        <div class="row justify-content-center w-100">
+            <div class="card-body">
+                <h6 class="text-center"><b>RIWAYAT SERVIS</b></h6>
+                <hr />
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
 
-    <div class="card">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Tipe</th>
-                        <th>Tanggal Booking</th>
-                        <th>Odometer</th>
-                        <th>Keluhan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.IdVehicleNavigation.Type</td>
-                            <td>
-                                @if (item.OrderDate.HasValue)
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Tipe</th>
+                                    <th>Tanggal Booking</th>
+                                    <th>Odometer</th>
+                                    <th>Keluhan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
                                 {
-                                    @item.OrderDate.Value.ToString("dd/MM/yyyy")
+                                    <tr>
+                                        <td>@item.IdVehicleNavigation.Type</td>
+                                        <td>
+                                            @if (item.OrderDate.HasValue)
+                                            {
+                                                @item.OrderDate.Value.ToString("dd/MM/yyyy")
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </td>
+                                        <td>@item.Odometer</td>
+                                        <td>@item.Complaint</td> 
+                                    </tr>
                                 }
-                                else
-                                {
-                                    <span>-</span>
-                                }
-                            </td>
-                            <td>@item.Odometer</td>
-                            <td>@item.Complaint</td> 
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>
         </div>
     </div>
 </div>
-<a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>

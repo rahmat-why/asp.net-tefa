@@ -4,71 +4,78 @@
     ViewData["Title"] = "Data Kendaraan";
 }
 
-<h6 class="text-center"><b>DATA KENDARAAN</b></h6>
-<hr />
-
-<p>
-    <a asp-action="Create">Tambah Kendaraan</a>
-</p>
-<div class="card">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="d-flex align-items-center justify-content-center w-100">
+        <div class="row justify-content-center w-100">
+            <div class="card-body">
+                <h6 class="text-center"><b>Data Kendaraan</b></h6>
+                <hr />
+                <p>
+                    <a asp-action="Create">Tambah Kendaraan</a>
+                </p>
+                <div class="card">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Tipe</th>
+                                    <th>Jenis</th>
+                                    <th>No.Polisi</th>
+                                    <th>Warna</th>
+                                    <th>Tahun</th>
+                                    <th>Nama Pemili</th>
+                                    <th>No.Rangka</th>
+                                    <th>No.Mesin</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Type)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Classify)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.PoliceNumber)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Color)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Year)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.VehicleOwner)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ChassisNumber)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.MachineNumber)
+                                        </td>
+                                        <td>
+                                            <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
+                                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>
+            </div>
         </div>
-    }
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Tipe</th>
-                    <th>Jenis</th>
-                    <th>No.Polisi</th>
-                    <th>Warna</th>
-                    <th>Tahun</th>
-                    <th>Nama Pemili</th>
-                    <th>No.Rangka</th>
-                    <th>No.Mesin</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Type)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Classify)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PoliceNumber)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Color)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Year)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.VehicleOwner)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ChassisNumber)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MachineNumber)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
-                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
 </div>
-<a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>

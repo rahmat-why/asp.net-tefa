@@ -145,6 +145,29 @@
     <script src="~/Content/assets/js/dashboard.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <script>
+        function copyPhone(button) {
+            var phoneNumber = $(button).data('phone');
+
+            // Create a temporary input element
+            var tempInput = $('<input>');
+            $('body').append(tempInput);
+
+            // Set the value of the input to the phone number
+            tempInput.val(phoneNumber);
+
+            // Select and copy the text from the input
+            tempInput.select();
+            document.execCommand('copy');
+
+            // Remove the temporary input element
+            tempInput.remove();
+
+            // You can provide feedback to the user, e.g., show a tooltip or alert
+            alert('Nomor whatsapp berhasil disalin: ' + phoneNumber);
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

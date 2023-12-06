@@ -58,13 +58,13 @@ namespace ASP.NET_TEFA.Controllers
             if (string.IsNullOrWhiteSpace(trsBooking.RepairMethod) || trsBooking.FinishEstimationTime == null)
             {
                 TempData["ErrorMessage"] = "Metode dan estimasi selesai tidak boleh kosong!";
-                return RedirectToAction("FormMethod", "Reparation", new { idBooking = trsBooking.IdBooking });
+                return View(trsBooking);
             }
             //validasi estimasi selesai tidak boleh dibawah saat ini
-            if (trsBooking.OrderDate <= DateTime.Now.AddDays(0))
+            if (trsBooking.FinishEstimationTime <= DateTime.Now.AddDays(0))
             {
                 TempData["ErrorMessage"] = "Estimasi selesai tidak boleh dibawah waktu saat ini!";
-                return RedirectToAction("FormMethod", "Reparation", new { idBooking = trsBooking.IdBooking });
+                return View(trsBooking);
             }
             //validasi perubahan metode tefa/service harus ketika progres belum berjalan
             if (booking.Progress > 0)
@@ -149,7 +149,11 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser("SERVICE ADVISOR")]
         public async Task<IActionResult> FormDecision(string idBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(idBooking);
+            var booking = await _context.TrsBookings
+            .Include(t => t.IdVehicleNavigation)
+            .ThenInclude(v => v.IdCustomerNavigation)
+            .FirstOrDefaultAsync(c => c.IdBooking == idBooking);
+
             if (booking == null)
             {
                 return RedirectToAction("NotFound", "Authentication");
@@ -182,10 +186,15 @@ namespace ASP.NET_TEFA.Controllers
             //validasi angka menggunakan regex
             string priceString = trsBooking.Price.ToString(); // Ubah nilai Price menjadi string
             Regex regex = new Regex("^[0-9]+$"); // Hanya angka yang diperbolehkan
-
             if (!regex.IsMatch(priceString))
             {
                 TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0";
+                return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi angka minimum 0
+            if(trsBooking.Price < 0)
+            {
+                TempData["ErrorMessage"] = "Tagihan minimum bernilai 0";
                 return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
             // Lakukan penghapusan data lama

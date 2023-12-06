@@ -63,7 +63,7 @@ namespace ASP.NET_TEFA.Controllers
             var runningServices = await _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
-            .Where(t => t.StartRepairTime != null && t.RepairStatus != "SELESAI")
+            .Where(t => t.RepairMethod != null && t.RepairStatus != "SELESAI")
             .OrderByDescending(x => x.Progress)
             .ToListAsync();
 
@@ -240,7 +240,7 @@ namespace ASP.NET_TEFA.Controllers
             if (customer != null)
             {
                 // Menyiapkan daftar kendaraan pelanggan untuk dipilih dalam pemesanan
-                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");
+                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer && c.Classify != "NONAKTIF"), "IdVehicle", "Type");
 
                 // Menampilkan halaman pembuatan pemesanan
                 return View();
