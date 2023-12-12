@@ -1,0 +1,93 @@
+﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsPending>
+@{
+    var booking = ViewBag.Booking as TrsBooking;
+}
+
+@{
+    ViewData["Title"] = "Pending";
+    Layout = "_LayoutUser";
+    string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="FormStart" method="post">
+    @if (@booking.RepairStatus == "PENDING")
+    {
+        <p>Pending sedang berlangsung!</p>
+    }
+    else
+    {
+        <input type="hidden" name="IdBooking" value="@ViewBag.IdBooking" />
+        <div class="mb-3">
+            <label>Alasan Pending: </label>
+            <input type="text" class="form-control" name="reason" />
+        </div>
+        <p>Pending akan dimulai pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
+    }
+
+    <div class="text-end">
+        @if (@booking.RepairStatus == "PENDING")
+        {
+            <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@booking.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
+                Kembali
+            </a>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary mb-4 ms-auto">
+                Pending
+            </button>
+        }
+    </div>
+</form>
+
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Alasan
+            </th>
+            <th>
+                Mulai Pending
+            </th>
+            <th>
+                Selesai Pending
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Reason
+                </td>
+                <td>
+                    @item.StartTime.ToString("dd MMMM yyyy - HH:mm")
+                </td>
+                <td>
+                    @if (item.FinishTime == null)
+                    {
+                        <form asp-controller="Pending" asp-action="FormFinish" method="post" onsubmit="return confirm('Apakah anda yakin untuk melanjutkan servis ini?');">
+                            <input type="hidden" name="IdPending" value="@item.IdPending" />
+                            <input type="submit" value="Lanjut Servis" style="background: none; border: none; color: blue; cursor: pointer; text-decoration: none;">
+                        </form>
+                    }
+                    else
+                    {
+                        @item.FinishTime?.ToString("dd MMMM yyyy - HH:mm")
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,5 +1,8 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsInspectionList>
 @{
+    var booking = ViewBag.Booking as TrsBooking;
+}
+@{
     ViewData["Title"] = "Inspection List";
     Layout = "_LayoutUser";
     string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
@@ -13,65 +16,68 @@
     </div>
 }
 
-<form asp-action="Create">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Kelengkapan
-                </th>
-                <th>
-                    Masuk
-                </th>
-                <th>
-                    Keluar
-                </th>
-                <th>
-                    Keterangan
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <input type="text" name="IdBooking" value="@ViewBag.IdBooking" hidden />
-            @foreach (var item in Model)
-            {
+<form asp-controller="InspectionList" asp-action="Create" method="post">
+    <input type="text" name="IdBooking" value="@ViewBag.IdBooking" hidden />
+    @if (@booking.IdVehicleNavigation.Classify == "MOBIL")
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        <input type="text" name="IdEquipment_@item.IdEquipment" value="@item.IdEquipment" class="form-control" hidden />
-                        @Html.DisplayFor(modelItem => item.IdEquipmentNavigation.Name)
-                    </td>
-                    <td>
-                        @if (item.Checklist == 1)
-                        {
-                            <input type="radio" name="Checklist_@item.IdEquipment" value="1" checked />
-                        }
-                        else
-                        {
-                            <input type="radio" name="Checklist_@item.IdEquipment" value="1" />
-                        }
-                    </td>
-                    <td>
-                        @if (item.Checklist == 0)
-                        {
-                            <input type="radio" name="Checklist_@item.IdEquipment" value="0" checked />
-                        }
-                        else
-                        {
-                            <input type="radio" name="Checklist_@item.IdEquipment" value="0" />
-                        }
-                    </td>
-                    <td>
-                        <input type="text" name="Description_@item.IdEquipment" value="@Html.DisplayFor(modelItem => item.Description)" class="form-control" />
-                    </td>
+                    <th>
+                        Kelengkapan
+                    </th>
+                    <th>
+                        Masuk
+                    </th>
+                    <th>
+                        Keluar
+                    </th>
+                    <th>
+                        Keterangan
+                    </th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="text" name="IdEquipment_@item.IdEquipment" value="@item.IdEquipment" class="form-control" hidden />
+                            @Html.DisplayFor(modelItem => item.IdEquipmentNavigation.Name)
+                        </td>
+                        <td>
+                            @if (item.Checklist == 1)
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="1" checked />
+                            }
+                            else
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="1" />
+                            }
+                        </td>
+                        <td>
+                            @if (item.Checklist == 0)
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="0" checked />
+                            }
+                            else
+                            {
+                                <input type="radio" name="Checklist_@item.IdEquipment" value="0" />
+                            }
+                        </td>
+                        <td>
+                            <input type="text" name="Description_@item.IdEquipment" value="@Html.DisplayFor(modelItem => item.Description)" class="form-control" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
     
-    @if (Model.Any() && Model.FirstOrDefault().IdBookingNavigation.FinishEstimationTime.HasValue)
+    @if (@booking.StartRepairTime != null)
     {
         <p>
-            Servis ini akan dimulai pada <b>@Model.FirstOrDefault().IdBookingNavigation.FinishEstimationTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.
+            Servis ini sudah dimulai pada <b>@booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.
         </p>
     }
     else
@@ -80,7 +86,7 @@
     }
     
     <div class="text-end">
-        @if (TempData["ErrorMessage"] != null)
+        @if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI") || (booking.StartRepairTime != null && booking.IdVehicleNavigation.Classify == "MOTOR"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@ViewBag.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali

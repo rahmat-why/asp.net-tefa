@@ -37,7 +37,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr style='@(item.RepairMethod == null ? "background-color: yellow;" : "")'>
+            <tr style='@((item.RepairStatus == "MENUNGGU" && item.RepairMethod == "TEFA") ? "background-color: yellow;" : (item.RepairStatus == "MENUNGGU" && item.RepairMethod == "FAST TRACK" ? "background-color: red;" : ""))'>
                 <td>
                     <span>@(item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "-")</span>
                     <a class="btn btn-outline-success btn-sm" data-phone="@item.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Salin nomor whatsapp"><i class="ti ti-brand-whatsapp"></i></a>
@@ -62,13 +62,17 @@
                     @item.RepairStatus
                 </td>
                 <td>
-                    @if(item.RepairMethod == null)
+                    @if(item.RepairStatus == "MENUNGGU")
                     {
-                        <a class="btn btn-primary" asp-controller="Reparation" asp-action="FormMethod" asp-route-IdBooking="@item.IdBooking">Servis</a>
+                        <form asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@item.IdBooking" method="post" confirm="Apakah anda yakin untuk memulai servis ini?">
+                            <input type="submit" value="@item.RepairMethod" style="background: none; border: none; color: blue; cursor: pointer; text-decoration: none;">
+                        </form>
                     }
                     else
                     {
-                        <a asp-controller="Reparation" asp-action="index" asp-route-IdBooking="@item.IdBooking">@item.RepairMethod</a>
+                        <a asp-controller="Reparation" asp-action="index" asp-route-IdBooking="@item.IdBooking">
+                            @item.RepairMethod
+                        </a>
                     }
                 </td>
             </tr>

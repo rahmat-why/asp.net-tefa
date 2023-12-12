@@ -1,0 +1,48 @@
+﻿@model ASP.NET_TEFA.Models.TrsBooking
+
+@{
+    ViewData["Title"] = "INDENT";
+    Layout = "_LayoutUser";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form asp-action="FormIndent" method="post">
+    <input type="hidden" asp-for="IdBooking" />
+    <div class="mb-3">
+        <label asp-for="AdditionalReplacementPart">Tambahan Ganti Part: </label>
+        <textarea asp-for="AdditionalReplacementPart" class="form-control"></textarea>
+        <span asp-validation-for="AdditionalReplacementPart" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="AdditionalPrice">Harga: </label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="price-addon">Rp.</span>
+            </div>
+            <input asp-for="AdditionalPrice" class="form-control" aria-describedby="price-addon">
+        </div>
+        <span asp-validation-for="AdditionalPrice" class="text-danger"></span>
+    </div>
+
+    <div class="text-end">
+        @if (!(Model.RepairStatus == "KONTROL" || Model.RepairStatus == "INSPECTION LIST" || Model.RepairStatus == "EKSEKUSI"))
+        {
+            <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
+                Kembali
+            </a>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary mb-4 ms-auto">
+                Indent!
+            </button>
+        }
+    </div>
+</form>

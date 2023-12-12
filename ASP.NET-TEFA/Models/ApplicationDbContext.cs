@@ -28,6 +28,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<TrsInspectionList> TrsInspectionLists { get; set; }
 
+    public virtual DbSet<TrsPending> TrsPendings { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:DefaultConnection");
 
@@ -177,6 +179,13 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("id_booking");
+            entity.Property(e => e.AdditionalPrice)
+                .HasColumnType("money")
+                .HasColumnName("additional_price");
+            entity.Property(e => e.AdditionalReplacementPart)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("additional_replacement_part");
             entity.Property(e => e.Complaint)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -186,6 +195,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_time");
+            entity.Property(e => e.Decision).HasColumnName("decision");
             entity.Property(e => e.EndRepairTime)
                 .HasColumnType("datetime")
                 .HasColumnName("end_repair_time");
@@ -284,6 +294,37 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.IdEquipmentNavigation).WithMany(p => p.TrsInspectionLists)
                 .HasForeignKey(d => d.IdEquipment)
                 .HasConstraintName("FK__trs_inspe__id_eq__32AB8735");
+        });
+
+        modelBuilder.Entity<TrsPending>(entity =>
+        {
+            entity.HasKey(e => e.IdPending).HasName("PK__trs_pend__C59EEAF70A126F66");
+
+            entity.ToTable("trs_pending");
+
+            entity.Property(e => e.IdPending)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("id_pending");
+            entity.Property(e => e.FinishTime)
+                .HasColumnType("datetime")
+                .HasColumnName("finish_time");
+            entity.Property(e => e.IdBooking)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("id_booking");
+            entity.Property(e => e.Reason)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("reason");
+            entity.Property(e => e.StartTime)
+                .HasColumnType("datetime")
+                .HasColumnName("start_time");
+
+            entity.HasOne(d => d.IdBookingNavigation).WithMany(p => p.TrsPendings)
+                .HasForeignKey(d => d.IdBooking)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__trs_pendi__id_bo__7EF6D905");
         });
 
         OnModelCreatingPartial(modelBuilder);

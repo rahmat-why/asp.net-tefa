@@ -24,9 +24,9 @@ namespace ASP.NET_TEFA.Models
             try
             {
                 IQueryable<TrsBooking> query = _context.TrsBookings
-                .Include(t => t.IdVehicleNavigation)
-                .ThenInclude(v => v.IdCustomerNavigation)
-                .Where(t => t.RepairStatus == "SELESAI");
+                    .Include(t => t.IdVehicleNavigation)
+                    .ThenInclude(v => v.IdCustomerNavigation)
+                    .Where(t => t.RepairStatus == "SELESAI" || t.RepairStatus == "BATAL");
 
                 if (DateTime.TryParseExact(monthString, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedMonth))
                 {

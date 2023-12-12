@@ -16,14 +16,29 @@
 <form asp-action="FormPlan" method="post">
     <input type="hidden" asp-for="IdBooking" />
     <div class="mb-3">
-        <label asp-for="RepairDescription">Perbaikan : </label>
-        <input asp-for="RepairDescription" class="form-control" />
+        <label asp-for="RepairDescription">Perbaikan: </label>
+        <textarea asp-for="RepairDescription" class="form-control"></textarea>
         <span asp-validation-for="RepairDescription" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="ReplacementPart">Ganti Part : </label>
-        <input asp-for="ReplacementPart" class="form-control" />
+        <label asp-for="ReplacementPart">Ganti Part: </label>
+        <textarea asp-for="ReplacementPart" class="form-control"></textarea>
         <span asp-validation-for="ReplacementPart" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Price">Harga: </label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="price-addon">Rp.</span>
+            </div>
+            <input asp-for="Price" class="form-control" aria-describedby="price-addon">
+        </div>
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="FinishEstimationTime">Estimasi Selesai: </label>
+        <input type="datetime-local" asp-for="FinishEstimationTime" class="form-control" />
+        <span asp-validation-for="FinishEstimationTime" class="text-danger"></span>
     </div>
     
     <div class="text-end">

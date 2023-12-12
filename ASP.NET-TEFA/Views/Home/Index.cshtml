@@ -18,12 +18,20 @@
                     <p class="text-center" style="color: #3A4287">Data Kendaraan</p>
                 </div>
             </a>
-            <a asp-controller="Booking" asp-action="Create">
+            <a asp-controller="Booking" asp-action="Create" asp-route-RepairMethod="TEFA">
                 <div class="card" style="border: 1px solid #3A4287;">
                     <div class="text-center py-3">
                         <i class="ti ti-tool" style="color: #3A4287; font-size: 72px; display: block; margin: 0 auto;"></i>
                     </div>
                     <p class="text-center" style="color: #3A4287">Booking Servis</p>
+                </div>
+            </a>
+            <a asp-controller="Booking" asp-action="Create" asp-route-RepairMethod="FAST TRACK">
+                <div class="card" style="border: 1px solid #3A4287;">
+                    <div class="text-center py-3">
+                        <i class="ti ti-mail-fast" style="color: #3A4287; font-size: 72px; display: block; margin: 0 auto;"></i>
+                    </div>
+                    <p class="text-center" style="color: #3A4287">Fast Track Servis</p>
                 </div>
             </a>
             <a asp-controller="Booking" asp-action="Index">

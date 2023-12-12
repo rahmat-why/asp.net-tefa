@@ -24,73 +24,35 @@ namespace ASP.NET_TEFA.Controllers
                 .Include(t => t.IdVehicleNavigation)
                 .FirstOrDefaultAsync(c => c.IdBooking == idBooking);
 
-            return View(booking);
-        }
-
-        [AuthorizedUser("SERVICE ADVISOR")]
-        public async Task<IActionResult> FormMethod(string idBooking)
-        {
-            
-            var booking = await _context.TrsBookings.FindAsync(idBooking);
-            if (booking == null)
+            if(booking.RepairStatus == "BATAL")
             {
-                return RedirectToAction("NotFound", "Authentication");
-            }
-            //validasi perubahan metode tefa/service
-            if(booking.Progress > 0)
+                TempData["ErrorMessage"] = "Servis ini telah dibatalkan dan tidak dapat dilanjutkan lagi!";
+            }else if(booking.RepairStatus == "PENDING")
             {
-                TempData["ErrorMessage"] = "Perubahan metode tidak dapat dilakukan ketika progres sudah berjalan!";
+                TempData["ErrorMessage"] = "Servis ini sedang dipending!";
             }
 
             return View(booking);
         }
 
-        [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
-        public async Task<IActionResult> FormMethod([Bind("IdBooking, RepairMethod, FinishEstimationTime")] TrsBooking trsBooking)
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
+        public async Task<IActionResult> FormStartService(string idBooking)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+            var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
             {
                 return NotFound();
             }
-            //validasi metode dan estimasi tidak boleh  kosong 
-            if (string.IsNullOrWhiteSpace(trsBooking.RepairMethod) || trsBooking.FinishEstimationTime == null)
-            {
-                TempData["ErrorMessage"] = "Metode dan estimasi selesai tidak boleh kosong!";
-                return View(trsBooking);
-            }
-            //validasi estimasi selesai tidak boleh dibawah saat ini
-            if (trsBooking.FinishEstimationTime <= DateTime.Now.AddDays(0))
-            {
-                TempData["ErrorMessage"] = "Estimasi selesai tidak boleh dibawah waktu saat ini!";
-                return View(trsBooking);
-            }
-            //validasi perubahan metode tefa/service harus ketika progres belum berjalan
-            if (booking.Progress > 0)
-            {
-                TempData["ErrorMessage"] = "Perubahan metode tidak dapat dilakukan ketika progres sudah berjalan!";
-                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-            }
-            //validasi jika memilih metode tefa maka status akan otomatis "Perencanaan"
-            string repair_status;
-            if (trsBooking.RepairMethod == "TEFA")
-            {
-                repair_status = "PERENCANAAN";
-            }
-            else
-            {
-                repair_status = "MULAI";
-            }
 
-            booking.RepairMethod = trsBooking.RepairMethod;
-            booking.FinishEstimationTime = trsBooking.FinishEstimationTime;
-            booking.RepairStatus = repair_status;
+            booking.RepairStatus = "PERENCANAAN";
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            TempData["SuccessMessage"] = "Servis berhasil dimulai!";
+
+            return RedirectToAction("Index", "Reparation", new { idBooking = idBooking });
         }
 
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
@@ -113,7 +75,7 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FormPlan([Bind("IdBooking, RepairDescription, ReplacementPart")] TrsBooking trsBooking)
+        public async Task<IActionResult> FormPlan([Bind("IdBooking, RepairDescription, ReplacementPart, Price, FinishEstimationTime")] TrsBooking trsBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
@@ -126,15 +88,31 @@ namespace ASP.NET_TEFA.Controllers
                 TempData["ErrorMessage"] = "Perencanaan harus dilakukan setelah info proyek atau sebelum keputusan!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-            //validasi metode dan estimasi harus tidak boleh kosong
-            if (string.IsNullOrWhiteSpace(trsBooking.RepairDescription) || string.IsNullOrWhiteSpace(trsBooking.ReplacementPart))
+            //validasi deskripsi perbaikan dan ganti part tidak boleh kosong
+            if (string.IsNullOrWhiteSpace(trsBooking.RepairDescription) || string.IsNullOrWhiteSpace(trsBooking.ReplacementPart) || trsBooking.FinishEstimationTime == null)
             {
-                TempData["ErrorMessage"] = "Metode dan estimasi selesai tidak boleh kosong!";
-                return RedirectToAction("FormMethod", "Reparation", new { idBooking = trsBooking.IdBooking });
+                TempData["ErrorMessage"] = "Deskripsi perbaikan, ganti part, dan tagihan tidak boleh kosong! Isi dengan 0 jika ingin mengosongkan.";
+                return RedirectToAction("FormPlan", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi angka menggunakan regex dan minimum 0
+            string priceString = trsBooking.Price.ToString();
+            Regex regex = new Regex(@"^[0-9]+$");
+            if (!regex.IsMatch(priceString) || trsBooking.Price < 0)
+            {
+                TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0 dan harus minimum 0";
+                return RedirectToAction("FormPlan", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi estimasi selesai tidak boleh dibawah saat ini
+            if (trsBooking.FinishEstimationTime <= DateTime.Now.AddDays(0))
+            {
+                TempData["ErrorMessage"] = "Estimasi selesai tidak boleh dibawah waktu saat ini!";
+                return RedirectToAction("FormPlan", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
             booking.RepairDescription = trsBooking.RepairDescription;
             booking.ReplacementPart = trsBooking.ReplacementPart;
+            booking.Price = trsBooking.Price;
+            booking.FinishEstimationTime = trsBooking.FinishEstimationTime;
             booking.RepairStatus = "KEPUTUSAN";//mengubah status menjadi Keputusan saat data telah diisi dan disimpan
             booking.Progress = 10;
 
@@ -159,7 +137,11 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("NotFound", "Authentication");
             }
             //validasi peringatan harus mengisi keputusan sebelum eksekusi
-            if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
+            if(booking.RepairStatus == "BATAL")
+            {
+                TempData["ErrorMessage"] = "Servis ini telah dibatalkan dan tidak dapat dilanjutkan lagi!";
+            }
+            else if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
             {
                 TempData["ErrorMessage"] = "Keputusan harus dilakukan setelah perencanaan atau sebelum eksekusi!";
             }
@@ -170,110 +152,83 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FormDecision([Bind("IdBooking, Price")] TrsBooking trsBooking)
+        public async Task<IActionResult> FormDecision(IFormCollection form)
         {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+            string idBooking = form["IdBooking"].ToString();
+            var booking = await _context.TrsBookings
+            .Include(t => t.IdVehicleNavigation)
+            .FirstOrDefaultAsync(t => t.IdBooking == idBooking);
+
             if (booking == null)
             {
                 return NotFound();
             }
-
+            //validasi untuk mengingatkan agar keputusan harus terlebih dahulu dilakukan sebelum inspection list
             if (!(booking.RepairStatus == "KEPUTUSAN" || booking.RepairStatus == "INSPECTION LIST"))
             {
                 TempData["ErrorMessage"] = "Keputusan harus dilakukan setelah perencanaan atau sebelum eksekusi!";
-                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-            }
-            //validasi angka menggunakan regex
-            string priceString = trsBooking.Price.ToString(); // Ubah nilai Price menjadi string
-            Regex regex = new Regex("^[0-9]+$"); // Hanya angka yang diperbolehkan
-            if (!regex.IsMatch(priceString))
-            {
-                TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0";
-                return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
-            }
-            //validasi angka minimum 0
-            if(trsBooking.Price < 0)
-            {
-                TempData["ErrorMessage"] = "Tagihan minimum bernilai 0";
-                return RedirectToAction("FormDecision", "Reparation", new { idBooking = trsBooking.IdBooking });
-            }
-            // Lakukan penghapusan data lama
-            var existingInspections = _context.TrsInspectionLists.Where(i => i.IdBooking == trsBooking.IdBooking);
-            _context.TrsInspectionLists.RemoveRange(existingInspections);
-
-            var equipment = await _context.MsEquipments.Where(t => t.IsActive == 1).ToListAsync();
-            for (int i = 0; i < equipment.Count; i++)
-            {
-                Random random = new();
-                string idInspection = random.Next(100000, 999999).ToString();
-                var data = new TrsInspectionList
-                {
-                    IdInspection = idInspection,
-                    IdBooking = trsBooking.IdBooking,
-                    IdEquipment = equipment[i].IdEquipment,
-                    Checklist = 1,
-                    Description = null
-                };
-
-                _context.TrsInspectionLists.Add(data);
+                return RedirectToAction("Index", "Reparation", new { idBooking = idBooking });
             }
 
-            booking.Price = trsBooking.Price;
-            booking.RepairStatus = "INSPECTION LIST";
+            int? decision = int.TryParse(form["decision"], out var parsedValue) ? parsedValue : (int?)null;
+            //validasi keputusan tidak boleh kosong
+            if (decision == null)
+            {
+                TempData["ErrorMessage"] = "Persetujuan harus dipilih!";
+                return RedirectToAction("FormDecision", "Reparation", new { idBooking = idBooking });
+            }
+
+            string repair_status;
+            if(decision == 1)
+            {
+                repair_status = "INSPECTION LIST";
+            }
+            else
+            {
+                repair_status = "BATAL";
+            }
+
+            booking.Decision = decision;
+            booking.RepairStatus = repair_status;
             booking.Progress = 20;
+
+            if(repair_status == "BATAL")
+            {
+                TempData["SuccessMessage"] = "Servis berhasil dibatalkan!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = idBooking });
+            }
+
+            // menyimpan data mentah inspection list dari tabel equipment jika kendaraan mobil
+            if (booking.IdVehicleNavigation.Classify == "MOBIL")
+            {
+                // Lakukan penghapusan data lama
+                var existingInspections = _context.TrsInspectionLists.Where(i => i.IdBooking == idBooking);
+                _context.TrsInspectionLists.RemoveRange(existingInspections);
+
+                var equipment = await _context.MsEquipments.Where(t => t.IsActive == 1).ToListAsync();
+                for (int i = 0; i < equipment.Count; i++)
+                {
+                    Random random = new();
+                    string idInspection = random.Next(100000, 999999).ToString();
+                    var data = new TrsInspectionList
+                    {
+                        IdInspection = idInspection,
+                        IdBooking = idBooking,
+                        IdEquipment = equipment[i].IdEquipment,
+                        Checklist = 1,
+                        Description = null
+                    };
+
+                    _context.TrsInspectionLists.Add(data);
+                }
+            }
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Keputusan berhasil! Tahapan berlanjut ke inspection list!";
 
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-        }
-
-        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
-        public async Task<IActionResult> FormStartExecution(string idBooking)
-        {
-            var booking = await _context.TrsBookings.FindAsync(idBooking);
-            if (booking == null)
-            {
-                return RedirectToAction("NotFound", "Authentication");
-            }
-
-            if (booking.StartRepairTime != null)
-            {
-                TempData["ErrorMessage"] = "Eksekusi sudah dimulai pada: "+booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
-            }
-
-            return View(booking);
-        }
-
-        [AuthorizedUser("HEAD MECHANIC")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FormStartExecution([Bind("IdBooking, EndRepairTime")] TrsBooking trsBooking)
-        {
-            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
-            if (booking == null)
-            {
-                return RedirectToAction("NotFound", "Authentication");
-            }
-
-            if (booking.StartRepairTime != null)
-            {
-                TempData["ErrorMessage"] = "Eksekusi sudah dimulai pada: "+booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
-                return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
-            }
-
-            booking.StartRepairTime = DateTime.Now;
-            booking.RepairStatus = "EKSEKUSI";
-            booking.Progress = 50;
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Mulai berhasil! Tahapan berlanjut ke eksekusi!";
-
-            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            return RedirectToAction("Index", "Reparation", new { idBooking = idBooking });
         }
 
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
@@ -284,10 +239,15 @@ namespace ASP.NET_TEFA.Controllers
             {
                 return RedirectToAction("NotFound", "Authentication");
             }
-
+            // validasi jika eksekusi sudah diselesaikan
             if (booking.EndRepairTime != null)
             {
                 TempData["ErrorMessage"] = "Eksekusi sudah diselesaikan pada: "+booking.EndRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
+            }
+            //validasi untuk mengingatkan agar inspection list harus terlebih dahulu dilakukan sebelum selesai eksekusi
+            if (!(booking.RepairStatus == "EKSEKUSI"))
+            {
+                TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah inspection list!";
             }
 
             return View(booking);
@@ -303,34 +263,27 @@ namespace ASP.NET_TEFA.Controllers
             {
                 return RedirectToAction("NotFound", "Authentication");
             }
-
+            // validasi jika eksekusi sudah diselesaikan
             if (booking.EndRepairTime != null)
             {
                 TempData["ErrorMessage"] = "Eksekusi sudah diselesaikan pada: "+booking.EndRepairTime.Value.ToString("dd MMMM yyyy - HH:mm");
                 return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
-
-            string repair_status;
-            int progress;
-            if (booking.RepairMethod == "TEFA")
+            //validasi untuk mengingatkan agar inspection list harus terlebih dahulu dilakukan sebelum selesai eksekusi
+            if (!(booking.RepairStatus == "EKSEKUSI"))
             {
-                repair_status = "KONTROL";
-                progress = 70;
-            }
-            else
-            {
-                repair_status = "SELESAI";
-                progress = 100;
+                TempData["ErrorMessage"] = "Selesai eksekusi harus dilakukan setelah inspection list!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
             booking.EndRepairTime = DateTime.Now;
-            booking.RepairStatus = repair_status;
-            booking.Progress = progress;
+            booking.RepairStatus = "KONTROL";
+            booking.Progress = 70;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Keputusan berhasil! Tahapan berlanjut ke inspection list!";
+            TempData["SuccessMessage"] = "Eksekusi selesai! Tahapan berlanjut ke kontrol!";
 
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
@@ -439,6 +392,65 @@ namespace ASP.NET_TEFA.Controllers
             TempData["SuccessMessage"] = "Evaluasi berhasil! Seluruh tahapan sudah selesai!";
 
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
-        }               
+        }
+
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
+        public async Task<IActionResult> FormIndent(string idBooking)
+        {
+            var booking = await _context.TrsBookings.FindAsync(idBooking);
+            if (booking == null)
+            {
+                return RedirectToAction("NotFound", "Authentication");
+            }
+            //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan hanya saat pending
+            if (!(booking.RepairStatus == "PENDING"))
+            {
+                TempData["ErrorMessage"] = "Indent dapat dilakukan saat pending!";
+            }
+
+            return View(booking);
+        }
+
+        [AuthorizedUser("HEAD MECHANIC")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FormIndent([Bind("IdBooking, AdditionalReplacementPart, AdditionalPrice")] TrsBooking trsBooking)
+        {
+            var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+            //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan hanya saat pending
+            if (!(booking.RepairStatus == "PENDING"))
+            {
+                TempData["ErrorMessage"] = "Perencanaan harus dilakukan setelah info proyek atau sebelum keputusan!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi deskripsi perbaikan dan ganti part tidak boleh kosong
+            if (string.IsNullOrWhiteSpace(trsBooking.AdditionalReplacementPart) || trsBooking.AdditionalPrice == null)
+            {
+                TempData["ErrorMessage"] = "Tambahan ganti part, dan tagihan tidak boleh kosong! Isi dengan 0 jika ingin mengosongkan.";
+                return RedirectToAction("FormIndent", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+            //validasi angka menggunakan regex dan minimum 0
+            string priceString = trsBooking.AdditionalPrice.ToString();
+            Regex regex = new Regex(@"^[0-9]+$");
+            if (!regex.IsMatch(priceString) || trsBooking.Price < 0)
+            {
+                TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0 dan harus minimum 0";
+                return RedirectToAction("FormIndent", "Reparation", new { idBooking = trsBooking.IdBooking });
+            }
+
+            booking.AdditionalReplacementPart = trsBooking.AdditionalReplacementPart;
+            booking.AdditionalPrice = trsBooking.AdditionalPrice;
+
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Indent berhasil disimpan!";
+
+            return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
+        }
     }
 }

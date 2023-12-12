@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "Booking Servis";
+    ViewData["Title"] = (Model.RepairMethod == "FAST TRACK" ? "Fast Track Servis" : "Booking Servis");
     Layout = "_Layout";
 }
 
@@ -9,7 +9,8 @@
     <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
             <div class="card-body">
-                <h6 class="text-center"><b>BOOKING SERVIS</b></h6>
+                <h6 class="text-center"><b>FORM BOOKING @Model.RepairMethod</b></h6>
+                <p class="text-center">@(Model.RepairMethod == "FAST TRACK" ? "Servis dengan urgensi tinggi silahkan gunakan FAST TRACK" : "Servis yang cenderung kompleks silahkan gunakan booking TEFA")</p>
                 <hr />
 
                 @if (TempData["ErrorMessage"] != null)
@@ -24,12 +25,12 @@
                     Loading...
                 </div>
                 <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="RepairMethod" />
 
                     <div class="mb-3">
                         <label asp-for="OrderDate" class="form-label">Tanggal Booking</label>
-                        <input asp-for="OrderDate" class="form-control" type="date" required>
-                        <div id="orderDateHelp" class="form-text">Tanggal yang valid minimum H+1</div>
+                        <input asp-for="OrderDate" class="form-control" type="date" required readonly="@(Model.OrderDate != null ? true : false)">
+                        <div id="orderDateHelp" class="form-text">@(Model.RepairMethod == "FAST TRACK" ? "Fast track akan dibooking hari ini juga" : "Tanggal yang valid minimum H+1")</div>
                         <span asp-validation-for="OrderDate" class="text-danger"></span>
                     </div>
 

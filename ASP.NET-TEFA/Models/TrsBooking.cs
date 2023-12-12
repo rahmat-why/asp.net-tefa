@@ -33,7 +33,7 @@ public partial class TrsBooking
 
     public string? Evaluation { get; set; }
 
-    public decimal? Price { get; set; }
+    public int? Price { get; set; }
 
     public DateTime? CreatedTime { get; set; }
 
@@ -45,6 +45,12 @@ public partial class TrsBooking
 
     public int? Progress { get; set; }
 
+    public string? AdditionalReplacementPart { get; set; }
+
+    public int? AdditionalPrice { get; set; }
+
+    public int? Decision { get; set; }
+
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 
     public virtual MsVehicle IdVehicleNavigation { get; set; } = null!;
@@ -52,4 +58,6 @@ public partial class TrsBooking
     public virtual MsUser? ServiceAdvisorNavigation { get; set; }
 
     public virtual ICollection<TrsInspectionList> TrsInspectionLists { get; set; } = new List<TrsInspectionList>();
+
+    public virtual ICollection<TrsPending> TrsPendings { get; set; } = new List<TrsPending>();
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using OfficeOpenXml.Table;
 using OfficeOpenXml;
+
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -109,7 +114,7 @@ namespace ASP.NET_TEFA.Controllers
             IQueryable<TrsBooking> query = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
                 .ThenInclude(v => v.IdCustomerNavigation)
-                .Where(t => t.RepairStatus == "SELESAI");
+                .Where(t => t.RepairStatus == "SELESAI" || t.RepairStatus == "BATAL");
 
             // Mengambil nilai bulan dari parameter query atau menggunakan bulan saat ini jika tidak ada
             string monthString = HttpContext.Request.Query["month"];
@@ -132,12 +137,14 @@ namespace ASP.NET_TEFA.Controllers
 
             // Menghitung jumlah pemesanan dengan metode perbaikan TEFA dan SERVICE
             int countTefa = reportBooking.Count(t => t.RepairMethod == "TEFA");
-            int countService = reportBooking.Count(t => t.RepairMethod == "SERVICE");
+            int countFastTrack = reportBooking.Count(t => t.RepairMethod == "FAST TRACK");
+            int countCancel = reportBooking.Count(t => t.RepairStatus == "BATAL");
 
             // Menetapkan nilai bulan dan jumlah pemesanan ke ViewBag dan TempData untuk digunakan di view
             ViewBag.month = monthString;
             TempData["count_tefa"] = countTefa;
-            TempData["count_service"] = countService;
+            TempData["count_fast_track"] = countFastTrack;
+            TempData["count_cancel"] = countCancel;
 
             // Menampilkan data pemesanan ke view
             return View(reportBooking);
@@ -196,12 +203,14 @@ namespace ASP.NET_TEFA.Controllers
                 ws.Cells["M1"].Value = "Tagihan";
                 ws.Cells["N1"].Value = "Evaluasi";
                 ws.Cells["O1"].Value = "Metode Servis";
+                ws.Cells["P1"].Value = "Tambahan Ganti Part";
+                ws.Cells["Q1"].Value = "Tambahan Tagihan";
+                ws.Cells["R1"].Value = "Keputusan";
 
                 // Menambahkan baris data
                 int row = 2;
                 foreach (var item in data)
                 {
-                    // Menetapkan nilai sel pada worksheet
                     // Menetapkan nilai sel pada worksheet
                     ws.Cells[$"A{row}"].Value = item.IdBooking ?? "N/A";
                     ws.Cells[$"B{row}"].Value = item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "N/A";
@@ -218,7 +227,9 @@ namespace ASP.NET_TEFA.Controllers
                     ws.Cells[$"M{row}"].Value = item.Price.ToString() ?? "N/A";
                     ws.Cells[$"N{row}"].Value = item.Evaluation ?? "N/A";
                     ws.Cells[$"O{row}"].Value = item.RepairMethod ?? "N/A";
-
+                    ws.Cells[$"P{row}"].Value = item.AdditionalReplacementPart ?? "N/A";
+                    ws.Cells[$"Q{row}"].Value = item.AdditionalPrice.ToString() ?? "N/A";
+                    ws.Cells[$"R{row}"].Value = (item.Decision == 1) ? "Ya" : "Tidak";
 
                     row++;
                 }
@@ -228,33 +239,75 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
+        public IActionResult ExportPdf()
+        {
+            // Create a MemoryStream to store the PDF
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // Create a PdfWriter object to write the PDF stream
+                using (PdfWriter writer = new PdfWriter(stream))
+                {
+                    // Create a PdfDocument object
+                    using (PdfDocument pdf = new PdfDocument(writer))
+                    {
+                        // Create a Document object to add elements
+                        Document document = new Document(pdf);
+
+                        // Add content to the PDF
+                        document.Add(new Paragraph("Hello World"));
+
+                        // Close the document
+                        document.Close();
+                    }
+                }
+
+                // Return the PDF as a file
+                return File(stream.ToArray(), "application/pdf", "Document.pdf");
+            }
+        }
+
         // Menampilkan halaman pembuatan pemesanan baru
         [AuthorizedCustomer]
-        public IActionResult Create()
+        public IActionResult Create(string RepairMethod)
         {
             // Mengambil informasi pelanggan dari sesi
             string authentication = HttpContext.Session.GetString("authentication");
             MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
 
             // Memastikan pelanggan terautentikasi sebelum menampilkan halaman pembuatan pemesanan
-            if (customer != null)
+            if (customer == null)
             {
-                // Menyiapkan daftar kendaraan pelanggan untuk dipilih dalam pemesanan
-                ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer && c.Classify != "NONAKTIF"), "IdVehicle", "Type");
-
-                // Menampilkan halaman pembuatan pemesanan
-                return View();
+                return RedirectToAction(nameof(Index));
             }
 
-            // Jika pelanggan tidak terautentikasi, kembalikan ke halaman utama
-            return RedirectToAction(nameof(Index));
+            // Memastikan url diakses melalui halaman menu, tidak salah akibat diketik manual
+            string[] validMethod = { "FAST TRACK", "TEFA" };
+            if (!validMethod.Contains(RepairMethod))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Menyiapkan daftar kendaraan pelanggan untuk dipilih dalam pemesanan
+            ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer && c.Classify != "NONAKTIF"), "IdVehicle", "Type");
+
+            // Inisiasi objek booking untuk kondisi metode TEFA atau FAST TRACK
+            TrsBooking trsBooking = new TrsBooking();
+            trsBooking.RepairMethod = RepairMethod;
+
+            if (RepairMethod == "FAST TRACK")
+            {
+                trsBooking.OrderDate = DateTime.Today;
+            }
+
+            // Menampilkan halaman pembuatan pemesanan
+            return View(trsBooking);
         }
 
         // Proses pembuatan pemesanan baru oleh pelanggan
         [AuthorizedCustomer]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer")] TrsBooking trsBooking)
+        public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer,RepairMethod")] TrsBooking trsBooking)
         {
             // Memeriksa apakah OrderDate tidak berada diatas H+1
             if (trsBooking.OrderDate <= DateTime.Now.AddDays(1))

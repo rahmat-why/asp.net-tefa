@@ -15,19 +15,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    else
-    {
-        <p>Servis ini akan diselesaikan pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
-    }
+    
+    <p>Servis ini akan diselesaikan pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
 
     <div class="text-end">
-        @if(Model.RepairMethod == "TEFA")
-        {
-            <a asp-controller="InspectionList" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-dark mb-4 ms-auto">
-                Inspection List
-            </a>
-        }
-        @if (Model.EndRepairTime != null)
+        <a asp-controller="InspectionList" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-dark mb-4 ms-auto">
+            Inspection List
+        </a>
+        @if (!(Model.RepairStatus == "EKSEKUSI"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali
