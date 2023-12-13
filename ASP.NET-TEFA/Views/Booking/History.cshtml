@@ -64,7 +64,7 @@
                 <td>
                     @if(item.RepairStatus == "MENUNGGU")
                     {
-                        <form asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@item.IdBooking" method="post" confirm="Apakah anda yakin untuk memulai servis ini?">
+                        <form asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@item.IdBooking" method="post" onsubmit="return confirm('Apakah anda yakin untuk memulai servis ini?');">
                             <input type="submit" value="@item.RepairMethod" style="background: none; border: none; color: blue; cursor: pointer; text-decoration: none;">
                         </form>
                     }

@@ -9,7 +9,7 @@ namespace ASP.NET_TEFA.Models;
 
 public partial class MsUser
 {
-    public string? IdUser { get; set; }
+    public string IdUser { get; set; } = null!;
 
     [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Nama lengkap hanya boleh huruf dan spasi.")]
     [Required(ErrorMessage = "Nama lengkap wajib diisi.")]
@@ -35,4 +35,6 @@ public partial class MsUser
     public virtual ICollection<TrsBooking> TrsBookingHeadMechanicNavigations { get; set; } = new List<TrsBooking>();
 
     public virtual ICollection<TrsBooking> TrsBookingServiceAdvisorNavigations { get; set; } = new List<TrsBooking>();
+
+    public virtual ICollection<TrsPending> TrsPendings { get; set; } = new List<TrsPending>();
 }

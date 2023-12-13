@@ -16,5 +16,9 @@ public partial class TrsPending
 
     public string IdBooking { get; set; } = null!;
 
+    public string IdUser { get; set; } = null!;
+
     public virtual TrsBooking IdBookingNavigation { get; set; } = null!;
+
+    public virtual MsUser IdUserNavigation { get; set; } = null!;
 }

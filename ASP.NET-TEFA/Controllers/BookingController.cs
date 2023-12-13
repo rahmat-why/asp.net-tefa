@@ -88,13 +88,13 @@ namespace ASP.NET_TEFA.Controllers
             var query = _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
-            .Where(t => t.RepairStatus != "SELESAI");
+            .Where(t => t.RepairStatus != "SELESAI" || t.RepairStatus != "BATAL");
 
-            // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan dengan metode perbaikan terisi
+            // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan yang sudah dimulai saja
             // Diurutkan berdasarkan order date terbaru
             if (user.Position != "SERVICE ADVISOR")
             {
-                query = query.Where(t => t.RepairMethod != null).OrderBy(t => t.OrderDate);
+                query = query.Where(t => t.ServiceAdvisor != null).OrderBy(t => t.OrderDate);
             }
 
             // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
@@ -310,7 +310,7 @@ namespace ASP.NET_TEFA.Controllers
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer,RepairMethod")] TrsBooking trsBooking)
         {
             // Memeriksa apakah OrderDate tidak berada diatas H+1
-            if (trsBooking.OrderDate <= DateTime.Now.AddDays(1))
+            if (trsBooking.OrderDate <= DateTime.Now.AddDays(1) && trsBooking.RepairMethod == "TEFA")
             {
                 // Mengambil informasi pelanggan dari sesi
                 string authentication = HttpContext.Session.GetString("authentication");

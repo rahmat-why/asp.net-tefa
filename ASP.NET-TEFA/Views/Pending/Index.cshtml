@@ -1,6 +1,7 @@
-﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsPending>
+﻿@model ASP.NET_TEFA.Models.TrsPending
 @{
     var booking = ViewBag.Booking as TrsBooking;
+    var pendings = ViewBag.Pendings as IEnumerable<TrsPending>;
 }
 
 @{
@@ -24,10 +25,10 @@
     }
     else
     {
-        <input type="hidden" name="IdBooking" value="@ViewBag.IdBooking" />
+        <input type="hidden" asp-for="IdBooking" value="@ViewBag.IdBooking" />
         <div class="mb-3">
-            <label>Alasan Pending: </label>
-            <input type="text" class="form-control" name="reason" />
+            <label asp-for="Reason">Alasan Pending: </label>
+            <input asp-for="Reason" type="text" class="form-control" name="reason" />
         </div>
         <p>Pending akan dimulai pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
     }
@@ -60,12 +61,15 @@
                 Mulai Pending
             </th>
             <th>
+                Dipending oleh
+            </th>
+            <th>
                 Selesai Pending
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in pendings)
         {
             <tr>
                 <td>
@@ -73,6 +77,9 @@
                 </td>
                 <td>
                     @item.StartTime.ToString("dd MMMM yyyy - HH:mm")
+                </td>
+                <td>
+                    @item.IdUserNavigation.FullName
                 </td>
                 <td>
                     @if (item.FinishTime == null)

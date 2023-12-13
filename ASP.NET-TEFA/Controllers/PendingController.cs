@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ASP.NET_TEFA.Models;
+using Newtonsoft.Json;
+using System.Drawing;
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -34,48 +36,52 @@ namespace ASP.NET_TEFA.Controllers
             }
 
             // Mengambil daftar pending terkait dengan pemesanan
-            var trsPendings = _context.TrsPendings
+            var trsPendings = await _context.TrsPendings
             .Where(t => t.IdBooking ==  idBooking)
             .Include(t => t.IdBookingNavigation)
+            .Include(t => t.IdUserNavigation)
             .OrderBy(t => t.StartTime)
             .ToListAsync();
 
             // Menyiapkan data untuk ditampilkan di View
             ViewBag.IdBooking = idBooking;
-            ViewBag.booking = booking;
+            ViewBag.Booking = booking;
+            ViewBag.Pendings = trsPendings;
 
-            return View(await trsPendings);
+            return View();
         }
 
         // Menambahkan pending jika terdapat temuan
         [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
-        public async Task<IActionResult> FormStart(IFormCollection form)
+        public async Task<IActionResult> FormStart([Bind("Reason,IdBooking")] TrsPending trsPending)
         {
-            // Ambil data dari form
-            string IdBooking = form["IdBooking"];
-            string reason = form["reason"];
-
-            var booking = await _context.TrsBookings.FindAsync(IdBooking);
+            var booking = await _context.TrsBookings.FindAsync(trsPending.IdBooking);
             if (booking == null)
             {
                 return RedirectToAction("NotFound", "Authentication");
             }
 
+            //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan sebelum keputusan
+            if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
+            {
+                TempData["ErrorMessage"] = "Pending hanya dapat dilakukan saat eksekusi!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
+            }
+
             // Menghasilkan id pending
             string IdPending = $"PND{_context.TrsPendings.Count() + 1}";
 
-            // Tambah objek pending
-            TrsPending newPending = new TrsPending
-            {
-                IdPending = IdPending,
-                IdBooking = IdBooking,
-                Reason = reason,
-                StartTime = DateTime.Now
-            };
+            // Mengambil informasi pelanggan dari sesi
+            string userAuthentication = HttpContext.Session.GetString("userAuthentication");
+            MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+
+            trsPending.IdPending = IdPending;
+            trsPending.StartTime = DateTime.Now;
+            trsPending.IdUser = user.IdUser;
 
             // Simpan kedalam transaksi pending
-            _context.TrsPendings.Add(newPending);
+            _context.TrsPendings.Add(trsPending);
 
             // Simpan kedalam database
             await _context.SaveChangesAsync();
@@ -88,7 +94,7 @@ namespace ASP.NET_TEFA.Controllers
 
             TempData["SuccessMessage"] = "Servis berhasil dipending sementara!";
 
-            return RedirectToAction("Index", "Reparation", new { idBooking = IdBooking });
+            return RedirectToAction("Index", "Reparation", new { idBooking = trsPending.IdBooking });
         }
 
         // Menambahkan pending jika terdapat temuan

@@ -313,6 +313,10 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("id_booking");
+            entity.Property(e => e.IdUser)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("id_user");
             entity.Property(e => e.Reason)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -325,6 +329,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.IdBooking)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__trs_pendi__id_bo__7EF6D905");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.TrsPendings)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_trs_pending_id_user");
         });
 
         OnModelCreatingPartial(modelBuilder);

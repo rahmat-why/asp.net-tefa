@@ -28,20 +28,20 @@
                                     <th>Status</th>
                                     <th>Tipe Kendaraan</th>
                                     <th>Tanggal Booking</th>
-                                    <th>Odometer</th>
+                                    <th>Odometer (km)</th>
                                     <th>Keluhan</th>
                                     <th>Metode Servis</th>
                                     <th>Perbaikan</th>
                                     <th>Ganti Part</th>
                                     <th>Harga</th>
-                                    <th>Unduh</th>
+                                    <th>Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <span>@item.RepairStatus (@item.Progress%)</span>
+                                        <td>@item.RepairStatus</td>
                                         <td>@item.IdVehicleNavigation.Type</td>
                                         <td>
                                             @if (item.OrderDate.HasValue)

@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "INDENT";
+    ViewData["Title"] = "FORM TEMUAN";
     Layout = "_LayoutUser";
 }
 
@@ -13,7 +13,7 @@
     </div>
 }
 
-<form asp-action="FormIndent" method="post">
+<form asp-action="FormSpecialHandling" method="post">
     <input type="hidden" asp-for="IdBooking" />
     <div class="mb-3">
         <label asp-for="AdditionalReplacementPart">Tambahan Ganti Part: </label>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="text-end">
-        @if (!(Model.RepairStatus == "KONTROL" || Model.RepairStatus == "INSPECTION LIST" || Model.RepairStatus == "EKSEKUSI"))
+        @if (!(Model.RepairStatus == "PENDING"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali
@@ -41,7 +41,7 @@
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Indent!
+                Simpan Temuan!
             </button>
         }
     </div>

@@ -45,6 +45,11 @@ namespace ASP.NET_TEFA.Controllers
                 return NotFound();
             }
 
+            // Mengambil informasi user dari sesi
+            string userAuthentication = HttpContext.Session.GetString("userAuthentication");
+            MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+
+            booking.ServiceAdvisor = user.IdUser;
             booking.RepairStatus = "PERENCANAAN";
 
             _context.Update(booking);
@@ -109,12 +114,17 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("FormPlan", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
+            // Mengambil informasi user dari sesi
+            string userAuthentication = HttpContext.Session.GetString("userAuthentication");
+            MsUser user = JsonConvert.DeserializeObject<MsUser>(userAuthentication);
+
             booking.RepairDescription = trsBooking.RepairDescription;
             booking.ReplacementPart = trsBooking.ReplacementPart;
             booking.Price = trsBooking.Price;
             booking.FinishEstimationTime = trsBooking.FinishEstimationTime;
             booking.RepairStatus = "KEPUTUSAN";//mengubah status menjadi Keputusan saat data telah diisi dan disimpan
             booking.Progress = 10;
+            booking.HeadMechanic = user.IdUser;
 
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -395,7 +405,7 @@ namespace ASP.NET_TEFA.Controllers
         }
 
         [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
-        public async Task<IActionResult> FormIndent(string idBooking)
+        public async Task<IActionResult> FormSpecialHandling(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
             if (booking == null)
@@ -405,7 +415,7 @@ namespace ASP.NET_TEFA.Controllers
             //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan hanya saat pending
             if (!(booking.RepairStatus == "PENDING"))
             {
-                TempData["ErrorMessage"] = "Indent dapat dilakukan saat pending!";
+                TempData["ErrorMessage"] = "Temuan dapat dilakukan saat pending!";
             }
 
             return View(booking);
@@ -414,7 +424,7 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser("HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> FormIndent([Bind("IdBooking, AdditionalReplacementPart, AdditionalPrice")] TrsBooking trsBooking)
+        public async Task<IActionResult> FormSpecialHandling([Bind("IdBooking, AdditionalReplacementPart, AdditionalPrice")] TrsBooking trsBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(trsBooking.IdBooking);
             if (booking == null)
@@ -431,7 +441,7 @@ namespace ASP.NET_TEFA.Controllers
             if (string.IsNullOrWhiteSpace(trsBooking.AdditionalReplacementPart) || trsBooking.AdditionalPrice == null)
             {
                 TempData["ErrorMessage"] = "Tambahan ganti part, dan tagihan tidak boleh kosong! Isi dengan 0 jika ingin mengosongkan.";
-                return RedirectToAction("FormIndent", "Reparation", new { idBooking = trsBooking.IdBooking });
+                return RedirectToAction("FormSpecialHandling", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
             //validasi angka menggunakan regex dan minimum 0
             string priceString = trsBooking.AdditionalPrice.ToString();
@@ -439,7 +449,7 @@ namespace ASP.NET_TEFA.Controllers
             if (!regex.IsMatch(priceString) || trsBooking.Price < 0)
             {
                 TempData["ErrorMessage"] = "Tagihan hanya boleh berisi angka, jika tidak ada tagihan silahkan isi dengan 0 dan harus minimum 0";
-                return RedirectToAction("FormIndent", "Reparation", new { idBooking = trsBooking.IdBooking });
+                return RedirectToAction("FormSpecialHandling", "Reparation", new { idBooking = trsBooking.IdBooking });
             }
 
             booking.AdditionalReplacementPart = trsBooking.AdditionalReplacementPart;
@@ -448,7 +458,7 @@ namespace ASP.NET_TEFA.Controllers
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Indent berhasil disimpan!";
+            TempData["SuccessMessage"] = "Temuan berhasil disimpan!";
 
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
