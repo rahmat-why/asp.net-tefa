@@ -91,7 +91,7 @@
                         <i class="ti ti-dots-vertical"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Invoice</a></li>
+                        <li><a class="dropdown-item" asp-controller="Booking" asp-action="ExportPdf" asp-route-id="@Model.IdBooking">Invoice</a></li>
                         <li><a class="dropdown-item" asp-controller="Pending" asp-action="Index" asp-route-IdBooking="@Model.IdBooking">Pending</a></li>
                         <li><a class="dropdown-item" asp-controller="Reparation" asp-action="FormSpecialHandling" asp-route-IdBooking="@Model.IdBooking">Temuan</a></li>
                     </ul>

@@ -24,7 +24,12 @@ namespace ASP.NET_TEFA.Controllers
                 .Include(t => t.IdVehicleNavigation)
                 .FirstOrDefaultAsync(c => c.IdBooking == idBooking);
 
-            if(booking.RepairStatus == "BATAL")
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            if (booking.RepairStatus == "BATAL")
             {
                 TempData["ErrorMessage"] = "Servis ini telah dibatalkan dan tidak dapat dilanjutkan lagi!";
             }else if(booking.RepairStatus == "PENDING")

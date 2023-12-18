@@ -120,6 +120,7 @@
                 </td>
                 <td>
                     @item.RepairStatus
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@item.IdBooking" data-toggle="tooltip" data-placement="top" title="Lihat servis"><i class="ti ti-tool"></i></a>
                 </td>
             </tr>
         }

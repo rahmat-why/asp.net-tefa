@@ -16,7 +16,14 @@ using OfficeOpenXml;
 
 using iText.Kernel.Pdf;
 using iText.Layout;
+using iText.Layout.Properties;
 using iText.Layout.Element;
+using iText.Layout.Borders;
+using iText.IO.Image;
+
+
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -242,7 +249,23 @@ namespace ASP.NET_TEFA.Controllers
 
         public IActionResult ExportPdf(string id)
         {
-            Console.WriteLine(id);
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["ErrorMessage"] = "ID Booking tidak valid!";
+                return RedirectToAction("History", "Booking");
+            }
+
+            var eksportpdf = _context.TrsBookings
+                .Include(t => t.IdVehicleNavigation)
+                .ThenInclude(v => v.IdCustomerNavigation)
+                .FirstOrDefault(z => z.IdBooking == id);
+
+            if(eksportpdf.RepairStatus != "SELESAI" && eksportpdf.RepairStatus != "BATAL")
+            {
+                TempData["ErrorMessage"] = "Invoice belum bisa diunduh karena servis belum selesai!";
+                return RedirectToAction("Index", "Reparation", new { idBooking = id });
+            }
+
             // Create a MemoryStream to store the PDF
             using (MemoryStream stream = new MemoryStream())
             {
@@ -256,15 +279,106 @@ namespace ASP.NET_TEFA.Controllers
                         Document document = new Document(pdf);
 
                         // Add content to the PDF
-                        document.Add(new Paragraph("Hello World"));
+                        // Posisi di atas pojok kiri
 
+                        byte[] logoBytes = System.IO.File.ReadAllBytes("wwwroot/Content/assets/images/logos/logo.png");
+                        ImageData imageData = ImageDataFactory.Create(logoBytes);
+                        Image image = new Image(imageData);
+                        image.SetWidth(50);
+
+                        // Membuat elemen Paragraph untuk menggabungkan gambar dan teks
+                        Paragraph paragraph = new Paragraph();
+
+                        // Menambahkan gambar ke dalam paragraf
+                        paragraph.Add(image);
+
+                        // Membuat div untuk mengelompokkan gambar dan teks
+                        Div div = new Div();
+
+                        // Menambahkan teks "TEACHING FACTORY" dengan properti penataan ke tengah
+                        Text text1 = new Text("TEACHING FACTORY").SetFontSize(15f).SetBold();
+                        text1.SetTextAlignment(TextAlignment.CENTER);
+
+                        // Menambahkan teks "Politeknik Astra" dengan properti penataan ke tengah
+                        Text text2 = new Text("Politeknik Astra").SetFontSize(12f);
+                        text2.SetTextAlignment(TextAlignment.CENTER);
+
+                        // Membuat paragraf untuk teks dan menambahkannya ke dalam div
+                        Paragraph textParagraph = new Paragraph();
+                        textParagraph.Add(text1);
+                        textParagraph.Add("\n"); // Add a newline between the two lines of text
+                        textParagraph.Add(text2);
+
+                        div.Add(textParagraph);
+
+                        // Menambahkan div ke dalam paragraf
+                        paragraph.Add(div);
+
+                        // Menambahkan elemen Paragraph ke dokumen
+                        document.Add(paragraph);
+
+                        document.Add(new Paragraph($"INVOICE #{eksportpdf.IdBooking}").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER).SetFontSize(15f).SetBold());
+
+                        Table table = new Table(2);
+
+                        // Mengatur lebar kolom untuk mencapai efek 50% - 50%
+                        table.SetWidth(UnitValue.CreatePercentValue(100));
+                        // Kolom pertama (kiri)
+                        table.AddCell(new Cell().Add(new Paragraph($"Tanggal Booking : {eksportpdf.OrderDate?.ToString("dd MMMM yyyy")}")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"Tipe Kendaraan : {eksportpdf.IdVehicleNavigation.Classify}")).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Nama Customer : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Name}")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"No. Polisi : {eksportpdf.IdVehicleNavigation.PoliceNumber}")).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Email : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Email}")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"Odometer : { eksportpdf.Odometer }")).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Telp : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Phone }")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"No. Rangka : {eksportpdf.IdVehicleNavigation.ChassisNumber }")).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Alamat : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Address }")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"No. Mesin : {eksportpdf.IdVehicleNavigation.MachineNumber }")).SetBorder(Border.NO_BORDER));
+
+                        // Menambahkan tabel ke dokumen
+                        document.Add(table);
+
+                        Table table2 = new Table(3);
+                        table2.SetWidth(UnitValue.CreatePercentValue(100));
+
+                        if (eksportpdf.AdditionalReplacementPart == null)
+                        {
+                            table2.AddCell(new Cell().Add(new Paragraph("Perbaikan").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph("Ganti Part").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph("Harga").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.RepairDescription}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.ReplacementPart}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.Price:N2}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"Total : Rp. {eksportpdf.Price:N2}")).SetBorder(Border.NO_BORDER).SetBold());
+                        }
+                        else
+                        {
+                            table2.AddCell(new Cell().Add(new Paragraph("Perbaikan").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph("Ganti Part").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph("Harga").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.RepairDescription}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.ReplacementPart}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.Price:N2}")));
+
+                            table2.AddCell(new Cell().Add(new Paragraph("Temuan")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.AdditionalReplacementPart}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($" Rp. {eksportpdf.AdditionalPrice:N2}")));
+                            table2.AddCell(new Cell().Add(new Paragraph($"Total : Rp. {eksportpdf.Price + eksportpdf.AdditionalPrice:N2}")).SetBorder(Border.NO_BORDER).SetBold());
+                        }
+                        document.Add(table2);
+                        document.Add(new Paragraph("Terimakasih telah menggunakan layanan teaching factory  program studi mesin otomotif politeknik astra"));
                         // Close the document
                         document.Close();
                     }
                 }
 
                 // Return the PDF as a file
-                return File(stream.ToArray(), "application/pdf", "Document.pdf");
+                // "Document.pdf"
+                return File(stream.ToArray(), "application/pdf");
             }
         }
 
