@@ -5,13 +5,22 @@
     Layout = "_Layout";
 }
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+<div class="position-relative overflow-hidden d-flex align-items-center justify-content-center">
     <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
             <div class="card-body">
-                <h6 class="text-center"><b>Hapus Kendaraan</b></h6>
-                <hr />
-                <dl class="row">
+                <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Vehicle" asp-action="Index">Data Kendaraan</a></li>
+                        <li class="breadcrumb-item">Hapus</li>
+                    </ol>
+                </nav>
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="text-primary">
+                    Loading...
+                </div>
+                <dl class="g-3 row mt-2">
                     <dt class = "col-sm-6">
                         Tipe Kendaraan:
                     </dt>
@@ -61,14 +70,10 @@
                         <b>@Html.DisplayFor(model => model.MachineNumber)</b>
                     </dd>
                 </dl>
-                <!-- Loading Spinner -->
-                <div id="loadingSpinner" class="text-primary">
-                    Loading...
-                </div>
                 <form asp-action="Delete">
                     <input type="hidden" asp-for="IdVehicle" />
                     <input type="submit" value="Delete" class="btn btn-danger" /> |
-                    <a asp-action="Index">Back to List</a>
+                    <a asp-action="Index">Kembali</a>
                 </form>
             </div>
         </div>

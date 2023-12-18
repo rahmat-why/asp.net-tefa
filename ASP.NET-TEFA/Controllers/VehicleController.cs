@@ -21,29 +21,29 @@ namespace ASP.NET_TEFA.Controllers
 
         // Menampilkan daftar kendaraan milik pelanggan yang sedang login
         [AuthorizedCustomer]
-        public async Task<IActionResult> Index()
-        {
-            // Mengambil informasi autentikasi pelanggan dari sesi
-            string authentication = HttpContext.Session.GetString("authentication");
-            MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
-
-            // Memeriksa apakah data pelanggan tidak null
-            if (customer != null)
+            public async Task<IActionResult> Index()
             {
-                // Mengambil daftar kendaraan yang dimiliki oleh pelanggan yang sedang login
-                var applicationDbContext = _context.MsVehicles
-                    .Include(t => t.IdCustomerNavigation)
-                    .Where(t => t.IdCustomerNavigation.IdCustomer == customer.IdCustomer).Where(t => t.Classify != "NONAKTIF");
+                // Mengambil informasi autentikasi pelanggan dari sesi
+                string authentication = HttpContext.Session.GetString("authentication");
+                MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
 
-                // Menampilkan halaman Index dengan daftar kendaraan
-                return View(await applicationDbContext.ToListAsync());
+                // Memeriksa apakah data pelanggan tidak null
+                if (customer != null)
+                {
+                    // Mengambil daftar kendaraan yang dimiliki oleh pelanggan yang sedang login
+                    var applicationDbContext = _context.MsVehicles
+                        .Include(t => t.IdCustomerNavigation)
+                        .Where(t => t.IdCustomerNavigation.IdCustomer == customer.IdCustomer).Where(t => t.Classify != "NONAKTIF");
+
+                    // Menampilkan halaman Index dengan daftar kendaraan
+                    return View(await applicationDbContext.ToListAsync());
+                }
+                else
+                {
+                    // Jika pelanggan tidak terautentikasi, kembalikan ke halaman utama
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            else
-            {
-                // Jika pelanggan tidak terautentikasi, kembalikan ke halaman utama
-                return RedirectToAction(nameof(Index));
-            }
-        }
 
         // Menampilkan halaman untuk membuat kendaraan baru
         [AuthorizedCustomer]
@@ -74,6 +74,13 @@ namespace ASP.NET_TEFA.Controllers
                         ModelIsValid = false;
                     }
                 }
+            }
+
+            var vehicle = await _context.MsVehicles.Where(t => t.PoliceNumber == msVehicle.PoliceNumber).ToListAsync();
+            if (vehicle.Count > 0)
+            {
+                TempData["ErrorMessage"] = "No. Polisi sudah digunakan!";
+                return View(msVehicle);
             }
 
             if (ModelIsValid)
@@ -146,6 +153,13 @@ namespace ASP.NET_TEFA.Controllers
                         ModelIsValid = false;
                     }
                 }
+            }
+
+            var vehicle = await _context.MsVehicles.Where(t => t.PoliceNumber == msVehicle.PoliceNumber && t.IdVehicle != msVehicle.IdVehicle).ToListAsync();
+            if (vehicle.Count > 0)
+            {
+                TempData["ErrorMessage"] = "No. Polisi sudah digunakan!";
+                return View(msVehicle);
             }
 
             if (ModelIsValid)
@@ -256,7 +270,7 @@ namespace ASP.NET_TEFA.Controllers
             // Mengambil data kendaraan termasuk relasi TrsBookings
             var vehicle = await _context.MsVehicles
                 .Include(v => v.IdCustomerNavigation)
-                .Include(w => w.TrsBookings.OrderBy(tb => tb.OrderDate))
+                .Include(w => w.TrsBookings.OrderByDescending(tb => tb.OrderDate))
                 .FirstOrDefaultAsync(m => m.IdVehicle == id);
 
             // Jika kendaraan tidak ditemukan, kembalikan halaman Not Found

@@ -92,9 +92,27 @@ namespace ASP.NET_TEFA.Controllers
         [AuthorizedUser("SERVICE ADVISOR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdUser,FullName,Nim,Username,Password,Position")] MsUser msUser)
+        public async Task<IActionResult> Create([Bind("FullName,Nim,Username,Password,Position")] MsUser msUser)
         {
-            if (ModelState.IsValid)
+            // Validasi ModelState
+            bool ModelIsValid = true;
+
+            foreach (var value in ModelState.Values)
+            {
+                foreach (var error in value.Errors)
+                {
+                    // Mengecualikan validasi Password wajib diisi
+                    if (!(error.ErrorMessage.Contains("Password wajib diisi") || 
+                        error.ErrorMessage.Contains("The IdUser field is required.")))
+                    {
+                        Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                        ModelIsValid = false;
+                    }
+                }
+            }
+
+            // Jika model valid
+            if (ModelIsValid)
             {
                 // Validasi keunikan Username
                 var user = await _context.MsUsers.Where(t => t.Username == msUser.Username).ToListAsync();
@@ -127,6 +145,7 @@ namespace ASP.NET_TEFA.Controllers
                 return RedirectToAction("Index", "User");
             }
 
+            // Jika model tidak valid, kembali ke halaman pengeditan dengan model pengguna
             return View(msUser);
         }
 

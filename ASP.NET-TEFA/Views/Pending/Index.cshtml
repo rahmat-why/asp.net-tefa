@@ -34,7 +34,7 @@
     }
 
     <div class="text-end">
-        @if (@booking.RepairStatus == "PENDING")
+        @if (@booking.RepairStatus == "PENDING" || !(@booking.RepairStatus == "INSPECTION LIST" || @booking.RepairStatus == "EKSEKUSI" || @booking.RepairStatus == "KONTROL"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@booking.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali

@@ -48,7 +48,7 @@ namespace ASP.NET_TEFA.Controllers
                 var applicationDbContext = _context.TrsBookings
                     .Include(t => t.IdVehicleNavigation)
                     .Where(t => t.IdVehicleNavigation.IdCustomer == customer.IdCustomer)
-                    .OrderBy(t => t.OrderDate);
+                    .OrderByDescending(t => t.OrderDate);
 
                 // Menampilkan daftar pemesanan ke view
                 return View(await applicationDbContext.ToListAsync());
@@ -67,10 +67,11 @@ namespace ASP.NET_TEFA.Controllers
             // Mengambil data pemesanan yang sedang berlangsung, termasuk kendaraan dan pelanggan terkait
             var runningServices = await _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
-            .ThenInclude(v => v.IdCustomerNavigation)
-            .Where(t => t.RepairMethod != null && t.RepairStatus != "SELESAI")
+                .ThenInclude(v => v.IdCustomerNavigation)
+            .Where(t => t.RepairStatus != "SELESAI" && t.RepairStatus != "MENUNGGU" && t.RepairStatus != "BATAL")
             .OrderByDescending(x => x.Progress)
             .ToListAsync();
+
 
             // Menampilkan daftar pemesanan yang sedang berlangsung ke view
             return View(runningServices);
@@ -88,7 +89,7 @@ namespace ASP.NET_TEFA.Controllers
             var query = _context.TrsBookings
             .Include(t => t.IdVehicleNavigation)
             .ThenInclude(v => v.IdCustomerNavigation)
-            .Where(t => t.RepairStatus != "SELESAI" || t.RepairStatus != "BATAL");
+            .Where(t => t.RepairStatus != "SELESAI" && t.RepairStatus != "BATAL");
 
             // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan yang sudah dimulai saja
             // Diurutkan berdasarkan order date terbaru
@@ -99,7 +100,7 @@ namespace ASP.NET_TEFA.Controllers
 
             // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
             var applicationDbContext = await query
-                .OrderBy(t => t.OrderDate)
+                .OrderByDescending(t => t.OrderDate)
                 .ToListAsync();
 
             // Menampilkan daftar pemesanan ke view
@@ -133,7 +134,7 @@ namespace ASP.NET_TEFA.Controllers
             }
 
             // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
-            var reportBooking = await query.OrderBy(t => t.OrderDate).ToListAsync();
+            var reportBooking = await query.OrderByDescending(t => t.OrderDate).ToListAsync();
 
             // Menghitung jumlah pemesanan dengan metode perbaikan TEFA dan SERVICE
             int countTefa = reportBooking.Count(t => t.RepairMethod == "TEFA");
@@ -239,8 +240,9 @@ namespace ASP.NET_TEFA.Controllers
             }
         }
 
-        public IActionResult ExportPdf()
+        public IActionResult ExportPdf(string id)
         {
+            Console.WriteLine(id);
             // Create a MemoryStream to store the PDF
             using (MemoryStream stream = new MemoryStream())
             {
@@ -284,7 +286,7 @@ namespace ASP.NET_TEFA.Controllers
             string[] validMethod = { "FAST TRACK", "TEFA" };
             if (!validMethod.Contains(RepairMethod))
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Home");
             }
 
             // Menyiapkan daftar kendaraan pelanggan untuk dipilih dalam pemesanan
@@ -310,7 +312,7 @@ namespace ASP.NET_TEFA.Controllers
         public async Task<IActionResult> Create([Bind("IdBooking,OrderDate,IdVehicle,Odometer,Complaint,IdCustomer,RepairMethod")] TrsBooking trsBooking)
         {
             // Memeriksa apakah OrderDate tidak berada diatas H+1
-            if (trsBooking.OrderDate <= DateTime.Now.AddDays(1) && trsBooking.RepairMethod == "TEFA")
+            if (trsBooking.OrderDate <= DateTime.Today.AddDays(0) && trsBooking.RepairMethod == "TEFA")
             {
                 // Mengambil informasi pelanggan dari sesi
                 string authentication = HttpContext.Session.GetString("authentication");
@@ -318,16 +320,23 @@ namespace ASP.NET_TEFA.Controllers
 
                 TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1 dari hari ini";
                 ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");
-                return View(trsBooking);
+                return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
             }
 
             // Memeriksa jumlah pemesanan maksimal 10 per hari
-
             var countBookingToday = await _context.TrsBookings.CountAsync(t => t.OrderDate.HasValue && t.OrderDate.Value.Date == trsBooking.OrderDate);
             if (countBookingToday >= 10)
             {
                 TempData["ErrorMessage"] = "Maaf kapasitas booking hari ini sudah penuh (10 per hari)";
-                return View(trsBooking);
+                return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
+            }
+
+            // Memeriksa jumlah pemesanan yang sedang diservis
+            var countBookingRunning = await _context.TrsBookings.CountAsync(t => t.IdVehicle == trsBooking.IdVehicle && (t.RepairStatus != "SELESAI" && t.RepairStatus != "BATAL"));
+            if (countBookingRunning > 0)
+            {
+                TempData["ErrorMessage"] = "Kendaraan ini sedang diservis";
+                return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
             }
 
             // Menghasilkan ID pemesanan

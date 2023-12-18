@@ -29,6 +29,12 @@ namespace ASP.NET_TEFA.Controllers
             .Include(t => t.IdVehicleNavigation)
             .FirstOrDefaultAsync(t => t.IdBooking == idBooking);
 
+            //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan sebelum keputusan
+            if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
+            {
+                TempData["ErrorMessage"] = "Pending hanya dapat dilakukan saat eksekusi!";
+            }
+
             // Jika pemesanan tidak ditemukan, kembalikan NotFound
             if (booking == null)
             {
@@ -52,7 +58,7 @@ namespace ASP.NET_TEFA.Controllers
         }
 
         // Menambahkan pending jika terdapat temuan
-        [AuthorizedUser("HEAD MECHANIC")]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         [HttpPost]
         public async Task<IActionResult> FormStart([Bind("Reason,IdBooking")] TrsPending trsPending)
         {
@@ -67,6 +73,12 @@ namespace ASP.NET_TEFA.Controllers
             {
                 TempData["ErrorMessage"] = "Pending hanya dapat dilakukan saat eksekusi!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
+            }
+
+            if(trsPending.Reason == null)
+            {
+                TempData["ErrorMessage"] = "Alasan pending harus diisi!";
+                return RedirectToAction("Index", "Pending", new { idBooking = booking.IdBooking });
             }
 
             // Menghasilkan id pending
@@ -98,7 +110,7 @@ namespace ASP.NET_TEFA.Controllers
         }
 
         // Menambahkan pending jika terdapat temuan
-        [AuthorizedUser("HEAD MECHANIC")]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         [HttpPost]
         public async Task<IActionResult> FormFinish(IFormCollection form)
         {

@@ -5,13 +5,16 @@
     Layout = "_Layout";
 }
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+<div class="position-relative overflow-hidden d-flex align-items-center justify-content-center">
     <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
             <div class="card-body">
-                <h6 class="text-center"><b>RIWAYAT SERVIS</b></h6>
-                <hr />
-
+                <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
+                        <li class="breadcrumb-item">Riwayat Servis</li>
+                    </ol>
+                </nav>
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success" role="alert">
@@ -20,7 +23,7 @@
                     </div>
                 }
 
-                <div class="card">
+                <div class="card mt-3">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="thead-dark">
@@ -67,7 +70,6 @@
                     </div>
                 </div>
             </div>
-            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>
         </div>
     </div>
 </div>

@@ -5,14 +5,18 @@
     Layout = "_Layout";
 }
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+<div class="position-relative overflow-hidden d-flex align-items-center justify-content-center">
     <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
             <div class="card-body">
-                <h6 class="text-center"><b>FORM BOOKING @Model.RepairMethod</b></h6>
-                <p class="text-center">@(Model.RepairMethod == "FAST TRACK" ? "Servis dengan urgensi tinggi silahkan gunakan FAST TRACK" : "Servis yang cenderung kompleks silahkan gunakan booking TEFA")</p>
-                <hr />
-
+                <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
+                        <li class="breadcrumb-item">Servis</li>
+                    </ol>
+                </nav>
+                <h6 class="mt-2 text-center"><b>@Model.RepairMethod</b></h6>
+                <p class="text-center">@(Model.RepairMethod == "FAST TRACK" ? "Servis dengan urgensi tinggi yang dibooking pada hari ini" : "Servis dengan tanggal booking fleksibel")</p>
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger" role="alert">
@@ -25,39 +29,42 @@
                     Loading...
                 </div>
                 <form asp-action="Create" method="post">
-                    <input type="hidden" asp-for="RepairMethod" />
+                    <div class="row g-3">
+                        <input type="hidden" asp-for="RepairMethod" />
 
-                    <div class="mb-3">
-                        <label asp-for="OrderDate" class="form-label">Tanggal Booking</label>
-                        <input asp-for="OrderDate" class="form-control" type="date" required readonly="@(Model.OrderDate != null ? true : false)">
-                        <div id="orderDateHelp" class="form-text">@(Model.RepairMethod == "FAST TRACK" ? "Fast track akan dibooking hari ini juga" : "Tanggal yang valid minimum H+1")</div>
-                        <span asp-validation-for="OrderDate" class="text-danger"></span>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label asp-for="OrderDate" class="form-label">Tanggal Booking</label>
+                            <input asp-for="OrderDate" class="form-control" type="date" required readonly="@(Model.OrderDate != null ? true : false)">
+                            <div id="orderDateHelp" class="form-text">@(Model.RepairMethod == "FAST TRACK" ? "Fast track akan dibooking hari ini juga" : "Tanggal yang valid minimum H+1")</div>
+                            <span asp-validation-for="OrderDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label asp-for="IdVehicle" class="form-label">Kendaraan</label>
+                            <select asp-for="IdVehicle" class="form-control" asp-items="ViewBag.IdVehicle" required></select>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label asp-for="Odometer" class="form-label">Odometer (km)</label>
+                            <input asp-for="Odometer" class="form-control" required>
+                            <span asp-validation-for="Odometer" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label asp-for="Complaint" class="form-label">Keluhan</label>
+                            <textarea class="form-control" asp-for="Complaint" aria-describedby="addressHelp" required></textarea>
+                            <span asp-validation-for="Complaint" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="checklist" class="form-check-input" id="AgreeToTerms" required>
+                                <label class="form-check-label" for="AgreeToTerms">Spare part disiapkan atau dibeli oleh customer</label>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="IdVehicle" class="form-label">Kendaraan</label>
-                        <select asp-for="IdVehicle" class="form-control" asp-items="ViewBag.IdVehicle" required></select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Odometer" class="form-label">Odometer (km)</label>
-                        <input asp-for="Odometer" class="form-control" required>
-                        <span asp-validation-for="Odometer" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Complaint" class="form-label">Keluhan</label>
-                        <textarea class="form-control" asp-for="Complaint" aria-describedby="addressHelp" required></textarea>
-                        <span asp-validation-for="Complaint" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-check">
-                        <input type="checkbox" name="checklist" class="form-check-input" id="AgreeToTerms" required>
-                        <label class="form-check-label" for="AgreeToTerms">Spare part disiapkan atau dibeli oleh customer</label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 rounded-2 mt-3">Booking</button> 
-                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>
+                    <hr />
+                    <button type="submit" class="btn btn-primary mb-2">Simpan</button>
                 </form>
             </div>
         </div>

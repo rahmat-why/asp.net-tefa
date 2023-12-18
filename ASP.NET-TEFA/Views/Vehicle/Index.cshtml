@@ -4,14 +4,18 @@
     ViewData["Title"] = "Data Kendaraan";
 }
 
-<div class="position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center">
+<div class="position-relative overflow-hidden d-flex align-items-center justify-content-center">
     <div class="d-flex align-items-center justify-content-center w-100">
         <div class="row justify-content-center w-100">
             <div class="card-body">
-                <h6 class="text-center"><b>Data Kendaraan</b></h6>
-                <hr />
-                <p>
-                    <a asp-action="Create">Tambah Kendaraan</a>
+                <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
+                        <li class="breadcrumb-item">Data Kendaraan</li>
+                    </ol>
+                </nav>
+                <p class="mt-2">
+                    <a asp-action="Create" class="btn btn-primary m-1">Tambah Kendaraan</a>
                 </p>
                 <div class="card">
                     @if (TempData["SuccessMessage"] != null)
@@ -66,7 +70,7 @@
                                         </td>
                                         <td>
                                             <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
-                                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
+                                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Hapus</a>
                                         </td>
                                     </tr>
                                 }
@@ -74,7 +78,6 @@
                         </table>
                     </div>
                 </div>
-                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-dark btn-sm w-100 py-2 fs-4 rounded-2 mt-3 mb-3">Home</a>
             </div>
         </div>
     </div>

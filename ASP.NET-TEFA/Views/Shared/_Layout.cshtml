@@ -7,6 +7,7 @@
     <link rel="shortcut icon" type="image/png" href="~/Content/assets/images/logos/logo-favicon.png" />
     <link rel="stylesheet" href="~/Content/assets/css/styles.min.css" />
 </head>
+
 <body>
     <style>
         #loadingSpinner {
@@ -21,11 +22,20 @@
         }
     </style>
 
-    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-         data-sidebar-position="fixed" data-header-position="fixed" style="max-width: 330px; margin: 0 auto;">
-        <div class="container-fluid">
-            @RenderBody()
-        </div>
+    @if (@ViewData["Title"] != "Login" && @ViewData["Title"] != "Register" && ViewData["Title"] != "Verification")
+    {
+        <nav class="navbar navbar-expand-lg" style="background-color: #ffffff;">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="text-left">
+                    <img src="~/Content/assets/images/logos/logo.png" width="40" alt="TEFA Politeknik Astra">
+                    <b>TEACHING FACTORY</b>
+                </div>
+            </div>
+        </nav>
+    }
+
+    <div class="container-fluid">
+        @RenderBody()
     </div>
 
     <footer class="border-top footer text-muted">

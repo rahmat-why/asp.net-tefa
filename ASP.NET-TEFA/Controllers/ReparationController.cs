@@ -134,7 +134,7 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser("SERVICE ADVISOR")]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormDecision(string idBooking)
         {
             var booking = await _context.TrsBookings
@@ -298,7 +298,7 @@ namespace ASP.NET_TEFA.Controllers
             return RedirectToAction("Index", "Reparation", new { idBooking = trsBooking.IdBooking });
         }
 
-        [AuthorizedUser("SERVICE ADVISOR")]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         public async Task<IActionResult> FormControl(string idBooking)
         {
             var booking = await _context.TrsBookings.FindAsync(idBooking);
@@ -421,7 +421,7 @@ namespace ASP.NET_TEFA.Controllers
             return View(booking);
         }
 
-        [AuthorizedUser("HEAD MECHANIC")]
+        [AuthorizedUser("SERVICE ADVISOR", "HEAD MECHANIC")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FormSpecialHandling([Bind("IdBooking, AdditionalReplacementPart, AdditionalPrice")] TrsBooking trsBooking)

@@ -90,6 +90,10 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("ms_users");
 
+            entity.HasIndex(e => e.Nim, "UQ_nim").IsUnique();
+
+            entity.HasIndex(e => e.Username, "UQ_username").IsUnique();
+
             entity.Property(e => e.IdUser)
                 .HasMaxLength(10)
                 .IsUnicode(false)
@@ -124,6 +128,8 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.IdVehicle);
 
             entity.ToTable("ms_vehicles");
+
+            entity.HasIndex(e => e.PoliceNumber, "UQ_police_number").IsUnique();
 
             entity.Property(e => e.IdVehicle)
                 .HasMaxLength(10)

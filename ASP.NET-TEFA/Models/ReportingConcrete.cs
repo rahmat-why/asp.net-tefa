@@ -36,7 +36,7 @@ namespace ASP.NET_TEFA.Models
                 }
 
                 var listofbookings = query
-                    .OrderBy(t => t.OrderDate)
+                    .OrderByDescending(t => t.OrderDate)
                     .ToList();
 
                 return listofbookings;
