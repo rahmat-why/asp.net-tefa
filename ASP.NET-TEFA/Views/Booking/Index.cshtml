@@ -59,7 +59,9 @@
                                         <td>@item.RepairDescription</td>
                                         <td>@item.ReplacementPart</td>
                                         <td>@item.Price</td>
-                                        <td><a href="">Unduh</a></td>
+                                        <td>
+                                            <a class="btn btn-outline-primary btn-sm" asp-controller="Booking" asp-action="ExportPdf" asp-route-id="@item.IdBooking" data-toggle="tooltip" data-placement="top" title="pdf"><i class="ti ti-download"></i></a>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
