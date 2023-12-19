@@ -36,7 +36,7 @@
                                     <th>Metode Servis</th>
                                     <th>Perbaikan</th>
                                     <th>Ganti Part</th>
-                                    <th>Harga</th>
+                                    <th>Tagihan</th>
                                     <th>Invoice</th>
                                 </tr>
                             </thead>
@@ -61,7 +61,7 @@
                                         <td>@item.RepairMethod</td>
                                         <td>@item.RepairDescription</td>
                                         <td>@item.ReplacementPart</td>
-                                        <td>@item.Price</td>
+                                        <td>@string.Format("Rp. {0:N2}", item.Price)</td>
                                         <td>
                                             @if (item.RepairStatus != "SELESAI" && item.RepairStatus != "BATAL")
                                             {

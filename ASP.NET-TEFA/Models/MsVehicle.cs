@@ -33,8 +33,10 @@ public partial class MsVehicle
     [Required(ErrorMessage = "Pemilik Kendaraan wajib diisi")]
     public string VehicleOwner { get; set; } = null!;
 
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Nomor chassis harus mengandung huruf dan angka saja")]
     public string? ChassisNumber { get; set; }
 
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Nomor mesin harus mengandung huruf dan angka saja")]
     public string? MachineNumber { get; set; }
 
     [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Id Pelanggan harus mengandung huruf dan angka saja")]

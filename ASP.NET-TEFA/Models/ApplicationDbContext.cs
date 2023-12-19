@@ -69,7 +69,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<MsEquipment>(entity =>
         {
-            entity.HasKey(e => e.IdEquipment).HasName("PK__ms_equip__D745C9DF7C91B91A");
+            entity.HasKey(e => e.IdEquipment).HasName("PK__ms_equip__D745C9DF15502E78");
 
             entity.ToTable("ms_equipments");
 
@@ -82,17 +82,22 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.Ordering).HasColumnName("ordering");
+            entity.Property(e => e.Std)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("std");
         });
 
         modelBuilder.Entity<MsUser>(entity =>
         {
-            entity.HasKey(e => e.IdUser).HasName("PK__ms_users__D2D146377E3C63CA");
+            entity.HasKey(e => e.IdUser).HasName("PK__ms_users__D2D146371920BF5C");
 
             entity.ToTable("ms_users");
 
-            entity.HasIndex(e => e.Nim, "UQ_nim").IsUnique();
+            entity.HasIndex(e => e.Nim, "UQ_ms_users_nim").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ_username").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ_ms_users_username").IsUnique();
 
             entity.Property(e => e.IdUser)
                 .HasMaxLength(10)
@@ -129,7 +134,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("ms_vehicles");
 
-            entity.HasIndex(e => e.PoliceNumber, "UQ_police_number").IsUnique();
+            entity.HasIndex(e => e.PoliceNumber, "UQ_ms_vehicles_police_number").IsUnique();
 
             entity.Property(e => e.IdVehicle)
                 .HasMaxLength(10)
@@ -241,7 +246,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.RepairStatus)
                 .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasDefaultValueSql("('WAITING')")
+                .HasDefaultValueSql("('MENUNGGU')")
                 .HasColumnName("repair_status");
             entity.Property(e => e.ReplacementPart)
                 .HasMaxLength(100)
@@ -271,7 +276,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<TrsInspectionList>(entity =>
         {
-            entity.HasKey(e => e.IdInspection).HasName("PK__trs_insp__8F958B5289EB343C");
+            entity.HasKey(e => e.IdInspection).HasName("PK__trs_insp__8F958B521CF15040");
 
             entity.ToTable("trs_inspection_list");
 
@@ -295,16 +300,18 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.IdBookingNavigation).WithMany(p => p.TrsInspectionLists)
                 .HasForeignKey(d => d.IdBooking)
-                .HasConstraintName("FK__trs_inspe__id_bo__31B762FC");
+                .HasConstraintName("FK__trs_inspe__id_bo__25869641");
 
             entity.HasOne(d => d.IdEquipmentNavigation).WithMany(p => p.TrsInspectionLists)
                 .HasForeignKey(d => d.IdEquipment)
-                .HasConstraintName("FK__trs_inspe__id_eq__32AB8735");
+                .HasConstraintName("FK__trs_inspe__id_eq__267ABA7A");
         });
 
         modelBuilder.Entity<TrsPending>(entity =>
         {
-            entity.HasKey(e => e.IdPending).HasName("PK__trs_pend__C59EEAF70A126F66");
+            entity.HasKey(e => e.IdPending)
+                .HasName("PK__trs_pend__C59EEAF62E1BDC42")
+                .IsClustered(false);
 
             entity.ToTable("trs_pending");
 
@@ -334,7 +341,7 @@ public partial class ApplicationDbContext : DbContext
             entity.HasOne(d => d.IdBookingNavigation).WithMany(p => p.TrsPendings)
                 .HasForeignKey(d => d.IdBooking)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__trs_pendi__id_bo__7EF6D905");
+                .HasConstraintName("FK__trs_pendi__id_bo__300424B4");
 
             entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.TrsPendings)
                 .HasForeignKey(d => d.IdUser)

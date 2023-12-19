@@ -11,5 +11,9 @@ public partial class MsEquipment
 
     public int? IsActive { get; set; }
 
+    public string? Std { get; set; }
+
+    public int? Ordering { get; set; }
+
     public virtual ICollection<TrsInspectionList> TrsInspectionLists { get; set; } = new List<TrsInspectionList>();
 }

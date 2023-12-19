@@ -207,9 +207,11 @@ namespace ASP.NET_TEFA.Controllers
             booking.RepairStatus = repair_status;
             booking.Progress = 20;
 
-            if(repair_status == "BATAL")
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+
+            if (repair_status == "BATAL")
             {
-                TempData["SuccessMessage"] = "Servis berhasil dibatalkan!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = idBooking });
             }
 
@@ -235,11 +237,9 @@ namespace ASP.NET_TEFA.Controllers
                     };
 
                     _context.TrsInspectionLists.Add(data);
+                    await _context.SaveChangesAsync();
                 }
             }
-
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Keputusan berhasil! Tahapan berlanjut ke inspection list!";
 

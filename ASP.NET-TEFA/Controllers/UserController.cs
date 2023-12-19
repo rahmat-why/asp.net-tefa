@@ -206,6 +206,14 @@ namespace ASP.NET_TEFA.Controllers
                     return NotFound();
                 }
 
+                // Validasi keunikan NIM
+                var pw = await _context.MsUsers.Where(t => t.Nim == msUser.Nim && t.IdUser != msUser.IdUser).ToListAsync();
+                if (pw.Count > 0)
+                {
+                    TempData["ErrorMessage"] = "NIM sudah digunakan!";
+                    return View(msUser);
+                }
+
                 // Memperbarui seluruh atribut pengguna
                 user.FullName = msUser.FullName;
                 user.Nim = msUser.Nim;

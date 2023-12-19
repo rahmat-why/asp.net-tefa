@@ -104,8 +104,6 @@ namespace ASP.NET_TEFA.Controllers
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Servis berhasil dipending sementara!";
-
             return RedirectToAction("Index", "Reparation", new { idBooking = trsPending.IdBooking });
         }
 

@@ -68,9 +68,9 @@
     </table>
 
     <div class="text-end">
+        <a class="btn btn-outline-success mb-4 ms-auto" data-phone="@Model.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Salin nomor whatsapp"><i class="ti ti-brand-whatsapp"></i></a>
         @if (!(Model.RepairStatus == "KEPUTUSAN" || Model.RepairStatus == "INSPECTION LIST"))
         {
-            <a class="btn btn-outline-success mb-4 ms-auto" data-phone="@Model.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Salin nomor whatsapp"><i class="ti ti-brand-whatsapp"></i></a>
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Kembali
             </a>

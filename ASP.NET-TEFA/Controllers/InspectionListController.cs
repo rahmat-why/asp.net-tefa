@@ -46,7 +46,7 @@ namespace ASP.NET_TEFA.Controllers
             .Where(t => t.IdBooking ==  idBooking)
             .Include(t => t.IdBookingNavigation)
             .Include(t => t.IdEquipmentNavigation)
-            .OrderBy(t => t.IdEquipment)
+            .OrderBy(t => t.IdEquipmentNavigation.Ordering)
             .ToListAsync();
 
             // Menyiapkan data untuk ditampilkan di View
