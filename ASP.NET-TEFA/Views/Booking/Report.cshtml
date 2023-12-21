@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
 
 @{
-    ViewData["Title"] = "Laporan Booking";
+    ViewData["Title"] = "Report Booking";
     Layout = "_LayoutUser";
 }
 
@@ -39,7 +39,7 @@
     <div class="col-3">
         <div class="card overflow-hidden">
             <div class="card-body p-4">
-                <p class="mb-9 text-primary" style="font-size: 16px;">TOTAL BATAL</p>
+                <p class="mb-9 text-primary" style="font-size: 16px;">TOTAL CANCEL</p>
                 <div class="row align-items-center">
                     <div class="col-4">
                         <i class="ti ti-xbox-x text-primary" style="font-size: 24px;"></i>
@@ -53,7 +53,7 @@
     </div>
     <div class="col-3">
         <div class="mb-1">
-            <label class="form-label">Pilih Bulan</label>
+            <label class="form-label">Choose Month</label>
             <input class="form-control" type="month" id="month" name="month" value="@ViewBag.month" required>
         </div>
 
@@ -74,22 +74,22 @@
     <thead>
         <tr>
             <th>
-                Nama Customer
+                Customer Name
             </th>
             <th>
-                Tanggal Booking
+                Booking Date
             </th>
             <th>
-                Merk
+                Vehicle Type
             </th>
             <th>
-                No.Polisi
+                Police Number
             </th>
             <th>
                 Odometer (km)
             </th>
             <th>
-                Keluhan
+                Problem
             </th>
             <th>
                 Status

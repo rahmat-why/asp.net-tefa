@@ -1,12 +1,12 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.MsUser>
 
 @{
-    ViewData["Title"] = "Akun Mekanik";
+    ViewData["Title"] = "Head Mechanic Account";
     Layout = "_LayoutUser";
 }
 
 <p>
-    <a asp-action="Create">Tambah Akun</a>
+    <a asp-action="Create">Create</a>
 </p>
 @if (TempData["SuccessMessage"] != null)
 {
@@ -19,7 +19,7 @@
     <thead>
         <tr>
             <th>
-                Nama Ketua
+                Head Mechanic Name
             </th>
             <th>
                 NIM
@@ -28,7 +28,7 @@
                 Username
             </th>
             <th>
-                Posisi
+                Position
             </th>
             <th></th>
         </tr>
@@ -49,8 +49,8 @@
                 @Html.DisplayFor(modelItem => item.Position)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IdUser">Ubah</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdUser">Nonaktifkan</a>
+                <a asp-action="Edit" asp-route-id="@item.IdUser">Update</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdUser">Disable</a>
             </td>
         </tr>
 }

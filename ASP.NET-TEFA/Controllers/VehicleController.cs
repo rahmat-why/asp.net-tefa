@@ -67,8 +67,8 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan kesalahan tertentu berdasarkan nama field
-                    if (!(error.ErrorMessage.Contains("Id Kendaraan") ||
-                        error.ErrorMessage.Contains("Id Pelanggan") ||
+                    if (!(error.ErrorMessage.Contains("Id Vehicle") ||
+                        error.ErrorMessage.Contains("Id Customer") ||
                         error.ErrorMessage.Contains("IdCustomerNavigation")))
                     {
                         ModelIsValid = false;
@@ -79,7 +79,7 @@ namespace ASP.NET_TEFA.Controllers
             var vehicle = await _context.MsVehicles.Where(t => t.PoliceNumber == msVehicle.PoliceNumber).ToListAsync();
             if (vehicle.Count > 0)
             {
-                TempData["ErrorMessage"] = "No. Polisi sudah digunakan!";
+                TempData["ErrorMessage"] = "Police number already used";
                 return View(msVehicle);
             }
 
@@ -99,7 +99,7 @@ namespace ASP.NET_TEFA.Controllers
                     _context.Add(msVehicle);
                     await _context.SaveChangesAsync();
                     // Menampilkan pesan sukses ke view
-                    TempData["SuccessMessage"] = "Kendaraan berhasil disimpan!";
+                    TempData["SuccessMessage"] = "Vehicle successfully saved!";
 
                     // Mengarahkan pengguna ke halaman kendaraan
                     return RedirectToAction(nameof(Index));
@@ -146,8 +146,8 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan kesalahan tertentu berdasarkan nama field
-                    if (!(error.ErrorMessage.Contains("Id Kendaraan") ||
-                        error.ErrorMessage.Contains("Id Pelanggan") ||
+                    if (!(error.ErrorMessage.Contains("Id Vehicle") ||
+                        error.ErrorMessage.Contains("Id Customer") ||
                         error.ErrorMessage.Contains("IdCustomerNavigation")))
                     {
                         ModelIsValid = false;
@@ -158,7 +158,7 @@ namespace ASP.NET_TEFA.Controllers
             var vehicle = await _context.MsVehicles.Where(t => t.PoliceNumber == msVehicle.PoliceNumber && t.IdVehicle != msVehicle.IdVehicle).ToListAsync();
             if (vehicle.Count > 0)
             {
-                TempData["ErrorMessage"] = "No. Polisi sudah digunakan!";
+                TempData["ErrorMessage"] = "Police number already used";
                 return View(msVehicle);
             }
 
@@ -176,7 +176,7 @@ namespace ASP.NET_TEFA.Controllers
                     _context.Update(msVehicle);
                     await _context.SaveChangesAsync();
                     // Menampilkan pesan sukses ke view
-                    TempData["SuccessMessage"] = "Kendaraan berhasil diperbaharui!";
+                    TempData["SuccessMessage"] = "Vehicle successfully updated";
                 }
                 catch (DbUpdateConcurrencyException)
                 {

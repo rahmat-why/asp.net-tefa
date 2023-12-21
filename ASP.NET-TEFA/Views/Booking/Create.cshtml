@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = (Model.RepairMethod == "FAST TRACK" ? "Fast Track Servis" : "Booking Servis");
+    ViewData["Title"] = (Model.RepairMethod == "FAST TRACK" ? "Fast Track Service" : "Booking Service");
     Layout = "_Layout";
 }
 
@@ -11,12 +11,12 @@
             <div class="card-body">
                 <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
-                        <li class="breadcrumb-item">Servis</li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item">Service</li>
                     </ol>
                 </nav>
                 <h6 class="mt-2 text-center"><b>@Model.RepairMethod</b></h6>
-                <p class="text-center">@(Model.RepairMethod == "FAST TRACK" ? "Servis dengan urgensi tinggi yang dibooking pada hari ini" : "Servis dengan tanggal booking fleksibel")</p>
+                <p class="text-center">@(Model.RepairMethod == "FAST TRACK" ? "High-urgency service will be booked today" : "Service with flexible booking dates")</p>
                 @if (TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger" role="alert">
@@ -33,14 +33,14 @@
                         <input type="hidden" asp-for="RepairMethod" />
 
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="OrderDate" class="form-label">Tanggal Booking</label>
+                            <label asp-for="OrderDate" class="form-label">Booking Date</label>
                             <input asp-for="OrderDate" class="form-control" type="date" required readonly="@(Model.OrderDate != null ? true : false)">
-                            <div id="orderDateHelp" class="form-text">@(Model.RepairMethod == "FAST TRACK" ? "Fast track akan dibooking hari ini juga" : "Tanggal yang valid minimum H+1")</div>
+                            <div id="orderDateHelp" class="form-text">@(Model.RepairMethod == "FAST TRACK" ? "Fast track will be booked today" : "Minimum valid date H+1")</div>
                             <span asp-validation-for="OrderDate" class="text-danger"></span>
                         </div>
 
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="IdVehicle" class="form-label">Kendaraan</label>
+                            <label asp-for="IdVehicle" class="form-label">Vehicle</label>
                             <select asp-for="IdVehicle" class="form-control" asp-items="ViewBag.IdVehicle" required></select>
                         </div>
 
@@ -51,7 +51,7 @@
                         </div>
 
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="Complaint" class="form-label">Keluhan</label>
+                            <label asp-for="Complaint" class="form-label">Problem</label>
                             <textarea class="form-control" asp-for="Complaint" aria-describedby="addressHelp" required></textarea>
                             <span asp-validation-for="Complaint" class="text-danger"></span>
                         </div>
@@ -59,12 +59,12 @@
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-check">
                                 <input type="checkbox" name="checklist" class="form-check-input" id="AgreeToTerms" required>
-                                <label class="form-check-label" for="AgreeToTerms">Spare part disiapkan atau dibeli oleh customer</label>
+                                <label class="form-check-label" for="AgreeToTerms">Spare parts prepared or purchased by the customer</label>
                             </div>
                         </div>
                     </div>
                     <hr />
-                    <button type="submit" class="btn btn-primary mb-2">Simpan</button>
+                    <button type="submit" class="btn btn-primary mb-2">Save</button>
                 </form>
             </div>
         </div>

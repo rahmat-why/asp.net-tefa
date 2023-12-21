@@ -21,23 +21,23 @@
 <form asp-action="FormStart" method="post">
     @if (@booking.RepairStatus == "PENDING")
     {
-        <p>Pending sedang berlangsung!</p>
+        <p>Pending in progress!</p>
     }
     else
     {
         <input type="hidden" asp-for="IdBooking" value="@ViewBag.IdBooking" />
         <div class="mb-3">
-            <label asp-for="Reason">Alasan Pending: </label>
+            <label asp-for="Reason">Reason: </label>
             <input asp-for="Reason" type="text" class="form-control" name="reason" />
         </div>
-        <p>Pending akan dimulai pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
+        <p>Pending will start on <b>@currentDatetime</b>. Are you sure?</p>
     }
 
     <div class="text-end">
         @if (@booking.RepairStatus == "PENDING" || !(@booking.RepairStatus == "INSPECTION LIST" || @booking.RepairStatus == "EKSEKUSI" || @booking.RepairStatus == "KONTROL"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@booking.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else

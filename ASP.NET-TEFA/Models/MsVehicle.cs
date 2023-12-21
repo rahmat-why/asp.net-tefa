@@ -6,41 +6,41 @@ namespace ASP.NET_TEFA.Models;
 
 public partial class MsVehicle
 {
-    [Required(ErrorMessage = "Id Kendaraan wajib diisi")]
+    [Required(ErrorMessage = "Id Vehicle is required")]
     public string? IdVehicle { get; set; }
 
-    [RegularExpression("^[A-Za-z0-9 ]+$", ErrorMessage = "Tipe harus mengandung huruf, angka, dan spasi saja")]
-    [Required(ErrorMessage = "Tipe wajib diisi")]
+    [RegularExpression("^[A-Za-z0-9 ]+$", ErrorMessage = "Vehicle type must contain letters, numbers, and spaces only")]
+    [Required(ErrorMessage = "Vehicle type is required")]
     public string Type { get; set; } = null!;
 
-    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Klasifikasi harus mengandung huruf dan angka saja")]
-    [Required(ErrorMessage = "Klasifikasi wajib diisi")]
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Classify must contain letters and numbers only")]
+    [Required(ErrorMessage = "Classify is required")]
     public string Classify { get; set; } = null!;
 
-    [RegularExpression("^[A-Za-z0-9 ]+$", ErrorMessage = "Nomor Polisi harus mengandung huruf dan angka saja")]
-    [Required(ErrorMessage = "Nomor Polisi wajib diisi")]
+    [RegularExpression("^[A-Za-z0-9 ]+$", ErrorMessage = "Police number must contain letters and numbers only")]
+    [Required(ErrorMessage = "Police number is required")]
     public string PoliceNumber { get; set; } = null!;
 
-    [RegularExpression("^[A-Za-z ]+$", ErrorMessage = "Warna harus mengandung huruf dan spasi saja")]
-    [Required(ErrorMessage = "Warna wajib diisi")]
+    [RegularExpression("^[A-Za-z ]+$", ErrorMessage = "Color must contain letters and spaces only")]
+    [Required(ErrorMessage = "Color is required")]
     public string Color { get; set; } = null!;
 
-    [RegularExpression("^[0-9]+$", ErrorMessage = "Tahun harus mengandung angka saja")]
-    [Required(ErrorMessage = "Tahun wajib diisi")]
+    [RegularExpression("^[0-9]+$", ErrorMessage = "Year must contain numbers only")]
+    [Required(ErrorMessage = "Year is required")]
     public int Year { get; set; }
 
-    [RegularExpression("^[A-Za-z ]+$", ErrorMessage = "Pemilik Kendaraan harus mengandung huruf dan spasi saja")]
-    [Required(ErrorMessage = "Pemilik Kendaraan wajib diisi")]
+    [RegularExpression("^[A-Za-z ]+$", ErrorMessage = "Vehicle owner must contain letters and spaces only")]
+    [Required(ErrorMessage = "Vehicle owner is required")]
     public string VehicleOwner { get; set; } = null!;
 
-    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Nomor chassis harus mengandung huruf dan angka saja")]
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Chassis numbers must contain letters and numbers only")]
     public string? ChassisNumber { get; set; }
 
-    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Nomor mesin harus mengandung huruf dan angka saja")]
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Machine numbers must contain letters and numbers only")]
     public string? MachineNumber { get; set; }
 
-    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Id Pelanggan harus mengandung huruf dan angka saja")]
-    [Required(ErrorMessage = "Id Pelanggan wajib diisi")]
+    [RegularExpression("^[A-Za-z0-9]+$", ErrorMessage = "Id Customer must contain letters and numbers only")]
+    [Required(ErrorMessage = "Id Customer is required")]
     public string IdCustomer { get; set; } = null!;
 
     public virtual MsCustomer IdCustomerNavigation { get; set; } = null!;

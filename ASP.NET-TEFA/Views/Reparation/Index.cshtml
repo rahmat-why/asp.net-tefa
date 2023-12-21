@@ -11,7 +11,7 @@
 @model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "SERVIS "+Model.RepairMethod;
+    ViewData["Title"] = "SERVICE "+Model.RepairMethod;
     Layout = "_LayoutUser";
 }
 
@@ -35,19 +35,19 @@
     <thead>
         <tr>
             <th>
-                Tipe Kendaraan
+                Vehicle Type
             </th>
             <th>
-                No. Polisi
+                Police Number
             </th>
             <th>
-                Odometer
+                Odometer (km)
             </th>
             <th>
-                Keluhan
+                Problem
             </th>
             <th>
-                Estimasi Selesai
+                Finish Estimation
             </th>
             <th>
                 Status
@@ -93,7 +93,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" asp-controller="Booking" asp-action="ExportPdf" asp-route-id="@Model.IdBooking">Invoice</a></li>
                         <li><a class="dropdown-item" asp-controller="Pending" asp-action="Index" asp-route-IdBooking="@Model.IdBooking">Pending</a></li>
-                        <li><a class="dropdown-item" asp-controller="Reparation" asp-action="FormSpecialHandling" asp-route-IdBooking="@Model.IdBooking">Temuan</a></li>
+                        <li><a class="dropdown-item" asp-controller="Reparation" asp-action="FormSpecialHandling" asp-route-IdBooking="@Model.IdBooking">Special Problem</a></li>
                     </ul>
                 </div>
             </td>
@@ -103,15 +103,24 @@
 
 <div class="row">
     <div class="col-sm-6 col-xl-2">
-        <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
-            <h6 class="text-white">INFO PROYEK</h6>
-            <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
-        </div>
+        <a asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                <h6 class="text-white">PROJECT INFO</h6>
+                @if (Model.FinishEstimationTime == null)
+                {
+                    <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
+                }
+                else
+                {
+                    <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
+                }
+            </div>
+        </a>
     </div>
     <div class="col-sm-6 col-xl-2">
         <a asp-controller="Reparation" asp-action="FormPlan" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
-                <h6 class="text-white">PERENCANAAN</h6>
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                <h6 class="text-white">PLANNING</h6>
                 @if (Model.RepairDescription == null)
                 {
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
@@ -125,8 +134,8 @@
     </div>
     <div class="col-sm-6 col-xl-2">
         <a asp-controller="Reparation" asp-action="FormDecision" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
-                <h6 class="text-white">KEPUTUSAN</h6>
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                <h6 class="text-white">DECISION</h6>
                 @if (Model.Decision == null)
                 {
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
@@ -142,9 +151,9 @@
         @if (Model.EndRepairTime != null)
         {
             <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
-                    <h6 class="text-white">EKSEKUSI</h6>
-                    <p class="text-white" style="font-size: 12px">Selesai</p>
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">EXECUTION</h6>
+                    <p class="text-white" style="font-size: 12px">Finish</p>
                     <i class="ti ti-circle-check text-primary position-absolute" style="top: 5px; right: 5px;"></i>
                 </div>
             </a>
@@ -152,9 +161,9 @@
         else if (Model.StartRepairTime != null)
         {
             <a asp-controller="Reparation" asp-action="FormFinishExecution" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
-                    <h6 class="text-white">EKSEKUSI</h6>
-                    <p class="text-white" style="font-size: 12px">Sedang Berlangsung</p>
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">EXECUTION</h6>
+                    <p class="text-white" style="font-size: 12px">Running</p>
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
                 </div>
             </a>
@@ -162,9 +171,9 @@
         else
         {
             <a asp-controller="InspectionList" asp-action="index" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
-                    <h6 class="text-white">EKSEKUSI</h6>
-                    <p class="text-white" style="font-size: 12px">Belum Dimulai</p>
+                <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                    <h6 class="text-white">EXECUTION</h6>
+                    <p class="text-white" style="font-size: 12px">Unstarted</p>
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
                 </div>
             </a>
@@ -172,8 +181,8 @@
     </div>
     <div class="col-sm-6 col-xl-2">
         <a asp-controller="Reparation" asp-action="FormControl" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
-                <h6 class="text-white">KONTROL</h6>
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
+                <h6 class="text-white">CONTROL</h6>
                 @if (Model.Control == null || Model.Control == 0)
                 {
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>
@@ -187,8 +196,8 @@
     </div>
     <div class="col-sm-6 col-xl-2">
         <a asp-controller="Reparation" asp-action="FormEvaluation" asp-route-IdBooking="@Model.IdBooking" class="position-relative">
-            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #304F6C; position: relative;">
-                <h6 class="text-white">EVALUASI</h6>
+            <div class="d-flex flex-column align-items-center justify-content-center rounded-circle text-center" style="width: 125px; height: 125px; background-color: #5296D6; position: relative;">
+                <h6 class="text-white">EVALUATION</h6>
                 @if (Model.Evaluation == null)
                 {
                     <i class="ti ti-loader text-warning position-absolute" style="top: 5px; right: 5px;"></i>

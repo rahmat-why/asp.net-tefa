@@ -11,25 +11,25 @@ public partial class MsUser
 {
     public string IdUser { get; set; } = null!;
 
-    [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Nama lengkap hanya boleh huruf dan spasi.")]
-    [Required(ErrorMessage = "Nama lengkap wajib diisi.")]
+    [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "Full name can only be letters and spaces")]
+    [Required(ErrorMessage = "Full name is required")]
     public string? FullName { get; set; }
 
-    [RegularExpression("^[0-9]{10}$", ErrorMessage = "NIM harus terdiri dari 10 angka.")]
-    [Required(ErrorMessage = "NIM wajib diisi.")]
+    [RegularExpression("^[0-9]{10}$", ErrorMessage = "NIM must consist of 10 digits")]
+    [Required(ErrorMessage = "NIM is required")]
     public string? Nim { get; set; }
 
     public string? Nidn { get; set; }
 
-    [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Username harus mengandung huruf dan angka")]
-    [Required(ErrorMessage = "Username wajib diisi")]
+    [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Username must contain letters and numbers")]
+    [Required(ErrorMessage = "Username is required")]
     public string? Username { get; set; }
 
-    [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Password harus mengandung huruf dan angka")]
-    [Required(ErrorMessage = "Password wajib diisi")]
+    [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Passwords must contain letters and numbers")]
+    [Required(ErrorMessage = "Password is required")]
     public string? Password { get; set; }
 
-    [Required(ErrorMessage = "Posisi wajib diisi.")]
+    [Required(ErrorMessage = "Position is required")]
     public string? Position { get; set; }
 
     public virtual ICollection<TrsBooking> TrsBookingHeadMechanicNavigations { get; set; } = new List<TrsBooking>();

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
 
 @{
-    ViewData["Title"] = "Riwayat Servis";
+    ViewData["Title"] = "Service History";
     Layout = "_Layout";
 }
 
@@ -11,8 +11,8 @@
             <div class="card-body">
                 <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
-                        <li class="breadcrumb-item">Riwayat Servis</li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item">Service History</li>
                     </ol>
                 </nav>
                 @if (TempData["SuccessMessage"] != null)
@@ -29,14 +29,14 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th>Status</th>
-                                    <th>Tipe Kendaraan</th>
-                                    <th>Tanggal Booking</th>
+                                    <th>Vehicle Type</th>
+                                    <th>Booking Date</th>
                                     <th>Odometer (km)</th>
-                                    <th>Keluhan</th>
-                                    <th>Metode Servis</th>
-                                    <th>Perbaikan</th>
-                                    <th>Ganti Part</th>
-                                    <th>Tagihan</th>
+                                    <th>Problem</th>
+                                    <th>Service Method</th>
+                                    <th>Repair Description</th>
+                                    <th>Replacement Part</th>
+                                    <th>Total Billings</th>
                                     <th>Invoice</th>
                                 </tr>
                             </thead>
@@ -61,11 +61,20 @@
                                         <td>@item.RepairMethod</td>
                                         <td>@item.RepairDescription</td>
                                         <td>@item.ReplacementPart</td>
-                                        <td>@string.Format("Rp. {0:N2}", item.Price)</td>
                                         <td>
                                             @if (item.RepairStatus != "SELESAI" && item.RepairStatus != "BATAL")
                                             {
-                                                <span>Belum selesai</span>                                                
+                                                <span>Unfinished</span>
+                                            }
+                                            else
+                                            {
+                                                @string.Format("Rp. {0:N2}", (item.Price ?? 0) + (item.AdditionalPrice ?? 0) + (item.WorkingCost ?? 0))
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.RepairStatus != "SELESAI" && item.RepairStatus != "BATAL")
+                                            {
+                                                <span>Unfinished</span>
                                             }else{
                                                 <a class="btn btn-outline-primary btn-sm" asp-controller="Booking" asp-action="ExportPdf" asp-route-id="@item.IdBooking" data-toggle="tooltip" data-placement="top" title="pdf"><i class="ti ti-download"></i></a>
                                             }

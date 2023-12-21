@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "FORM TEMUAN";
+    ViewData["Title"] = "FORM SPECIAL PROBLEM";
     Layout = "_LayoutUser";
 }
 
@@ -16,12 +16,12 @@
 <form asp-action="FormSpecialHandling" method="post">
     <input type="hidden" asp-for="IdBooking" />
     <div class="mb-3">
-        <label asp-for="AdditionalReplacementPart">Tambahan Ganti Part: </label>
+        <label asp-for="AdditionalReplacementPart">Additional Replacement Part: </label>
         <textarea asp-for="AdditionalReplacementPart" class="form-control"></textarea>
         <span asp-validation-for="AdditionalReplacementPart" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="AdditionalPrice">Harga: </label>
+        <label asp-for="AdditionalPrice">Price: </label>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="price-addon">Rp.</span>
@@ -35,13 +35,13 @@
         @if (!(Model.RepairStatus == "PENDING"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Simpan Temuan!
+                Save Problem!
             </button>
         }
     </div>

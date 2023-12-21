@@ -23,7 +23,7 @@ using iText.IO.Image;
 
 
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
-
+using iText.Kernel.Pdf.Canvas.Draw;
 
 namespace ASP.NET_TEFA.Controllers
 {
@@ -98,11 +98,11 @@ namespace ASP.NET_TEFA.Controllers
             .ThenInclude(v => v.IdCustomerNavigation)
             .Where(t => t.RepairStatus != "SELESAI" && t.RepairStatus != "BATAL");
 
-            // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan pemesanan yang sudah dimulai saja
+            // Jika pengguna bukan SERVICE ADVISOR, hanya tampilkan booking milik head mechanic tertentu
             // Diurutkan berdasarkan order date terbaru
             if (user.Position != "SERVICE ADVISOR")
             {
-                query = query.Where(t => t.ServiceAdvisor != null).OrderBy(t => t.OrderDate);
+                query = query.Where(t => t.HeadMechanic == user.IdUser).OrderBy(t => t.OrderDate);
             }
 
             // Mengambil data pemesanan berdasarkan kueri dan mengurutkannya berdasarkan tanggal pesan
@@ -175,7 +175,7 @@ namespace ASP.NET_TEFA.Controllers
             if (list.Count == 0)
             {
                 ViewBag.month = monthString;
-                TempData["ErrorMessage"] = "Data pada bulan yang dipilih tidak ada!";
+                TempData["ErrorMessage"] = "There is no data for the selected month!";
                 return RedirectToAction("Report", "Booking");
             }
 
@@ -197,23 +197,24 @@ namespace ASP.NET_TEFA.Controllers
 
                 // Menambahkan baris header
                 ws.Cells["A1"].Value = "ID Booking";
-                ws.Cells["B1"].Value = "Nama Pelanggan";
-                ws.Cells["C1"].Value = "Tanggal Booking";
-                ws.Cells["D1"].Value = "Tipe Kendaraan";
-                ws.Cells["E1"].Value = "No. Polisi";
+                ws.Cells["B1"].Value = "Customer Name";
+                ws.Cells["C1"].Value = "Booking Date";
+                ws.Cells["D1"].Value = "Vehicle Type";
+                ws.Cells["E1"].Value = "Police Number";
                 ws.Cells["F1"].Value = "Odometer (km)";
-                ws.Cells["G1"].Value = "Keluhan";
-                ws.Cells["H1"].Value = "Mulai Servis";
-                ws.Cells["I1"].Value = "Selesai Servis";
-                ws.Cells["J1"].Value = "Estimasi Selesai";
-                ws.Cells["K1"].Value = "Deskripsi Perbaikan";
-                ws.Cells["L1"].Value = "Deskripsi Ganti Part";
-                ws.Cells["M1"].Value = "Tagihan";
-                ws.Cells["N1"].Value = "Evaluasi";
-                ws.Cells["O1"].Value = "Metode Servis";
-                ws.Cells["P1"].Value = "Tambahan Ganti Part";
-                ws.Cells["Q1"].Value = "Tambahan Tagihan";
-                ws.Cells["R1"].Value = "Keputusan";
+                ws.Cells["G1"].Value = "Problem";
+                ws.Cells["H1"].Value = "Start Service";
+                ws.Cells["I1"].Value = "Finish Service";
+                ws.Cells["J1"].Value = "Finish Estimation";
+                ws.Cells["K1"].Value = "Repair Description";
+                ws.Cells["L1"].Value = "Replacement Part";
+                ws.Cells["M1"].Value = "Part Price";
+                ws.Cells["N1"].Value = "Evaluation";
+                ws.Cells["O1"].Value = "Service Method";
+                ws.Cells["P1"].Value = "Additional Replacement Part";
+                ws.Cells["Q1"].Value = "Additional Price";
+                ws.Cells["R1"].Value = "Decision";
+                ws.Cells["S1"].Value = "Working Cost";
 
                 // Menambahkan baris data
                 int row = 2;
@@ -237,8 +238,8 @@ namespace ASP.NET_TEFA.Controllers
                     ws.Cells[$"O{row}"].Value = item.RepairMethod ?? "N/A";
                     ws.Cells[$"P{row}"].Value = item.AdditionalReplacementPart ?? "N/A";
                     ws.Cells[$"Q{row}"].Value = item.AdditionalPrice.ToString() ?? "N/A";
-                    ws.Cells[$"R{row}"].Value = (item.Decision == 1) ? "Ya" : "Tidak";
-
+                    ws.Cells[$"R{row}"].Value = (item.Decision == 1) ? "Yes" : "No";
+                    ws.Cells[$"S{row}"].Value = item.WorkingCost.ToString() ?? "N/A";
                     row++;
                 }
 
@@ -251,18 +252,20 @@ namespace ASP.NET_TEFA.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                TempData["ErrorMessage"] = "ID Booking tidak valid!";
+                TempData["ErrorMessage"] = "ID Booking not valid!";
                 return RedirectToAction("History", "Booking");
             }
 
             var eksportpdf = _context.TrsBookings
                 .Include(t => t.IdVehicleNavigation)
                 .ThenInclude(v => v.IdCustomerNavigation)
+                .Include(t => t.HeadMechanicNavigation)
+                .Include(t => t.ServiceAdvisorNavigation)
                 .FirstOrDefault(z => z.IdBooking == id);
 
             if(eksportpdf.RepairStatus != "SELESAI" && eksportpdf.RepairStatus != "BATAL")
             {
-                TempData["ErrorMessage"] = "Invoice belum bisa diunduh karena servis belum selesai!";
+                TempData["ErrorMessage"] = "Invoices cannot be downloaded because the service unfinished!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = id });
             }
 
@@ -300,7 +303,7 @@ namespace ASP.NET_TEFA.Controllers
                         text1.SetTextAlignment(TextAlignment.CENTER);
 
                         // Menambahkan teks "Politeknik Astra" dengan properti penataan ke tengah
-                        Text text2 = new Text("Politeknik Astra").SetFontSize(12f);
+                        Text text2 = new Text("Astra Polytechnic").SetFontSize(12f);
                         text2.SetTextAlignment(TextAlignment.CENTER);
 
                         // Membuat paragraf untuk teks dan menambahkannya ke dalam div
@@ -317,60 +320,103 @@ namespace ASP.NET_TEFA.Controllers
                         // Menambahkan elemen Paragraph ke dokumen
                         document.Add(paragraph);
 
-                        document.Add(new Paragraph($"INVOICE #{eksportpdf.IdBooking}").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER).SetFontSize(15f).SetBold());
+                        document.Add(new Paragraph($"INVOICE").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER).SetFontSize(15f).SetBold());
 
-                        Table table = new Table(2);
+                        Table table0 = new Table(2);
 
                         // Mengatur lebar kolom untuk mencapai efek 50% - 50%
-                        table.SetWidth(UnitValue.CreatePercentValue(100));
+                        table0.SetWidth(UnitValue.CreatePercentValue(100));
                         // Kolom pertama (kiri)
-                        table.AddCell(new Cell().Add(new Paragraph($"Tanggal Booking : {eksportpdf.OrderDate?.ToString("dd MMMM yyyy")}")).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"Tipe Kendaraan : {eksportpdf.IdVehicleNavigation.Classify}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Booking Date : {eksportpdf.OrderDate?.ToString("dd MMMM yyyy")}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Vehicle Type : {eksportpdf.IdVehicleNavigation.Classify}")).SetBorder(Border.NO_BORDER));
 
-                        table.AddCell(new Cell().Add(new Paragraph($"Nama Customer : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Name}")).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"No. Polisi : {eksportpdf.IdVehicleNavigation.PoliceNumber}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Customer Name : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Name}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Police Number : {eksportpdf.IdVehicleNavigation.PoliceNumber}")).SetBorder(Border.NO_BORDER));
 
-                        table.AddCell(new Cell().Add(new Paragraph($"Email : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Email}")).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"Odometer : { eksportpdf.Odometer }")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Email : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Email}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Odometer (km) : { eksportpdf.Odometer }")).SetBorder(Border.NO_BORDER));
 
-                        table.AddCell(new Cell().Add(new Paragraph($"Telp : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Phone }")).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"No. Rangka : {eksportpdf.IdVehicleNavigation.ChassisNumber }")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Telp : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Phone }")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Chassis Number : {eksportpdf.IdVehicleNavigation.ChassisNumber }")).SetBorder(Border.NO_BORDER));
 
-                        table.AddCell(new Cell().Add(new Paragraph($"Alamat : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Address }")).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph($"No. Mesin : {eksportpdf.IdVehicleNavigation.MachineNumber }")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Alamat : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Address }")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Machine Number : {eksportpdf.IdVehicleNavigation.MachineNumber }")).SetBorder(Border.NO_BORDER));
+
+                        document.Add(table0);
+
+                        SolidLine line = new SolidLine(0.1f);
+
+                        LineSeparator ls1 = new LineSeparator(line);
+                        ls1.SetWidth(500);
+                        ls1.SetMarginTop(5);
+                        ls1.SetMarginBottom(5);
+                        document.Add(ls1);
+
+                        Table table = new Table(2);
+                        table.SetWidth(UnitValue.CreatePercentValue(100));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Invoice Number : {eksportpdf.IdBooking}")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"Status : {eksportpdf.RepairStatus}")).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph($"Head Mechanic : {eksportpdf.ServiceAdvisorNavigation.FullName}")).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph($"Service Advisor : {eksportpdf.HeadMechanicNavigation.FullName}")).SetBorder(Border.NO_BORDER));
 
                         // Menambahkan tabel ke dokumen
                         document.Add(table);
 
+                        LineSeparator ls2 = new LineSeparator(line);
+                        ls2.SetWidth(500);
+                        ls2.SetMarginTop(5);
+                        ls2.SetMarginBottom(10);
+                        document.Add(ls2);
+
                         Table table2 = new Table(3);
                         table2.SetWidth(UnitValue.CreatePercentValue(100));
 
-                        if (eksportpdf.AdditionalReplacementPart == null)
-                        {
-                            table2.AddCell(new Cell().Add(new Paragraph("Perbaikan").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph("Ganti Part").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph("Harga").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.RepairDescription}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.ReplacementPart}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.Price:N2}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"Total : Rp. {eksportpdf.Price:N2}")).SetBorder(Border.NO_BORDER).SetBold());
-                        }
-                        else
-                        {
-                            table2.AddCell(new Cell().Add(new Paragraph("Perbaikan").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph("Ganti Part").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph("Harga").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
-                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.RepairDescription}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.ReplacementPart}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.Price:N2}")));
+                        table2.AddCell(new Cell().Add(new Paragraph("Service").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                        table2.AddCell(new Cell().Add(new Paragraph("Rate").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                        table2.AddCell(new Cell().Add(new Paragraph("Total Price").SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)));
+                        table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.RepairDescription}")));
+                        table2.AddCell(new Cell().Add(new Paragraph("-")));
+                        table2.AddCell(new Cell().Add(new Paragraph($"Rp. {(eksportpdf.Price ?? 0)+(eksportpdf.AdditionalPrice ?? 0)+(eksportpdf.WorkingCost ?? 0):N2}")));
 
-                            table2.AddCell(new Cell().Add(new Paragraph("Temuan")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.AdditionalReplacementPart}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($" Rp. {eksportpdf.AdditionalPrice:N2}")));
-                            table2.AddCell(new Cell().Add(new Paragraph($"Total : Rp. {eksportpdf.Price + eksportpdf.AdditionalPrice:N2}")).SetBorder(Border.NO_BORDER).SetBold());
-                        }
                         document.Add(table2);
-                        document.Add(new Paragraph("Terimakasih telah menggunakan layanan teaching factory  program studi mesin otomotif politeknik astra"));
+
+                        Table table3 = new Table(2);
+
+                        // Mengatur lebar kolom untuk mencapai efek 50% - 50%
+                        table3.SetWidth(UnitValue.CreatePercentValue(50));
+
+                        table3.AddCell(new Cell().Add(new Paragraph($"Detail Price :")).SetBorder(Border.NO_BORDER).SetBold());
+                        table3.AddCell(new Cell().Add(new Paragraph($"{null}")).SetBorder(Border.NO_BORDER));
+
+                        if (eksportpdf.ReplacementPart != null)
+                        {
+                            table3.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.ReplacementPart}")).SetBorder(Border.NO_BORDER));
+                            table3.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.Price ?? 0:N2}")).SetBorder(Border.NO_BORDER));
+                        }
+
+                        if (eksportpdf.AdditionalReplacementPart != null)
+                        {
+                            table3.AddCell(new Cell().Add(new Paragraph($"{eksportpdf.AdditionalReplacementPart}")).SetBorder(Border.NO_BORDER));
+                            table3.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.AdditionalPrice ?? 0:N2}")).SetBorder(Border.NO_BORDER));
+                        }
+
+                        if(eksportpdf.WorkingCost > 0)
+                        {
+                            table3.AddCell(new Cell().Add(new Paragraph($"Service Fee")).SetBorder(Border.NO_BORDER));
+                            table3.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.WorkingCost ?? 0:N2}")).SetBorder(Border.NO_BORDER));
+                        }
+
+                        table3.AddCell(new Cell().Add(new Paragraph($"{null}")).SetBorder(Border.NO_BORDER));
+                        table3.AddCell(new Cell().Add(new Paragraph($"{null}")).SetBorder(Border.NO_BORDER));
+
+                        table3.AddCell(new Cell().Add(new Paragraph($"Total Price :")).SetBorder(Border.NO_BORDER).SetBold());
+                        table3.AddCell(new Cell().Add(new Paragraph($"Rp. {(eksportpdf.Price ?? 0)+(eksportpdf.AdditionalPrice ?? 0)+(eksportpdf.WorkingCost ?? 0):N2}")).SetBorder(Border.NO_BORDER).SetBold());
+
+                        document.Add(table3);
+
+                        document.Add(new Paragraph("Thank you for using the teaching factory service of the astra polytechnic automotive engine study program."));
                         // Close the document
                         document.Close();
                     }
@@ -432,7 +478,7 @@ namespace ASP.NET_TEFA.Controllers
                 string authentication = HttpContext.Session.GetString("authentication");
                 MsCustomer customer = JsonConvert.DeserializeObject<MsCustomer>(authentication);
 
-                TempData["ErrorMessage"] = "Tanggal yang valid minimum H+1 dari hari ini";
+                TempData["ErrorMessage"] = "Minimum valid date H+1";
                 ViewData["IdVehicle"] = new SelectList(_context.MsVehicles.Where(c => c.IdCustomer == customer.IdCustomer), "IdVehicle", "Type");
                 return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
             }
@@ -441,7 +487,7 @@ namespace ASP.NET_TEFA.Controllers
             var countBookingToday = await _context.TrsBookings.CountAsync(t => t.OrderDate.HasValue && t.OrderDate.Value.Date == trsBooking.OrderDate);
             if (countBookingToday >= 10)
             {
-                TempData["ErrorMessage"] = "Maaf kapasitas booking hari ini sudah penuh (10 per hari)";
+                TempData["ErrorMessage"] = "Sorry, today's booking capacity is full (10 per day)";
                 return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
             }
 
@@ -449,7 +495,7 @@ namespace ASP.NET_TEFA.Controllers
             var countBookingRunning = await _context.TrsBookings.CountAsync(t => t.IdVehicle == trsBooking.IdVehicle && (t.RepairStatus != "SELESAI" && t.RepairStatus != "BATAL"));
             if (countBookingRunning > 0)
             {
-                TempData["ErrorMessage"] = "Kendaraan ini sedang diservis";
+                TempData["ErrorMessage"] = "This vehicle is being serviced";
                 return RedirectToAction(nameof(Create), new { RepairMethod = trsBooking.RepairMethod });
             }
 
@@ -467,7 +513,7 @@ namespace ASP.NET_TEFA.Controllers
             await _context.SaveChangesAsync();
 
             // Menampilkan pesan sukses ke view
-            TempData["SuccessMessage"] = "Booking berhasil!";
+            TempData["SuccessMessage"] = "Booking success!";
 
             // Mengarahkan ke halaman daftar pemesanan
             return RedirectToAction("Index", "Booking");

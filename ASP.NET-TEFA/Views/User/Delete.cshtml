@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.MsUser
 
 @{
-    ViewData["Title"] = "Apakah anda yakin ingin menonaktifkan akun ini?";
+    ViewData["Title"] = "Delete Account";
     Layout = "_LayoutUser";
 }
 
@@ -35,7 +35,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="IdUser" />
-        <button type="submit" name="deleteButton" class="btn btn-danger">Nonaktifkan</button> |
-        <a asp-action="Index">Kembali</a>
+        <button type="submit" name="deleteButton" class="btn btn-danger">Disable</button> |
+        <a asp-action="Index">Back</a>
     </form>
 </div>

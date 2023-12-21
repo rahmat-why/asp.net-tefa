@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "EVALUATION";
+    ViewData["Title"] = "PROJECT INFO";
     Layout = "_LayoutUser";
 }
 
@@ -13,16 +13,21 @@
     </div>
 }
 
-<form asp-action="FormEvaluation" method="post">
+<form asp-action="FormStartService" method="post">
     <input type="hidden" asp-for="IdBooking" />
     <div class="mb-3">
-        <label>Evaluation: </label>
-        <textarea asp-for="Evaluation" class="form-control"></textarea>
-        <span asp-validation-for="Evaluation" class="text-danger"></span>
+        <label asp-for="FinishEstimationTime">Finish Estimation: </label>
+        <input type="datetime-local" asp-for="FinishEstimationTime" class="form-control" />
+        <span asp-validation-for="FinishEstimationTime" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="HeadMechanic">Head Mechanic: </label>
+        <select asp-for="HeadMechanic" class="form-control" asp-items="ViewBag.HeadMechanic"></select>
+        <span asp-validation-for="HeadMechanic" class="text-danger"></span>
     </div>
 
     <div class="text-end">
-        @if (!(Model.RepairStatus == "EVALUASI"))
+        @if (!(Model.RepairStatus == "MENUNGGU" || Model.RepairStatus == "PERENCANAAN"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
                 Back
@@ -31,7 +36,7 @@
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Finish!
+                Continue to Planning
             </button>
         }
     </div>

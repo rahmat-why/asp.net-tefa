@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "KONTROL";
+    ViewData["Title"] = "CONTROL";
     Layout = "_LayoutUser";
 }
 
@@ -19,13 +19,13 @@
         <thead>
             <tr>
                 <th>
-                    Perbaikan
+                    Repair Description
                 </th>
                 <th>
-                    Ganti Part
+                    Replacement Part
                 </th>
                 <th>
-                    Hasil Kontrol
+                    Control Result
                 </th>
             </tr>
         </thead>
@@ -62,13 +62,13 @@
         @if (!(Model.RepairStatus == "KONTROL"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Lanjut Evaluasi!
+                Continue to Evaluation
             </button>
         }
     </div>

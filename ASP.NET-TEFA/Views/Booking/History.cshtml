@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.TrsBooking>
 
 @{
-    ViewData["Title"] = "Daftar Booking";
+    ViewData["Title"] = "Booking History";
     Layout = "_LayoutUser";
 }
 @if (TempData["ErrorMessage"] != null)
@@ -24,28 +24,28 @@
     <thead>
         <tr>
             <th>
-                Nama Customer
+                Customer Name
             </th>
             <th>
-                Tanggal Booking
+                Booking Date
             </th>
             <th>
-                Tipe Kendaraan
+                Vehicle Type
             </th>
             <th>
-                No.Polisi
+                Police Number
             </th>
             <th>
                 Odometer (km)
             </th>
             <th>
-                Keluhan
+                Problem
             </th>
             <th>
                 Status
             </th>
             <th>
-                Metode Servis
+                Service Method
             </th>
         </tr>
     </thead>
@@ -55,14 +55,14 @@
             <tr style='@((item.RepairStatus == "MENUNGGU" && item.RepairMethod == "TEFA") ? "background-color: yellow;" : (item.RepairStatus == "MENUNGGU" && item.RepairMethod == "FAST TRACK" ? "background-color: red;" : ""))'>
                 <td>
                     <span>@(item.IdVehicleNavigation?.IdCustomerNavigation?.Name ?? "-")</span>
-                    <a class="btn btn-outline-success btn-sm" data-phone="@item.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Salin nomor whatsapp"><i class="ti ti-brand-whatsapp"></i></a>
+                    <a class="btn btn-outline-success btn-sm" data-phone="@item.IdVehicleNavigation?.IdCustomerNavigation.Phone" onclick="copyPhone(this)" data-toggle="tooltip" data-placement="top" title="Copy whatsapp number"><i class="ti ti-brand-whatsapp"></i></a>
                 </td>
                 <td>
                     <span>@(item.OrderDate?.ToString("dd MMMM yyyy") ?? "-")</span>
                 </td>
                 <td>
                     @item.IdVehicleNavigation.Type
-                    <a class="btn btn-outline-primary btn-sm" asp-controller="Vehicle" asp-action="History" asp-route-id="@item.IdVehicle" data-toggle="tooltip" data-placement="top" title="Lihat riwayat kendaraan"><i class="ti ti-history"></i></a>
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Vehicle" asp-action="History" asp-route-id="@item.IdVehicle" data-toggle="tooltip" data-placement="top" title="View vehicle history"><i class="ti ti-history"></i></a>
                 </td>
                 <td>
                     @item.IdVehicleNavigation.PoliceNumber
@@ -79,9 +79,9 @@
                 <td>
                     @if(item.RepairStatus == "MENUNGGU")
                     {
-                        <form asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@item.IdBooking" method="post" onsubmit="return confirm('Apakah anda yakin untuk memulai servis ini?');">
-                            <input type="submit" value="@item.RepairMethod" style="background: none; border: none; color: blue; cursor: pointer; text-decoration: none;">
-                        </form>
+                        <a asp-controller="Reparation" asp-action="FormStartService" asp-route-IdBooking="@item.IdBooking">
+                            @item.RepairMethod
+                        </a>
                     }
                     else
                     {

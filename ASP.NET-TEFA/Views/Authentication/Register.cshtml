@@ -16,7 +16,7 @@
                     </span>
                     <h5 class="text-center"><b>TEACHING FACTORY<br />MESIN OTOMOTIF</b></h5>
                     <p class="text-center">
-                        Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
+                        Practical process of vehicle repair with Automotive Engineering Student
                     </p>
                     @if (TempData["ErrorMessage"] != null)
                     {
@@ -33,22 +33,22 @@
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
                             <input type="email" class="form-control" asp-for="Email" aria-describedby="emailHelp" required>
-                            <div id="emailHelp" class="form-text">Contoh: email@gmail.com</div>
+                            <div id="emailHelp" class="form-text">Example: email@gmail.com</div>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Nama Lengkap Anda</label>
+                            <label asp-for="Name" class="form-label">Full Name</label>
                             <input type="text" class="form-control" asp-for="Name" aria-describedby="fullNameHelp" required>
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label asp-for="Phone" class="form-label">No Telepon/Whatsapp</label>
+                            <label asp-for="Phone" class="form-label">Phone/Whatsapp Number</label>
                             <input type="number" class="form-control" asp-for="Phone" aria-describedby="phoneNumberHelp" required>
                             <div id="phoneNumberHelp" class="form-text">Contoh: 08123456789</div>
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
                         <div class="mb-4">
-                            <label asp-for="Address" class="form-label">Alamat Lengkap</label>
+                            <label asp-for="Address" class="form-label">Address</label>
                             <textarea class="form-control" asp-for="Address" aria-describedby="addressHelp" required></textarea>
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
@@ -56,8 +56,8 @@
                             Daftar
                         </button>
                         <div class="d-flex align-items-center justify-content-center">
-                            <p class="fs-4 mb-0 fw-bold">Sudah memiliki akun?</p>
-                            <a class="text-primary fw-bold ms-2" asp-action="Login">Login disini.</a>
+                            <p class="fs-4 mb-0 fw-bold">Already have account?</p>
+                            <a class="text-primary fw-bold ms-2" asp-action="Login">Login here.</a>
                         </div>
                     </form>
                     <p class="text-center mt-5">

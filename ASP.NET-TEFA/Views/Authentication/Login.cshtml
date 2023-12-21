@@ -18,7 +18,7 @@
                     </span>
                     <h5 class="text-center"><b>TEACHING FACTORY<br />MESIN OTOMOTIF</b></h5>
                     <p class="text-center">
-                        Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
+                        Practical process of vehicle repair with Automotive Engineering Student
                     </p>
                     @if (TempData["ErrorMessage"] != null)
                     {
@@ -35,15 +35,15 @@
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
                             <input type="email" class="form-control" asp-for="Email" aria-describedby="emailHelp" required>
-                            <div id="emailHelp" class="form-text">Contoh: email@gmail.com</div>
+                            <div id="emailHelp" class="form-text">Example: email@gmail.com</div>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">
                             Login
                         </button>
                         <div class="d-flex align-items-center justify-content-center">
-                            <p class="fs-4 mb-0 fw-bold">Belum punya akun?</p>
-                            <a class="text-primary fw-bold ms-2" asp-action="Register">Daftar disini.</a>
+                            <p class="fs-4 mb-0 fw-bold">Don't have account yet?</p>
+                            <a class="text-primary fw-bold ms-2" asp-action="Register">Register here.</a>
                         </div>
                     </form>
                 </div>

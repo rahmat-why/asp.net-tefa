@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.MsVehicle
 
 @{
-    ViewData["Title"] = "Hapus Kendaraan";
+    ViewData["Title"] = "Delete Vehicle";
     Layout = "_Layout";
 }
 
@@ -11,9 +11,9 @@
             <div class="card-body">
                 <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
-                        <li class="breadcrumb-item"><a asp-controller="Vehicle" asp-action="Index">Data Kendaraan</a></li>
-                        <li class="breadcrumb-item">Hapus</li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Vehicle" asp-action="Index">Vehicle Data</a></li>
+                        <li class="breadcrumb-item">Delete</li>
                     </ol>
                 </nav>
                 <!-- Loading Spinner -->
@@ -22,49 +22,49 @@
                 </div>
                 <dl class="g-3 row mt-2">
                     <dt class = "col-sm-6">
-                        Tipe Kendaraan:
+                        Vehicle Type:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.Type)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Klasifikasi:
+                        Classify:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.Classify)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        No. Polisi:
+                        Police Number:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.PoliceNumber)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Warna:
+                        Color:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.Color)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Tahun:
+                        Year:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.Year)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Nama Pemilik:
+                        Owner Name:
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.VehicleOwner)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Nomor Rangka:
+                        Chassis Number
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
                     </dd>
                     <dt class = "col-sm-6">
-                        Nomor Mesin:
+                        Machine Number
                     </dt>
                     <dd class = "col-sm-6">
                         <b>@Html.DisplayFor(model => model.MachineNumber)</b>
@@ -73,7 +73,7 @@
                 <form asp-action="Delete">
                     <input type="hidden" asp-for="IdVehicle" />
                     <input type="submit" value="Delete" class="btn btn-danger" /> |
-                    <a asp-action="Index">Kembali</a>
+                    <a asp-action="Index">Back</a>
                 </form>
             </div>
         </div>

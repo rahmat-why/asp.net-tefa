@@ -38,7 +38,7 @@ namespace ASP.NET_TEFA.Controllers
             // Memeriksa status pemesanan dan memberikan pesan jika tidak sesuai kondisi
             if (!(trsBooking.RepairStatus == "INSPECTION LIST" || trsBooking.RepairStatus == "EKSEKUSI"))
             {
-                TempData["ErrorMessage"] = "Inspection list harus dilakukan setelah kontrol atau sebelum eksekusi!";
+                TempData["ErrorMessage"] = "Inspection list must be done after control or before execution!";
             }
 
             // Mengambil daftar pemeriksaan terkait dengan pemesanan
@@ -76,7 +76,7 @@ namespace ASP.NET_TEFA.Controllers
             // Memeriksa status pemesanan dan memberikan pesan jika tidak sesuai kondisi
             if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI"))
             {
-                TempData["ErrorMessage"] = "Inspection list harus dilakukan setelah kontrol atau sebelum eksekusi!";
+                TempData["ErrorMessage"] = "Inspection list must be done after control or before execution!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
             }
 
@@ -139,7 +139,7 @@ namespace ASP.NET_TEFA.Controllers
             _context.SaveChanges();
 
             // Menyimpan pesan sukses untuk ditampilkan pada tampilan berikutnya
-            TempData["SuccessMessage"] = "Inspection list berhasil! Tahapan berlanjut ke inspection list!";
+            TempData["SuccessMessage"] = "Inspection list successful! The stage continues to the inspection list!";
 
             // Mengarahkan pengguna kembali ke halaman utama Reparasi dengan membawa ID booking
             return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });

@@ -32,7 +32,7 @@ namespace ASP.NET_TEFA.Controllers
             //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan sebelum keputusan
             if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
             {
-                TempData["ErrorMessage"] = "Pending hanya dapat dilakukan saat eksekusi!";
+                TempData["ErrorMessage"] = "Pending can only be done during execution!";
             }
 
             // Jika pemesanan tidak ditemukan, kembalikan NotFound
@@ -71,13 +71,13 @@ namespace ASP.NET_TEFA.Controllers
             //validasi untuk mengingatkan agar perencanaan harus terlebih dahulu dilakukan sebelum keputusan
             if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI" || booking.RepairStatus == "KONTROL"))
             {
-                TempData["ErrorMessage"] = "Pending hanya dapat dilakukan saat eksekusi!";
+                TempData["ErrorMessage"] = "Pending can only be done during execution!";
                 return RedirectToAction("Index", "Reparation", new { idBooking = booking.IdBooking });
             }
 
             if(trsPending.Reason == null)
             {
-                TempData["ErrorMessage"] = "Alasan pending harus diisi!";
+                TempData["ErrorMessage"] = "Reason is required!";
                 return RedirectToAction("Index", "Pending", new { idBooking = booking.IdBooking });
             }
 
@@ -151,7 +151,7 @@ namespace ASP.NET_TEFA.Controllers
             _context.Update(booking);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Servis berhasil dilanjutkan dengan estimasi selesai hingga: "+NewFinishEstimationTime.ToString("dd MMMM yyyy - HH:mm")+"!";
+            TempData["SuccessMessage"] = "The service was successfully resumed with an estimated completion of up to: "+NewFinishEstimationTime.ToString("dd MMMM yyyy - HH:mm")+"!";
 
             return RedirectToAction("Index", "Reparation", new { idBooking = pending.IdBooking });
         }

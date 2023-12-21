@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.MsVehicle
 
 @{
-    ViewData["Title"] = "Riwayat Kendaraan";
+    ViewData["Title"] = "Vehicle History";
     Layout = "_LayoutUser";
 }
 
@@ -11,38 +11,38 @@
             <div class="col-sm-6">
                 <dl>
                     <dt>
-                        Tipe Kendaraan: <b> @Html.DisplayFor(model => model.Type)</b>
+                        Vehicle Type: <b> @Html.DisplayFor(model => model.Type)</b>
                     </dt>
                     <dt>
-                        Klasifikasi: <b> @Html.DisplayFor(model => model.Classify)</b>
+                        Classify: <b> @Html.DisplayFor(model => model.Classify)</b>
                     </dt>
                     <dt>
-                        No. Polisi: <b> @Html.DisplayFor(model => model.PoliceNumber)</b>
+                        Police Number: <b> @Html.DisplayFor(model => model.PoliceNumber)</b>
                     </dt>
                     <dt>
-                        Warna: <b> @Html.DisplayFor(model => model.Color)</b>
+                        Color: <b> @Html.DisplayFor(model => model.Color)</b>
                     </dt>
                     <dt>
-                        Tahun: <b> @Html.DisplayFor(model => model.Year)</b>
+                        Year: <b> @Html.DisplayFor(model => model.Year)</b>
                     </dt>
                 </dl>
             </div>
             <div class="col-sm-6">
                 <dl>
                     <dt>
-                        Nama Pemilik: <b> @Html.DisplayFor(model => model.VehicleOwner)</b>
+                        Vehicle Owner: <b> @Html.DisplayFor(model => model.VehicleOwner)</b>
                     </dt>
                     <dt>
-                        Nomor Rangka: <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
+                        Chassis Number: <b>@Html.DisplayFor(model => model.ChassisNumber)</b>
                     </dt>
                     <dt>
-                        Nomor Mesin: <b> @Html.DisplayFor(model => model.MachineNumber)</b>
+                        Machine Number: <b> @Html.DisplayFor(model => model.MachineNumber)</b>
                     </dt>
                     <dt>
-                        Nama Customer: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Name)</b>
+                        Customer Name: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Name)</b>
                     </dt>
                     <dt>
-                        Alamat Lengkap: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Address)</b>
+                        Address: <b>@Html.DisplayFor(model => model.IdCustomerNavigation.Address)</b>
                     </dt>
                 </dl>
             </div>
@@ -53,9 +53,9 @@
     <table class="table">
         <thead class="thead-dark">
             <tr>
-                <th>Tanggal Booking</th>
+                <th>Booking Date</th>
                 <th>Odometer (km)</th>
-                <th>Keluhan</th>
+                <th>Problem</th>
             </tr>
         </thead>
         <tbody>

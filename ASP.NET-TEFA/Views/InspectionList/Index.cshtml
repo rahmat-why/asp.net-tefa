@@ -24,19 +24,19 @@
             <thead>
                 <tr>
                     <th>
-                        Kelengkapan
+                        Equipment
                     </th>
                     <th>
-                        Masuk
+                        In
                     </th>
                     <th>
-                        Keluar
+                        Out
                     </th>
                     <th>
                         Std
                     </th>
                     <th>
-                        Keterangan
+                        Description
                     </th>
                 </tr>
             </thead>
@@ -83,25 +83,25 @@
     @if (@booking.StartRepairTime != null)
     {
         <p>
-            Servis ini sudah dimulai pada <b>@booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.
+            This service has started on <b>@booking.StartRepairTime.Value.ToString("dd MMMM yyyy - HH:mm")</b>.
         </p>
     }
     else
     {
-        <p>Servis ini akan dimulai pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
+        <p>This service will start on <b>@currentDatetime</b>. Are you sure?</p>
     }
     
     <div class="text-end">
         @if (!(booking.RepairStatus == "INSPECTION LIST" || booking.RepairStatus == "EKSEKUSI") || (booking.StartRepairTime != null && booking.IdVehicleNavigation.Classify == "MOTOR"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@ViewBag.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Mulai Eksekusi!
+                Start Execution!
             </button>
         }
     </div>

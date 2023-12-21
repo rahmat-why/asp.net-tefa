@@ -36,7 +36,7 @@ namespace ASP.NET_TEFA.Controllers
             var user = _context.MsUsers.FirstOrDefault(c => c.Username == msUser.Username);
             if (user == null || string.IsNullOrEmpty(user.Password))
             {
-                TempData["ErrorMessage"] = "Username atau password salah!";
+                TempData["ErrorMessage"] = "Incorrect username or password!";
                 return RedirectToAction("Login");
             }
 
@@ -44,7 +44,7 @@ namespace ASP.NET_TEFA.Controllers
             bool verified = _email.verifyPassword(msUser.Password, user.Password);
             if(!verified)
             {
-                TempData["ErrorMessage"] = "Username atau password salah!";
+                TempData["ErrorMessage"] = "Incorrect username or password!";
                 return RedirectToAction("Login");
             }
 
@@ -102,8 +102,8 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan validasi Password wajib diisi
-                    if (!(error.ErrorMessage.Contains("Password wajib diisi") || 
-                        error.ErrorMessage.Contains("The IdUser field is required.")))
+                    if (!(error.ErrorMessage.Contains("Password") || 
+                        error.ErrorMessage.Contains("IdUser")))
                     {
                         Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                         ModelIsValid = false;
@@ -118,7 +118,7 @@ namespace ASP.NET_TEFA.Controllers
                 var user = await _context.MsUsers.Where(t => t.Username == msUser.Username).ToListAsync();
                 if (user.Count > 0)
                 {
-                    TempData["ErrorMessage"] = "Username sudah digunakan!";
+                    TempData["ErrorMessage"] = "Username already used!";
                     return View(msUser);
                 }
 
@@ -126,7 +126,7 @@ namespace ASP.NET_TEFA.Controllers
                 var pw = await _context.MsUsers.Where(t => t.Nim == msUser.Nim).ToListAsync();
                 if (pw.Count > 0)
                 {
-                    TempData["ErrorMessage"] = "NIM sudah digunakan!";
+                    TempData["ErrorMessage"] = "NIM already used!";
                     return View(msUser);
                 }
 
@@ -141,7 +141,7 @@ namespace ASP.NET_TEFA.Controllers
                 // Tambahkan pengguna ke database
                 _context.Add(msUser);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Data berhasil disimpan!";
+                TempData["SuccessMessage"] = "Data successfully saved!";
                 return RedirectToAction("Index", "User");
             }
 
@@ -186,7 +186,7 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan validasi Password wajib diisi
-                    if (!(error.ErrorMessage.Contains("Password wajib diisi")))
+                    if (!(error.ErrorMessage.Contains("Password")))
                     {
                         Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                         ModelIsValid = false;
@@ -210,7 +210,7 @@ namespace ASP.NET_TEFA.Controllers
                 var pw = await _context.MsUsers.Where(t => t.Nim == msUser.Nim && t.IdUser != msUser.IdUser).ToListAsync();
                 if (pw.Count > 0)
                 {
-                    TempData["ErrorMessage"] = "NIM sudah digunakan!";
+                    TempData["ErrorMessage"] = "NIM already used!";
                     return View(msUser);
                 }
 
@@ -229,7 +229,7 @@ namespace ASP.NET_TEFA.Controllers
                 await _context.SaveChangesAsync();
 
                 // Menampilkan pesan sukses ke view
-                TempData["SuccessMessage"] = "Data berhasil diubah!";
+                TempData["SuccessMessage"] = "Data successfully updated!";
 
                 // Redirect ke halaman Index
                 return RedirectToAction(nameof(Index));

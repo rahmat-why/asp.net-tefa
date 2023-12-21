@@ -51,6 +51,8 @@ public partial class TrsBooking
 
     public int? Decision { get; set; }
 
+    public int? WorkingCost { get; set; }
+
     public virtual MsUser? HeadMechanicNavigation { get; set; }
 
     public virtual MsVehicle IdVehicleNavigation { get; set; } = null!;

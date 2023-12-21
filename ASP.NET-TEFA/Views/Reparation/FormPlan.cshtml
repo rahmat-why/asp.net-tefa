@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "PERENCANAAN";
+    ViewData["Title"] = "PLANNING";
     Layout = "_LayoutUser";
 }
 
@@ -16,17 +16,17 @@
 <form asp-action="FormPlan" method="post">
     <input type="hidden" asp-for="IdBooking" />
     <div class="mb-3">
-        <label asp-for="RepairDescription">Perbaikan: </label>
+        <label asp-for="RepairDescription">Repair Description: </label>
         <textarea asp-for="RepairDescription" class="form-control"></textarea>
         <span asp-validation-for="RepairDescription" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="ReplacementPart">Ganti Part: </label>
+        <label asp-for="ReplacementPart">Replacement Part: </label>
         <textarea asp-for="ReplacementPart" class="form-control"></textarea>
         <span asp-validation-for="ReplacementPart" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="Price">Harga: </label>
+        <label asp-for="Price">Price: </label>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="price-addon">Rp.</span>
@@ -36,22 +36,27 @@
         <span asp-validation-for="Price" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="FinishEstimationTime">Estimasi Selesai: </label>
-        <input type="datetime-local" asp-for="FinishEstimationTime" class="form-control" />
-        <span asp-validation-for="FinishEstimationTime" class="text-danger"></span>
+        <label asp-for="WorkingCost">Service Fee: </label>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="price-addon">Rp.</span>
+            </div>
+            <input asp-for="WorkingCost" class="form-control" aria-describedby="price-addon">
+        </div>
+        <span asp-validation-for="WorkingCost" class="text-danger"></span>
     </div>
     
     <div class="text-end">
         @if (!(Model.RepairStatus == "PERENCANAAN" || Model.RepairStatus == "KEPUTUSAN"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Lanjut Keputusan!
+                Continue to Decision!
             </button>
         }
     </div>

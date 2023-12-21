@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.MsVehicle
 
 @{
-    ViewData["Title"] = "Edit Kendaraan";
+    ViewData["Title"] = "Edit Vehicle";
     Layout = "_Layout";
 }
 
@@ -11,8 +11,8 @@
             <div class="card-body">
                 <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
-                        <li class="breadcrumb-item"><a asp-controller="Vehicle" asp-action="Index">Data Kendaraan</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Vehicle" asp-action="Index">Vehicle Data</a></li>
                         <li class="breadcrumb-item">Edit</li>
                     </ol>
                 </nav>
@@ -32,56 +32,56 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="IdVehicle" />
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="Type" class="control-label">Tipe Kendaraan</label>
+                            <label asp-for="Type" class="control-label">Vehicle Type</label>
                             <input asp-for="Type" class="form-control" />
-                            <div id="typeHelp" class="form-text">Contoh: Honda Beat 125</div>
+                            <div id="typeHelp" class="form-text">Example: Honda Beat 125</div>
                             <span asp-validation-for="Type" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="Classify" class="control-label">Jenis</label>
+                            <label asp-for="Classify" class="control-label">Classify</label>
                             <select asp-for="Classify" class="form-control">
-                                <option value="MOTOR">Motor</option>
-                                <option value="MOBIL">Mobil</option>
+                                <option value="MOTOR">MOTORCYCLE</option>
+                                <option value="MOBIL">CAR</option>
                             </select>
                             <span asp-validation-for="Classify" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="PoliceNumber" class="control-label">Plat Nomor</label>
+                            <label asp-for="PoliceNumber" class="control-label">Police Number</label>
                             <input asp-for="PoliceNumber" class="form-control" />
-                            <div id="policeNumberHelp" class="form-text">Contoh: B 1234 ABC</div>
+                            <div id="policeNumberHelp" class="form-text">Example: B 1234 ABC</div>
                             <span asp-validation-for="PoliceNumber" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="Color" class="control-label">Warna</label>
+                            <label asp-for="Color" class="control-label">Color</label>
                             <input asp-for="Color" class="form-control" />
                             <span asp-validation-for="Color" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="Year" class="control-label">Tahun</label>
+                            <label asp-for="Year" class="control-label">Year</label>
                             <input asp-for="Year" class="form-control" />
                             <span asp-validation-for="Year" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="VehicleOwner" class="control-label">Nama Pemilik</label>
+                            <label asp-for="VehicleOwner" class="control-label">Owner Name</label>
                             <input asp-for="VehicleOwner" class="form-control" />
                             <span asp-validation-for="VehicleOwner" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="ChassisNumber" class="control-label">No. Rangka (opsional)</label>
+                            <label asp-for="ChassisNumber" class="control-label">Chassis Number (optional)</label>
                             <input asp-for="ChassisNumber" class="form-control" />
-                            <div id="policeNumberHelp" class="form-text">Silahkan lihat di STNK anda</div>
+                            <div id="policeNumberHelp" class="form-text">Look at your STNK</div>
                             <span asp-validation-for="ChassisNumber" class="text-danger"></span>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
-                            <label asp-for="MachineNumber" class="control-label">No. Mesin (opsional)</label>
+                            <label asp-for="MachineNumber" class="control-label">Machine Number (optional)</label>
                             <input asp-for="MachineNumber" class="form-control" />
-                            <div id="policeNumberHelp" class="form-text">Silahkan lihat di STNK anda</div>
+                            <div id="policeNumberHelp" class="form-text">Look at your STNK</div>
                             <span asp-validation-for="MachineNumber" class="text-danger"></span>
                         </div>
                         <input type="hidden" asp-for="IdCustomer" />
                     </div>
                     <hr />
-                    <button type="submit" class="btn btn-primary mb-2">Simpan</button>
+                    <button type="submit" class="btn btn-primary mb-2">Save</button>
                 </form>
             </div>
         </div>

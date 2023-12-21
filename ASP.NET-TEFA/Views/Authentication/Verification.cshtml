@@ -16,7 +16,7 @@
                     </span>
                     <h5 class="text-center"><b>TEACHING FACTORY<br />MESIN OTOMOTIF</b></h5>
                     <p class="text-center">
-                        Proses praktik perbaikan kendaraan Mahasiswa Mesin Otomotif
+                        Practical process of vehicle repair with Automotive Engineering Student
                     </p>
                     @if (TempData["SuccessMessage"] != null)
                     {
@@ -41,14 +41,14 @@
                             <label asp-for="Password" class="form-label">OTP</label>
                             <input type="number" class="form-control" asp-for="Password" aria-describedby="otpHelp">
                             <span asp-validation-for="Password" class="text-danger"></span>
-                            <div id="otpHelp" class="form-text">OTP sudah dikirim ke email: <b>@TempData["Email"]</b></div>
+                            <div id="otpHelp" class="form-text">OTP already sent to email: <b>@TempData["Email"]</b></div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fs-4 mb-4 rounded-2">
-                            Verifikasi
+                            Verify
                         </button>
                         <div class="d-flex align-items-center justify-content-center">
-                            <p class="fs-4 mb-0 fw-bold">Tidak menerima OTP?</p>
-                            <a class="text-primary fw-bold ms-2" asp-action="Login">Kirim ulang OTP.</a>
+                            <p class="fs-4 mb-0 fw-bold">Not receiving OTP?</p>
+                            <a class="text-primary fw-bold ms-2" asp-action="Login">Resend OTP.</a>
                         </div>
                     </form>
                 </div>

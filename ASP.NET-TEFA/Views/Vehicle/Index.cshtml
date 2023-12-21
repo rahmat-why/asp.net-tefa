@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<ASP.NET_TEFA.Models.MsVehicle>
 
 @{
-    ViewData["Title"] = "Data Kendaraan";
+    ViewData["Title"] = "Vehicle Data";
 }
 
 <div class="position-relative overflow-hidden d-flex align-items-center justify-content-center">
@@ -10,12 +10,12 @@
             <div class="card-body">
                 <nav aria-label="breadcrumb" class="bg-light p-3 mt-2">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Beranda</a></li>
-                        <li class="breadcrumb-item">Data Kendaraan</li>
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item">Vehicle Data</li>
                     </ol>
                 </nav>
                 <p class="mt-2">
-                    <a asp-action="Create" class="btn btn-primary m-1">Tambah Kendaraan</a>
+                    <a asp-action="Create" class="btn btn-primary m-1">Create</a>
                 </p>
                 <div class="card">
                     @if (TempData["SuccessMessage"] != null)
@@ -29,15 +29,15 @@
                         <table class="table table-bordered table-hover">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th>Tipe</th>
-                                    <th>Jenis</th>
-                                    <th>No.Polisi</th>
-                                    <th>Warna</th>
-                                    <th>Tahun</th>
-                                    <th>Nama Pemilik</th>
-                                    <th>No.Rangka</th>
-                                    <th>No.Mesin</th>
-                                    <th>Aksi</th>
+                                    <th>Vehicle Type</th>
+                                    <th>Classify</th>
+                                    <th>Police Number</th>
+                                    <th>Color</th>
+                                    <th>Year</th>
+                                    <th>Owner Name</th>
+                                    <th>Chassis Number</th>
+                                    <th>Machine Number</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -70,7 +70,7 @@
                                         </td>
                                         <td>
                                             <a asp-action="Edit" asp-route-id="@item.IdVehicle">Edit</a> |
-                                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Hapus</a>
+                                            <a asp-action="Delete" asp-route-id="@item.IdVehicle">Delete</a>
                                         </td>
                                     </tr>
                                 }

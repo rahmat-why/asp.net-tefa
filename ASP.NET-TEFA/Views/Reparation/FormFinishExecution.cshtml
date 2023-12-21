@@ -1,7 +1,7 @@
 ﻿@model ASP.NET_TEFA.Models.TrsBooking
 
 @{
-    ViewData["Title"] = "SELESAI EKSEKUSI";
+    ViewData["Title"] = "FINISH EXECUTION";
     Layout = "_LayoutUser";
     string currentDatetime = DateTime.Now.ToString("dd MMMM yyyy - HH:mm");
 }
@@ -16,7 +16,7 @@
         </div>
     }
     
-    <p>Servis ini akan diselesaikan pada <b>@currentDatetime</b>. Apakah anda yakin?</p>
+    <p>This service will be completed at <b>@currentDatetime</b>. Are you sure?</p>
 
     <div class="text-end">
         <a asp-controller="InspectionList" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-dark mb-4 ms-auto">
@@ -25,13 +25,13 @@
         @if (!(Model.RepairStatus == "EKSEKUSI"))
         {
             <a asp-controller="Reparation" asp-action="Index" asp-route-IdBooking="@Model.IdBooking" class="btn btn-outline-primary mb-4 ms-auto">
-                Kembali
+                Back
             </a>
         }
         else
         {
             <button type="submit" class="btn btn-primary mb-4 ms-auto">
-                Selesai!
+                Continue to Control!
             </button>
         }
     </div>

@@ -42,10 +42,7 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan error tertentu berdasarkan nama field
-                    if (!(error.ErrorMessage.Contains("Nama Customer") ||
-                        error.ErrorMessage.Contains("Alamat Lengkap") ||
-                        error.ErrorMessage.Contains("No Telepon") ||
-                        error.ErrorMessage.Contains("IdCustomer")))
+                    if (!(error.ErrorMessage.Contains("IdCustomer")))
                     {
                         Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                         ModelIsValid = false;
@@ -65,7 +62,7 @@ namespace ASP.NET_TEFA.Controllers
                 var customer = _context.MsCustomers.FirstOrDefault(c => c.Email == msCustomer.Email);
                 if (customer != null)
                 {
-                    TempData["ErrorMessage"] = "Email sudah terdaftar!";
+                    TempData["ErrorMessage"] = "Email already registered";
                     return View(msCustomer);
                 }
 
@@ -86,7 +83,7 @@ namespace ASP.NET_TEFA.Controllers
                 await _context.SaveChangesAsync();
 
                 // Menampilkan pesan sukses ke view
-                TempData["SuccessMessage"] = "Registrasi berhasil!";
+                TempData["SuccessMessage"] = "Register success";
 
                 // Simpan email & otp ke sesi
                 HttpContext.Session.SetString("email", msCustomer.Email);
@@ -112,9 +109,9 @@ namespace ASP.NET_TEFA.Controllers
                 foreach (var error in value.Errors)
                 {
                     // Mengecualikan error tertentu berdasarkan nama field
-                    if (!(error.ErrorMessage.Contains("Nama Customer") ||
-                        error.ErrorMessage.Contains("Alamat Lengkap") ||
-                        error.ErrorMessage.Contains("No Telepon") ||
+                    if (!(error.ErrorMessage.Contains("Customer name") ||
+                        error.ErrorMessage.Contains("Address") ||
+                        error.ErrorMessage.Contains("Phone") ||
                         error.ErrorMessage.Contains("IdCustomer")))
                     {
                         ModelIsValid = false;
@@ -129,7 +126,7 @@ namespace ASP.NET_TEFA.Controllers
 
                 if (customer == null)
                 {
-                    TempData["ErrorMessage"] = "Email belum terdaftar!";
+                    TempData["ErrorMessage"] = "Email not registered";
                     return RedirectToAction("Login");
                 }
 
@@ -176,7 +173,7 @@ namespace ASP.NET_TEFA.Controllers
             // Memeriksa apakah OTP yang dimasukkan oleh pengguna sesuai dengan OTP yang dikirimkan
             if (otp != msCustomer.Password)
             {
-                TempData["ErrorMessage"] = "OTP tidak valid!";
+                TempData["ErrorMessage"] = "OTP invalid";
                 TempData["Email"] = email;
                 return RedirectToAction("Verification");
             }
