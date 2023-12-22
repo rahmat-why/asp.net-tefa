@@ -328,7 +328,7 @@ namespace ASP.NET_TEFA.Controllers
                         table0.SetWidth(UnitValue.CreatePercentValue(100));
                         // Kolom pertama (kiri)
                         table0.AddCell(new Cell().Add(new Paragraph($"Booking Date : {eksportpdf.OrderDate?.ToString("dd MMMM yyyy")}")).SetBorder(Border.NO_BORDER));
-                        table0.AddCell(new Cell().Add(new Paragraph($"Vehicle Type : {eksportpdf.IdVehicleNavigation.Classify}")).SetBorder(Border.NO_BORDER));
+                        table0.AddCell(new Cell().Add(new Paragraph($"Vehicle Type : {eksportpdf.IdVehicleNavigation.Type}")).SetBorder(Border.NO_BORDER));
 
                         table0.AddCell(new Cell().Add(new Paragraph($"Customer Name : {eksportpdf.IdVehicleNavigation.IdCustomerNavigation.Name}")).SetBorder(Border.NO_BORDER));
                         table0.AddCell(new Cell().Add(new Paragraph($"Police Number : {eksportpdf.IdVehicleNavigation.PoliceNumber}")).SetBorder(Border.NO_BORDER));
@@ -408,8 +408,8 @@ namespace ASP.NET_TEFA.Controllers
                             table3.AddCell(new Cell().Add(new Paragraph($"Rp. {eksportpdf.WorkingCost ?? 0:N2}")).SetBorder(Border.NO_BORDER));
                         }
 
-                        table3.AddCell(new Cell().Add(new Paragraph($"{null}")).SetBorder(Border.NO_BORDER));
-                        table3.AddCell(new Cell().Add(new Paragraph($"{null}")).SetBorder(Border.NO_BORDER));
+                        table3.AddCell(new Cell().Add(new Paragraph($"PPN")).SetBorder(Border.NO_BORDER));
+                        table3.AddCell(new Cell().Add(new Paragraph($"Rp. 0")).SetBorder(Border.NO_BORDER));
 
                         table3.AddCell(new Cell().Add(new Paragraph($"Total Price :")).SetBorder(Border.NO_BORDER).SetBold());
                         table3.AddCell(new Cell().Add(new Paragraph($"Rp. {(eksportpdf.Price ?? 0)+(eksportpdf.AdditionalPrice ?? 0)+(eksportpdf.WorkingCost ?? 0):N2}")).SetBorder(Border.NO_BORDER).SetBold());
